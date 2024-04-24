@@ -1,49 +1,68 @@
 package app.restman.api.controllers;
 
-import app.restman.api.entities.OrderEntity;
+import app.restman.api.DTOs.OrderDTO;
+import app.restman.api.entities.Order;
+import app.restman.api.services.OrderService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
+@RestController
+@RequestMapping("orders")
 public class OrderController {
+    private final OrderService orderService;
 
-    private static List<OrderEntity> orders = new ArrayList<>();
-
-    @PostMapping("/add")
-    public void createOrder(@RequestBody OrderEntity order) {
-        orders.add(order);
+    @Autowired
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
     }
 
     @GetMapping("/getAll")
-    public List<OrderEntity> getAllOrders() {
-        return orders;
+    public ResponseEntity<List<Order>> getAllOrders() {
+        List<Order> orders = orderService.getAllOrders();
+        return ResponseEntity.ok(orders);
     }
 
     @GetMapping("/{orderId}")
-    public OrderEntity getOrderById(@PathVariable String orderId) {
-        for (OrderEntity order : orders) {
-            if (order.getOrderId().equals(orderId)) {
-                return order;
-            }
+    public ResponseEntity<Order> getOrderById(@PathVariable String orderId) {
+        Order order = orderService.getOrderById(orderId);
+        if (order != null) {
+            return ResponseEntity.ok(order);
+        } else {
+            return ResponseEntity.notFound().build();
         }
-        return null; // Or throw an exception if order not found
+    }
+
+    @PostMapping
+    public ResponseEntity<String> createOrder(@RequestBody OrderDTO orderDTO) {
+        try {
+            Order order = orderService.createOrder(orderDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Order created successfully with ID: " + order.getOrderId());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @PutMapping("/{orderId}")
-    public void updateOrder(@PathVariable String orderId, @RequestBody OrderEntity updatedOrder) {
-        for (int i = 0; i < orders.size(); i++) {
-            OrderEntity order = orders.get(i);
-            if (order.getOrderId().equals(orderId)) {
-                orders.set(i, updatedOrder);
-                return;
-            }
+    public ResponseEntity<String> updateOrder(@PathVariable String orderId, @RequestBody OrderDTO updatedOrderDTO) {
+        try {
+            orderService.updateOrder(orderId, updatedOrderDTO);
+            return ResponseEntity.ok("Order updated successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
-        // If order with the given ID is not found, you can throw an exception or handle it as needed
     }
 
     @DeleteMapping("/{orderId}")
-    public void deleteOrder(@PathVariable String orderId) {
-        orders.removeIf(order -> order.getOrderId().equals(orderId));
+    public ResponseEntity<String> deleteOrder(@PathVariable String orderId) {
+        try {
+            orderService.deleteOrder(orderId);
+            return ResponseEntity.ok("Order deleted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 }

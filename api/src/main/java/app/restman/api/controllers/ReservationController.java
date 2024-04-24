@@ -1,59 +1,69 @@
 package app.restman.api.controllers;
 
-import app.restman.api.entities.ReservationEntity;
+import app.restman.api.DTOs.ReservationDTO;
+import app.restman.api.entities.Reservation;
+import app.restman.api.services.ReservationService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("reservations")
 public class ReservationController {
 
-    private static List<ReservationEntity> reservations = new ArrayList<>();
+    private final ReservationService reservationService;
 
-    @PostMapping("/add")
-    public void createReservation(@RequestBody ReservationEntity reservation) {
-        reservations.add(reservation);
+    @Autowired
+    public ReservationController(ReservationService reservationService) {
+        this.reservationService = reservationService;
+    }
+
+    @PostMapping
+    public ResponseEntity<String> createReservation(@RequestBody ReservationDTO newReservation) {
+        try {
+            reservationService.createReservation(newReservation);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Reservation created successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @GetMapping("/getAll")
-    public List<ReservationEntity> getAllReservations() {
-
-        //TODO - fetch from somewhere
-        return reservations;
+    public ResponseEntity<List<Reservation>> getAllReservations() {
+        List<Reservation> reservations = reservationService.getAllReservations();
+        return ResponseEntity.ok(reservations);
     }
 
-    @GetMapping("/{id}")
-    public ReservationEntity getReservationById(@PathVariable int id) {
-        //TODO - fetch from somewhere
-
-        for (ReservationEntity reservation : reservations) {
-            if (reservation.getReservationId() == id) {
-                return reservation;
-            }
+    @GetMapping("/{reservationId}")
+    public ResponseEntity<Reservation> getReservationById(@PathVariable String reservationId) {
+        Reservation reservation = reservationService.getReservationById(reservationId);
+        if (reservation != null) {
+            return ResponseEntity.ok(reservation);
+        } else {
+            return ResponseEntity.notFound().build();
         }
-        return null; // Or throw an exception if reservation not found
     }
 
-    @PutMapping("/{id}")
-    public void updateReservation(@PathVariable int id, @RequestBody ReservationEntity updatedReservation) {
-        for (int index = 0; index < reservations.size(); index++) {
-            ReservationEntity reservation = reservations.get(index);
-            if (reservation.getReservationId() == id) {
-                reservations.set(index, updatedReservation);
-                //TODO - fetch from somewhere
-                return;
-            }
+    @PutMapping("/{reservationId}")
+    public ResponseEntity<String> updateReservation(@PathVariable String reservationId, @RequestBody ReservationDTO updatedReservation) {
+        try {
+            reservationService.updateReservation(reservationId, updatedReservation);
+            return ResponseEntity.ok("Reservation updated successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
-        //TODO - handle error
-
-        // If reservation with the given ID is not found, you can throw an exception or handle it as needed
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteReservation(@PathVariable int id) {
-        reservations.removeIf(reservation -> reservation.getReservationId() == id);
-        //TODO - save changes
+    @DeleteMapping("/{reservationId}")
+    public ResponseEntity<String> deleteReservation(@PathVariable String reservationId) {
+        try {
+            reservationService.deleteReservation(reservationId);
+            return ResponseEntity.ok("Reservation deleted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 }

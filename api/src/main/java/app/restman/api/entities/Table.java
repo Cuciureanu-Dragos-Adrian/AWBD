@@ -1,12 +1,19 @@
 package app.restman.api.entities;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
 
+import java.util.List;
+
+@Entity
 @Setter
 @Getter
-public class TableEntity {
+@jakarta.persistence.Table(name="table_tbl")
+public class Table {
 
     @Id
     private String tableId;
@@ -15,9 +22,12 @@ public class TableEntity {
     private int tableSize;
     private int floor;
 
-    public TableEntity() { }
+    @OneToMany(mappedBy = "reservedTable", cascade = CascadeType.ALL)
+    private List<Reservation> reservations;
 
-    public TableEntity(String tableId, double xOffset, double yOffset, int tableSize, int floor) {
+    public Table() { }
+
+    public Table(String tableId, double xOffset, double yOffset, int tableSize, int floor) {
         this.tableId = tableId;
         this.xOffset = xOffset;
         this.yOffset = yOffset;

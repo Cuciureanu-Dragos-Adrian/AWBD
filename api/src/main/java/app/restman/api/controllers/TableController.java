@@ -1,80 +1,74 @@
 package app.restman.api.controllers;
 
-import app.restman.api.entities.TableEntity;
+import app.restman.api.DTOs.TableCreateDTO;
+import app.restman.api.DTOs.TableUpdateDTO;
+import app.restman.api.entities.Table;
+import app.restman.api.services.TableService;
+import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("tables")
 public class TableController {
 
-    // This is just a placeholder for your actual data source
-    private final List<TableEntity> tables = new ArrayList<>();
+    private final TableService tableService;
 
-    // Constructor to initialize some dummy data
-    public TableController() {
-        // Add some dummy data to the list
-        tables.add(new TableEntity("1", 10.0, 20.0, 4, 1));
-        tables.add(new TableEntity("2", 15.0, 25.0, 6, 2));
-        // Add more tables as needed
+    public TableController(TableService tableService) {
+        this.tableService = tableService;
     }
 
     @GetMapping("/getAll")
-    public List<TableEntity> getAllTables() {
-
-        //TODO - get tables from somewhere
-
-        // Return the list of tables
-        return tables;
+    public ResponseEntity<List<Table>> getAllTables() {
+        List<Table> tables = tableService.getAllTables();
+        return new ResponseEntity<>(tables, HttpStatus.OK);
     }
 
-    @PostMapping("/add")
-    public void addTable(@RequestBody TableEntity tableEntity)
-    {
-        //TODO - save changes
-
-        tables.add(tableEntity);
+    @GetMapping("/{id}")
+    public ResponseEntity<Table> getTableById(@PathVariable String id) {
+        Table table = tableService.getTableById(id);
+        if (table != null) {
+            return new ResponseEntity<>(table, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @PutMapping("/{id}")
-    public void updateReservation(@PathVariable String id, @RequestBody TableEntity updatedTable) {
-        for (int index = 0; index < tables.size(); index++) {
-            TableEntity table = tables.get(index);
-            if (table.getTableId().equals(id)) {
-                tables.set(index, updatedTable);
-                //TODO - save changes
-                break; // Assuming table IDs are unique, we can exit the loop after replacing the table
-            }
+    @PostMapping
+    public ResponseEntity<?> createTable(@RequestBody TableCreateDTO tableCreateDTO) {
+        try {
+            Table createdTable = tableService.createTable(tableCreateDTO);
+            return new ResponseEntity<>(createdTable, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
-    @PutMapping("/editPosition")
-    public void editTablePosition(@RequestParam String id,
-                                  @RequestParam double xOffset,
-                                  @RequestParam double yOffset) {
-        for (TableEntity table : tables) {
-            if (table.getTableId().equals(id)) {
-                table.setXOffset(xOffset);
-                table.setYOffset(yOffset);
-            }
-        }
+    @PutMapping("/{tableId}")
+    public ResponseEntity<?> updateTable(@PathVariable String tableId, @RequestBody TableUpdateDTO updatedTable) {
 
-        //TODO - update said table
+        try {
+            tableService.updateTable(tableId, updatedTable);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+        catch (Exception e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteTableById(@PathVariable String id) {
-        Iterator<TableEntity> iterator = tables.iterator();
-        while (iterator.hasNext()) {
-            TableEntity table = iterator.next();
-            if (table.getTableId().equals(id)) {
-                iterator.remove();
-                //TODO - delete table
-                break; // Assuming IDs are unique, we can exit loop after finding the match
-            }
+    @DeleteMapping("/{tableId}")
+    public ResponseEntity<Void> deleteTable(@PathVariable String tableId) {
+        try {
+            tableService.deleteTable(tableId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 }

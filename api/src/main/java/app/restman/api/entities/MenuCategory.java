@@ -1,22 +1,29 @@
 package app.restman.api.entities;
 
 
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
 
+import java.util.List;
+
+@Entity
 @Getter
 @Setter
-public class MenuCategoryEntity {
+public class MenuCategory {
 
     @Id
     private String name;
     private String iconBase64;
 
-    public MenuCategoryEntity() {
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+    private List<Product> products;
+
+    public MenuCategory() {
+
     }
 
-    public MenuCategoryEntity(String name, String iconBase64) {
+    public MenuCategory(String name, String iconBase64) {
         this.name = name;
         this.iconBase64 = iconBase64;
     }

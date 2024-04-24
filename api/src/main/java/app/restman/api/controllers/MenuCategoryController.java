@@ -1,51 +1,76 @@
 package app.restman.api.controllers;
 
-import app.restman.api.entities.MenuCategoryEntity;
+import app.restman.api.DTOs.MenuCategoryDTO;
+import app.restman.api.entities.MenuCategory;
+import app.restman.api.services.MenuCategoryService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
-@RequestMapping("/menu/categories")
+@RequestMapping("menu_categories")
 public class MenuCategoryController {
 
-    private static List<MenuCategoryEntity> menuCategories = new ArrayList<>();
+    private final MenuCategoryService menuCategoryService;
 
-    @PostMapping("/add")
-    public void createMenuCategory(@RequestBody MenuCategoryEntity menuCategory) {
-        menuCategories.add(menuCategory);
+    @Autowired
+    public MenuCategoryController(MenuCategoryService menuCategoryService) {
+        this.menuCategoryService = menuCategoryService;
     }
 
     @GetMapping("/getAll")
-    public List<MenuCategoryEntity> getAllMenuCategories() {
-        return menuCategories;
+    public ResponseEntity<List<MenuCategory>> getAllCategories() {
+        List<MenuCategory> categories = menuCategoryService.getAllCategories();
+        return ResponseEntity.ok(categories);
     }
 
     @GetMapping("/{name}")
-    public MenuCategoryEntity getMenuCategoryByName(@PathVariable String name) {
-        for (MenuCategoryEntity category : menuCategories) {
-            if (category.getName().equals(name)) {
-                return category;
-            }
+    public ResponseEntity<MenuCategory> getCategoryByName(@PathVariable String name) {
+        try {
+            MenuCategory category = menuCategoryService.getCategoryByName(name);
+
+            if (category == null)
+                throw new NoSuchElementException("Category does not exist!");
+
+            return ResponseEntity.ok(category);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
         }
-        return null; // Or throw an exception if category not found
+    }
+
+    @PostMapping
+    public ResponseEntity<String> createCategory(@RequestBody MenuCategoryDTO categoryDTO) {
+        try {
+            MenuCategory category = menuCategoryService.createCategory(categoryDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Category created successfully with name: " + category.getName());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @PutMapping("/{name}")
-    public void updateMenuCategory(@PathVariable String name, @RequestBody MenuCategoryEntity updatedCategory) {
-        for (int i = 0; i < menuCategories.size(); i++) {
-            MenuCategoryEntity category = menuCategories.get(i);
-            if (category.getName().equals(name)) {
-                menuCategories.set(i, updatedCategory);
-                return;
-            }
+    public ResponseEntity<String> updateCategory(@PathVariable String name, @RequestBody MenuCategoryDTO updatedCategoryDTO) {
+        try {
+            menuCategoryService.updateCategory(name, updatedCategoryDTO);
+            return ResponseEntity.ok("Category updated successfully");
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
-        // If category with the given name is not found, you can throw an exception or handle it as needed
     }
 
     @DeleteMapping("/{name}")
-    public void deleteMenuCategory(@PathVariable String name) {
-        menuCategories.removeIf(category -> category.getName().equals(name));
+    public ResponseEntity<String> deleteCategory(@PathVariable String name) {
+        try {
+            menuCategoryService.deleteCategory(name);
+            return ResponseEntity.ok("Category deleted successfully");
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
