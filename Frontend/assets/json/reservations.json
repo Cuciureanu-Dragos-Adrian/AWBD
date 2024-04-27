@@ -1,0 +1,15 @@
+[{
+"tableId": "A1",
+"name": "Ionel Ionescu",
+"numberOfPeople": 2,
+"dateTime": "2024-01-25T17:42:20.536696"},
+{
+"tableId": "E2",
+"name": "Gheorghe Boldescu",
+"numberOfPeople": 8,
+"dateTime": "2024-01-25T17:42:20.536696"},
+{
+"tableId": "C1",
+"name": "Ionescu Ion",
+"numberOfPeople": 4,
+"dateTime": "2024-01-16T16:52:20.360281"}]
