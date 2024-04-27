@@ -1,17 +1,16 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:restaurant_management_app/bin/constants.dart' as constants;
-import 'package:restaurant_management_app/bin/providers/order_list.dart'
+import 'package:restaurant_management_app/bin/services/order_service.dart'
     as orders;
-import 'package:restaurant_management_app/bin/providers/reservation_provider.dart'
+import 'package:restaurant_management_app/bin/services/reservation_service.dart'
     as reservations;
 import 'package:restaurant_management_app/bin/models/order_model.dart';
 import 'package:restaurant_management_app/bin/models/reservation_model.dart';
-import 'package:restaurant_management_app/bin/services/order_service.dart';
-import 'package:restaurant_management_app/bin/services/table_service.dart';
+import 'package:restaurant_management_app/bin/utilities/table_utils.dart';
 
 import '../constants.dart';
-import '../providers/globals.dart';
+import '../services/globals.dart';
 import 'orders.dart';
 
 /// Movable table object
@@ -46,7 +45,7 @@ class _UnmovableTableWidgetState extends State<UnmovableTableWidget> {
   static String selectedId = "";
   late Offset _position;
   late double _scale;
-  late bool _hasOrder;
+  late bool _hasOrder = false;
   late bool _hasReservation = false;
   late OrderModel? _order;
   late ReservationModel? _reservation;
@@ -56,11 +55,11 @@ class _UnmovableTableWidgetState extends State<UnmovableTableWidget> {
     super.initState();
     _position = widget.position;
 
-    //has an order
-    _order = getAssignedOrder(widget.id);
-    _hasOrder = _order != null;
+    _order = null;
+    _reservation = null;
 
     fetchReservation();
+    fetchOrder();
   }
 
   void fetchReservation() async {
@@ -68,7 +67,20 @@ class _UnmovableTableWidgetState extends State<UnmovableTableWidget> {
       var upcomingReservation = await getUpcomingReservation(widget.id);
       //has a reservation in the next 3 hours
       setState(() {
+        _reservation = upcomingReservation;
         _hasReservation = upcomingReservation != null;
+      });
+    } on Exception {
+      return;
+    }
+  }
+
+  void fetchOrder() async {
+    try{
+      var order = await getAssignedOrder(widget.id);
+      setState(() {
+        _order = order;
+        _hasOrder = order != null;
       });
     } on Exception {
       return;
@@ -206,8 +218,7 @@ class _UnmovableTableWidgetState extends State<UnmovableTableWidget> {
         },
       );
     } else {
-      orders.OrderList.removeOrdersByTableId(_order!.tableId);
-      saveOrders();
+      orders.OrderService.removeOrdersByTableId(_order!.tableId);
       _hasOrder = false;
       _order = null;
     }
@@ -235,7 +246,7 @@ class _UnmovableTableWidgetState extends State<UnmovableTableWidget> {
         },
       );
     } else {
-      reservations.ReservationProvider.removeReservationById(
+      reservations.ReservationService.removeReservationById(
           _reservation!.reservationId);
 
       _hasReservation = false;
@@ -261,7 +272,7 @@ class _UnmovableTableWidgetState extends State<UnmovableTableWidget> {
     if (_reservation == null) {
       return 'The table is not reserved in the next $reservationDurationHours hours.';
     } else {
-      return 'The table is reserved by ${_reservation!.name} at ${_reservation!.dateTime.hour}:${_reservation!.dateTime.minute}';
+      return 'The table is reserved by ${_reservation!.name} from ${_reservation!.dateTime.hour}:${_reservation!.dateTime.minute} until ${_reservation!.dateTime.hour + 3}:${_reservation!.dateTime.minute}';
     }
   }
 

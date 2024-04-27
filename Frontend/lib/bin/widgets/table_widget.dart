@@ -1,10 +1,10 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:restaurant_management_app/bin/constants.dart' as constants;
-import 'package:restaurant_management_app/bin/services/table_service.dart';
+import 'package:restaurant_management_app/bin/utilities/table_utils.dart';
 
-import '../providers/globals.dart';
-import '../providers/table_provider.dart';
+import '../services/globals.dart';
+import '../services/table_service.dart';
 
 /// Movable table object
 ///
@@ -39,14 +39,14 @@ class _MovableTableWidgetState extends State<MovableTableWidget> {
   late Offset _position;
   late double _scale;
   late int _gridStep;
-  late bool _hasOrder;
+  late bool _hasOrder = false;
   late bool _hasReservation = false;
 
   @override
   void initState() {
     super.initState();
     _position = widget.position;
-    _hasOrder = getAssignedOrder(widget.id) != null;
+    fetchOrder();
     fetchReservation();
   }
 
@@ -56,6 +56,17 @@ class _MovableTableWidgetState extends State<MovableTableWidget> {
       //has a reservation in the next 3 hours
       setState(() {
         _hasReservation = upcomingReservation != null;
+      });
+    } on Exception {
+      return;
+    }
+  }
+
+  void fetchOrder() async {
+    try{
+      var order = await getAssignedOrder(widget.id);
+      setState(() {
+        _hasOrder = order != null;
       });
     } on Exception {
       return;
@@ -139,7 +150,7 @@ class _MovableTableWidgetState extends State<MovableTableWidget> {
 
               _position = Offset(xOffset, yOffset);
 
-              TableProvider.editTablePosition(widget.id, xOffset, yOffset);
+              TableService.editTablePosition(widget.id, xOffset, yOffset);
             }
           });
         },

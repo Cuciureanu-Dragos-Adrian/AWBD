@@ -9,6 +9,7 @@ import java.util.List;
 @Setter
 public class OrderDTO {
     private String tableId;
+    private int price;
     private List<String> productNames;
     private List<Integer> quantities;
 }

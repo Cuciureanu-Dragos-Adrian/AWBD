@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:restaurant_management_app/bin/models/table_model.dart';
-import 'package:restaurant_management_app/bin/services/table_service.dart';
+import 'package:restaurant_management_app/bin/utilities/table_utils.dart';
 
 import 'factories/table_factory.dart';
 

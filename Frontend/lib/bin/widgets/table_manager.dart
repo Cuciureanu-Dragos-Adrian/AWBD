@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:restaurant_management_app/bin/constants.dart';
-import 'package:restaurant_management_app/bin/providers/table_provider.dart';
+import 'package:restaurant_management_app/bin/services/table_service.dart';
 import 'package:restaurant_management_app/bin/models/table_model.dart';
-import 'package:restaurant_management_app/bin/services/unmovable_table_service.dart';
+import 'package:restaurant_management_app/bin/utilities/unmovable_table_utils.dart';
 import 'package:restaurant_management_app/bin/widgets/dialog.dart';
 import 'package:restaurant_management_app/bin/widgets/unmovable_table_widget.dart';
 
@@ -36,7 +36,7 @@ class _TableManagerState extends State<TableManager> {
   void loadTablesAsync() async 
   {
     try {
-    _tableModelList = await TableProvider.getTables();
+    _tableModelList = await TableService.getTables();
     } on Exception {
       showMessageBox(context, 'Failed to fetch tables!');
       return;

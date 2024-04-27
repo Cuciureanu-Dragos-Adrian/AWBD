@@ -1,7 +1,7 @@
 //variables that need to be loaded from disk and be visible in the whole project
 
 import '../models/globals_model.dart';
-import '../services/globals_service.dart';
+import '../utilities/globals_utils.dart';
 
 Globals? object;
 

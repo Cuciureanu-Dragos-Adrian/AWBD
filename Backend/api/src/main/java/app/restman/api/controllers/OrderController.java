@@ -65,4 +65,14 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+    @DeleteMapping("/byTableId/{orderId}")
+    public ResponseEntity<String> deleteOrdersByTableId(@PathVariable String tableId) {
+        try {
+            orderService.deleteOrdersByTableId(tableId);
+            return ResponseEntity.ok("Orders deleted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 }

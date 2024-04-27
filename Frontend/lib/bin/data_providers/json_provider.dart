@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:flutter/services.dart' as services;
 import 'package:restaurant_management_app/bin/models/globals_model.dart';
 import 'package:restaurant_management_app/bin/models/product_model.dart';
-import 'package:restaurant_management_app/bin/models/reservation_model.dart';
 import 'package:restaurant_management_app/bin/data_providers/data_provider.dart';
 import 'package:restaurant_management_app/bin/models/order_model.dart';
 
@@ -50,19 +49,6 @@ class JsonProvider implements DataProvider {
   Future<void> writeOrders(List<OrderModel> orderList) async {
     String orderString = "[${orderList.join(",\n")}]";
     await File(orderPath).writeAsString(orderString);
-  }
-
-  @override
-  Future<List<ReservationModel>> readReservations() async {
-    final jsondata = await services.rootBundle.loadString(reservationPath);
-    final data = json.decode(jsondata) as List<dynamic>;
-    return data.map((x) => ReservationModel.fromJson(x)).toList();
-  }
-
-  @override
-  Future<void> writeReservations(List<ReservationModel> reservationList) async {
-    String reservationString = "[${reservationList.join(",\n")}]";
-    await File(reservationPath).writeAsString(reservationString);
   }
 
   @override

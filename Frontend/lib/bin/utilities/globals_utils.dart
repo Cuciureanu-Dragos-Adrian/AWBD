@@ -2,7 +2,7 @@ import 'package:restaurant_management_app/bin/models/globals_model.dart';
 
 import '../../main.dart';
 import '../constants.dart';
-import '../providers/globals.dart';
+import '../services/globals.dart';
 
 /// Loads a list of orders, saves it to TableList and returns it
 ///

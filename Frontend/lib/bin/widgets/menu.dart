@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:restaurant_management_app/bin/constants.dart';
-import 'package:restaurant_management_app/bin/services/product_service.dart';
+import 'package:restaurant_management_app/bin/utilities/product_utils.dart';
 import 'package:restaurant_management_app/bin/widgets/custom_button.dart';
 import 'dart:math';
 
-import '../providers/product_list.dart';
+import '../services/product_list.dart';
 import '../models/product_model.dart';
 
 const double expandedMaxHeight = 400;

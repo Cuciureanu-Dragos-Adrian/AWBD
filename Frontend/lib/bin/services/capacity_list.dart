@@ -1,4 +1,4 @@
-import '../services/capacity_service.dart';
+import '../utilities/capacity_utils.dart';
 
 CapacityList? object;
 

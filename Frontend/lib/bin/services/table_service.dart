@@ -1,160 +1,78 @@
-// ignore: file_names
-import 'package:flutter/material.dart';
-import '../constants.dart';
-import '../models/table_model.dart';
-import '../models/order_model.dart';
-import '../providers/order_list.dart';
-import '../providers/reservation_provider.dart';
-import '../models/reservation_model.dart';
-import '../widgets/table_widget.dart';
+import 'package:restaurant_management_app/bin/models/table_model.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-/// Returns a list of MovableTable from a list of tables
-///
-/// @param tables: a list of tables
-/// @param constraints: a MovableTable needs the BoxConstraints from where it is created
-List<MovableTableWidget> getWidgetsFromTables(
-    List<TableModel> tables, BoxConstraints constraints) {
-  List<MovableTableWidget> result = [];
+import '../constants.dart' as constants;
 
-  for (TableModel table in tables) {
-    UniqueKey key = UniqueKey();
-    result.add(MovableTableWidget(
-      key: key, //assigns new unique key to prevent states from jumping over
-      constraints: constraints,
-      tableSize: table.tableSize,
-      position: Offset(table.xOffset, table.yOffset),
-      id: table.id,
-      floor: table.floor,
-    ));
-  }
+class TableService {
 
-  return result;
-}
+  static const String _baseUrl = constants.backendUrl + '/tables';
 
-/// Returns a list of Table from a list of MovableTable widgets
-///
-///@param tableWidgets: list of widgets
-List<TableModel> getTablesFromTableWidgets(
-    List<MovableTableWidget> tableWidgets) {
-  List<TableModel> tables = [];
-
-  for (MovableTableWidget widget in tableWidgets) {
-    tables.add(TableModel(
-        id: widget.id,
-        xOffset: widget.position.dx,
-        yOffset: widget.position.dy,
-        tableSize: widget.tableSize,
-        floor: widget.floor));
-  }
-
-  return tables;
-}
-
-/// Generates unique ID for a table. Must receive either a list of tables or list of tableWidgets.
-///
-/// @param(optional) tables = a list of tables
-/// @param(optional)
-String generateTableId(
-    {List<TableModel>? tables,
-    List<MovableTableWidget>? tableWidgets,
-    required int tableSize}) {
-  /// Returns corresponding table letter, given a size
-  ///
-  String getTableLetterFromSize() {
-    switch (tableSize) {
-      case 2:
-        return 'A';
-      case 3:
-        return 'B';
-      case 4:
-        return 'C';
-      case 6:
-        return 'D';
-      case 8:
-        return 'E';
-    }
-    throw Exception("Invalid table size!");
-  }
-
-  if (tables != null && tableWidgets != null) {
-    throw Exception("Invalid parameters provided!");
-  }
-
-  var filteredTableIds = [];
-
-  if (tables != null) {
-    filteredTableIds = tables.where((x) => x.tableSize == tableSize).map((x) {
-      return x.id;
-    }).toList(); // get tables of same size and select only ids
-  } else if (tableWidgets != null) {
-    filteredTableIds =
-        tableWidgets.where((x) => x.tableSize == tableSize).map((x) {
-      return x.id;
-    }).toList(); // get tables of same size and select only ids
-  } else {
-    throw Exception("Both list parameters were null!");
-  }
-
-  var frequency = [
-    for (var i = 0; i < filteredTableIds.length; i++) false
-  ]; // generate frequency vector
-
-  for (var id in filteredTableIds) {
-    var tableIndex = int.parse(id.substring(1));
-
-    if (tableIndex - 1 < filteredTableIds.length) {
-      frequency[tableIndex - 1] = true; // indexing starts from 0, subtract
+  static Future<List<TableModel>> getTables() async {
+    final url = Uri.parse(_baseUrl + '/getAll');
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body) as List;
+      return jsonData.map((data) => TableModel.fromJson(data)).toList();
+    } else {
+      throw Exception('Failed to fetch tables: ${response.statusCode}');
     }
   }
-  //search
-  for (var i = 0; i < frequency.length; i++) {
-    if (frequency[i] == false) {
-      return "${getTableLetterFromSize()}${i + 1}";
-    } //indexing starts from 0;
+
+  static Future<TableModel?> getTableById(String tableId) async {
+    final url = Uri.parse('$_baseUrl/$tableId');
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body) as Map<String, dynamic>;
+      return TableModel.fromJson(jsonData);
+    } else {
+      throw Exception('Failed to get table by ID: ${response.statusCode}');
+    }
   }
 
-  // no unused index was found, return length + 1
-  return "${getTableLetterFromSize()}${frequency.length + 1}";
-}
-
-TableModel getTableModelFromWidget(MovableTableWidget widget) {
-  return TableModel(
-      id: widget.id,
-      xOffset: widget.position.dx,
-      yOffset: widget.position.dy,
-      tableSize: widget.tableSize,
-      floor: widget.floor);
-}
-
-OrderModel? getAssignedOrder(String tableId) {
-  OrderModel? result;
-
-  var tableOrders =
-      OrderList.getOrderList().where((element) => element.tableId == tableId);
-
-  if (tableOrders.isEmpty) {
-    result = null;
-  } else {
-    result = tableOrders.first;
+  static Future<void> addTable(TableModel table) async {
+    // Send POST request to backend to create table
+    final tableMap = table.toJson();
+    final url = Uri.parse(_baseUrl);
+    final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: json.encode(tableMap));
+    if (response.statusCode != 201) {
+      throw Exception('Method returned ${response.statusCode}, ${response.body}');
+    }
   }
 
-  return result;
-}
+  static Future<void> editTablePosition(String id, double xOffset, double yOffset) async {
+    var table = await getTableById(id);
+    if (table != null) {
+      table.xOffset = xOffset;
+      table.yOffset = yOffset;
 
-Future<ReservationModel?> getUpcomingReservation(String tableId) async{
-  ReservationModel? result;
-
-  var reservationExpirationTerm =
-      DateTime.now().add(const Duration(hours: reservationDurationHours));
-  var tableReservations = (await ReservationProvider.getReservationList())
-      .where((reservation) =>
-          reservation.tableId == tableId &&
-          reservation.dateTime.isBefore(reservationExpirationTerm));
-  if (tableReservations.isEmpty) {
-    result = null;
-  } else {
-    result = tableReservations.first;
+      final url = Uri.parse(_baseUrl + '/$id');
+      final response = await http.put(
+          url,
+          headers: {"Content-Type": "application/json"},
+          body: json.encode(table.toJson()));
+      if (response.statusCode != 200) {
+        throw Exception('Failed to update table position: ${response.statusCode}');
+      }
+    } else {
+      throw Exception('Table with ID $id not found');
+    }
   }
 
-  return result;
+  static Future<void> removeTable(String tableId) async {
+    var table = await getTableById(tableId);
+    if (table != null) {
+      // Send DELETE request to backend to remove table
+      final url = Uri.parse(_baseUrl + '/$tableId');
+      final response = await http.delete(url);
+      if (response.statusCode != 200) {
+        throw Exception('Failed to remove table: ${response.statusCode}');
+      } 
+    } else {
+      throw Exception('Table with ID $tableId not found');
+    }
+  }
 }

@@ -1,6 +1,6 @@
 import 'package:restaurant_management_app/bin/models/product_model.dart';
 
-import '../services/product_service.dart';
+import '../utilities/product_utils.dart';
 
 ProductList? object;
 

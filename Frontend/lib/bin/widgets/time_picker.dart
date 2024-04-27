@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:restaurant_management_app/bin/constants.dart';
-import 'package:restaurant_management_app/bin/services/reservation_service.dart';
+import 'package:restaurant_management_app/bin/utilities/reservation_utils.dart';
 
 class TimePicker extends StatefulWidget {
   const TimePicker({Key? key}) : super(key: key);

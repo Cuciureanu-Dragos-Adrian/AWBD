@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:restaurant_management_app/bin/constants.dart';
-import 'package:restaurant_management_app/bin/providers/globals.dart';
-import 'package:restaurant_management_app/bin/providers/table_provider.dart';
-import 'package:restaurant_management_app/bin/models/table_model.dart';
-import 'package:restaurant_management_app/bin/services/globals_service.dart';
+import 'package:restaurant_management_app/bin/services/globals.dart';
 import 'package:restaurant_management_app/bin/services/table_service.dart';
+import 'package:restaurant_management_app/bin/models/table_model.dart';
+import 'package:restaurant_management_app/bin/utilities/globals_utils.dart';
+import 'package:restaurant_management_app/bin/utilities/table_utils.dart';
 import 'package:restaurant_management_app/bin/widgets/dialog.dart';
 import 'package:restaurant_management_app/bin/widgets/table_widget.dart';
 
-import '../providers/capacity_list.dart';
+import '../services/capacity_list.dart';
 import 'custom_button.dart';
 
 /// Floor plan builder
@@ -46,7 +46,7 @@ class _FloorPlanState extends State<FloorPlan> {
   void loadTablesAsync() async {
 
     try {
-      _tableModelList = await TableProvider.getTables();
+      _tableModelList = await TableService.getTables();
     } on Exception {
       showMessageBox(context, 'Failed to fetch tables!');
       return;
@@ -290,7 +290,7 @@ class _FloorPlanState extends State<FloorPlan> {
       );
 
       try {
-        await TableProvider.addTable(getTableModelFromWidget(newTableWidget));
+        await TableService.addTable(getTableModelFromWidget(newTableWidget));
       } on Exception catch (e) {
         showMessageBox(context, 'Failed to add table: $e');
         return;
@@ -317,7 +317,7 @@ class _FloorPlanState extends State<FloorPlan> {
     final String id = _removeDropdownValue;
     if (id != 'none') {
       //check that a table is selected
-      TableProvider.removeTable(id);
+      TableService.removeTable(id);
 
       setState(() {
         _tableWidgets.removeWhere((element) => element.id == id);

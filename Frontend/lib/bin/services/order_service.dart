@@ -1,18 +1,44 @@
+import 'dart:convert';
+
+import 'package:http/http.dart' as http;
 import 'package:restaurant_management_app/bin/models/order_model.dart';
 
-import '../../main.dart';
-import '../providers/order_list.dart';
+import '../constants.dart' as constants;
 
-/// Loads a list of orders, saves it to TableList and returns it
-///
-Future<List<OrderModel>> loadOrders() async {
-  List<OrderModel> orders = await data.readOrders();
-  return orders;
-}
+class OrderService {
+  static const String _baseUrl = constants.backendUrl + '/orders';
 
-///Saves orders to disk
-///
-void saveOrders() {
-  List<OrderModel> toSave = OrderList.getOrderList();
-  data.writeOrders(toSave); // use global data service to store tables
+  static Future<List<OrderModel>> getOrderList() async {
+    final response = await http.get(Uri.parse(_baseUrl + "/getAll"));
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body) as List<dynamic>;
+      return jsonData.map((data) => OrderModel.fromJson(data)).toList();
+    } else {
+      throw Exception('Failed to get orders: ${response.statusCode}');
+    }
+  }
+
+  static Future<void> addOrder(OrderModel order) async {
+    // Convert order to JSON string
+    final orderJson = jsonEncode(order.toJson());
+
+    final response = await http.post(
+      Uri.parse(_baseUrl),
+      headers: {'Content-Type': 'application/json'},
+      body: orderJson,
+    );
+
+    if (response.statusCode != 201) {
+      throw Exception('Failed to add order: ${response.statusCode}');
+    }
+  }
+
+  static Future<void> removeOrdersByTableId(String tableId) async {
+    final url = Uri.parse('$_baseUrl/byTableId/$tableId');
+    final response = await http.delete(url);
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to remove orders: ${response.statusCode}');
+    }
+  }
 }

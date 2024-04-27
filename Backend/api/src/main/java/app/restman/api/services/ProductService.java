@@ -50,8 +50,10 @@ public class ProductService {
 
     public Product createProduct(ProductDTO productDTO) throws Exception {
 
+        /*
         if (!menuCategoryRepository.existsById(productDTO.getCategoryName()))
             throw new Exception("Menu category does not exist!");
+         */
 
         if (productDTO.getPrice() < 0)
             throw new Exception("Price cannot be negative!");
@@ -62,14 +64,17 @@ public class ProductService {
         Product product = new Product();
         product.setName(productDTO.getName());
         product.setPrice(productDTO.getPrice());
-        product.setCategory(menuCategoryRepository.getReferenceById(productDTO.getCategoryName()));
+        //TODO - implement
+        //product.setCategory(menuCategoryRepository.getReferenceById(productDTO.getCategoryName()));
 
         return productRepository.save(product);
     }
 
     public void updateProduct(String productName, ProductDTO updatedProductDTO) throws NoSuchElementException, Exception{
+        /*
         if (!menuCategoryRepository.existsById(updatedProductDTO.getCategoryName()))
             throw new Exception("Menu category does not exist!");
+         */
 
         if (updatedProductDTO.getPrice() < 0)
             throw new Exception("Price cannot be negative!");
@@ -81,7 +86,8 @@ public class ProductService {
         if (product != null) {
             // Update product details
             product.setPrice(updatedProductDTO.getPrice());
-            product.setCategory(menuCategoryRepository.getReferenceById(updatedProductDTO.getCategoryName()));
+            //TODO - implement
+            //product.setCategory(menuCategoryRepository.getReferenceById(updatedProductDTO.getCategoryName()));
 
             for (var order : product.getOrders())
                 order.calculatePrice();

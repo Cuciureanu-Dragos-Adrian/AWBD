@@ -1,5 +1,5 @@
 import '../../main.dart';
-import '../providers/capacity_list.dart';
+import '../services/capacity_list.dart';
 
 /// Loads a list of orders, saves it to TableList and returns it
 ///

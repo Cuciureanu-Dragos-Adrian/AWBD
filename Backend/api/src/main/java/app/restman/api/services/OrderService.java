@@ -69,6 +69,16 @@ public class OrderService {
         orderRepository.deleteById(orderId);
     }
 
+    public void deleteOrdersByTableId(String tableId)
+    {
+        var orders = orderRepository.findAll();
+
+        for (var order : orders){
+            if (order.getTableId().equals(tableId))
+                orderRepository.deleteById(order.getOrderId());
+        }
+    }
+
     private HashMap<String, Integer> generateProductNamesToQuantities(List<Product> products, List<Integer> quantities) {
         HashMap<String, Integer> productNamesToQuantities = new HashMap<>();
         for (int index = 0; index < products.size(); index++) {

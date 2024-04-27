@@ -2,20 +2,17 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:restaurant_management_app/bin/models/product_model.dart';
-import 'package:restaurant_management_app/bin/services/order_service.dart';
 import 'package:restaurant_management_app/bin/widgets/custom_button.dart';
 import 'package:restaurant_management_app/bin/widgets/dialog.dart';
 
 import '../constants.dart';
-import '../providers/product_list.dart';
-import '../providers/table_provider.dart';
+import '../services/product_list.dart';
+import '../services/table_service.dart';
 import '../models/order_model.dart';
-import '../providers/order_list.dart';
+import '../services/order_service.dart';
 import '../models/table_model.dart';
 
 const double expandedMaxHeight = 400;
-
-List<OrderModel> orders = OrderList.getOrderList();
 
 class OrdersWidget extends StatefulWidget {
   const OrdersWidget({Key? key}) : super(key: key);
@@ -27,8 +24,9 @@ class OrdersWidget extends StatefulWidget {
 class _OrdersWidgetState extends State<OrdersWidget> {
   List<ProductModel> _products = [];
   List<TableModel> _tables = [];
+  List<OrderModel> _orders = [];
 
-  String _dialogErrorMessage = '';
+  String _dialogErrorMessage = "";
   String _currentSelectedProduct = '';
   String _selectedTable = '';
 
@@ -43,11 +41,12 @@ class _OrdersWidgetState extends State<OrdersWidget> {
     _currentSelectedProduct = _products[0].name;
 
     loadTablesAsync();
+    loadOrdersAsync();
   }
 
   void loadTablesAsync() async {
     try {
-    _tables = await TableProvider.getTables();
+      _tables = await TableService.getTables();
     } on Exception {
       showMessageBox(context, 'Failed to fetch tables!');
       return;
@@ -55,6 +54,15 @@ class _OrdersWidgetState extends State<OrdersWidget> {
 
     if (_tables.isNotEmpty) {
       _selectedTable = _tables[0].id;
+    }
+  }
+
+  void loadOrdersAsync() async {
+    try {
+      _orders = await OrderService.getOrderList();
+    } on Exception {
+      showMessageBox(context, 'Failed to fetch orders!');
+      return;
     }
   }
 
@@ -76,13 +84,13 @@ class _OrdersWidgetState extends State<OrdersWidget> {
                 controller: ScrollController(),
                 itemBuilder: (BuildContext context, int index) {
                   return OrderSection(
-                    title: orders[index].tableId +
+                    title: _orders[index].tableId +
                         '     ' +
-                        orders[index].price.toString(),
-                    orderModel: orders[index],
+                        _orders[index].price.toString(),
+                    orderModel: _orders[index],
                   );
                 },
-                itemCount: orders.length),
+                itemCount: _orders.length),
           ),
           SizedBox(
               width: constraints.maxWidth,
@@ -249,7 +257,9 @@ class _OrdersWidgetState extends State<OrdersWidget> {
                                 actions: [
                                   TextButton(
                                     child: const Text('Add'),
-                                    onPressed: () {setState(() {tryAddOrder();});},
+                                    onPressed: () async {
+                                      await tryAddOrder();
+                                    },
                                     style: TextButton.styleFrom(
                                         foregroundColor: mainColor),
                                   ),
@@ -305,41 +315,57 @@ class _OrdersWidgetState extends State<OrdersWidget> {
     _dialogErrorMessage = "";
   }
 
-  void tryAddOrder() {
-    _dialogErrorMessage = "";
-
-    int? quantity = int.tryParse(_quantityController.text);
+  Future<void> tryAddOrder() async {
+    setState(() {
+        //TODO - fix this POS
+      _dialogErrorMessage = "";
+    });
 
     //check if table is available
     _selectedTable;
-    if (orders.any((element) => element.tableId == _selectedTable)) {
-      _dialogErrorMessage = "The selected table already has an assigned order!";
+    if (_orders.any((element) => element.tableId == _selectedTable)) {
+      setState(() {
+        _dialogErrorMessage =
+            "The selected table already has an assigned order!";
+      });
+
       return;
     }
 
     //validate number of products
-    if (quantity == null || quantity <= 0) {
-      _dialogErrorMessage = "Order must have at least one product!";
+    if (_dialogProductQuantities.isEmpty) {
+      setState(() {
+        //TODO - fix this POS
+        _dialogErrorMessage = "Order must have at least one product!";
+      });
+      
       return;
     }
 
-    createOrder();
-    Navigator.of(context).pop();
+    try
+    {
+      await createOrder();
+      Navigator.of(context).pop();
+    }
+    on Exception catch (e) {
+      showMessageBox(context, "Failed to add order! " + e.toString());
+    }
   }
 
-  void createOrder() {
+  Future<void> createOrder() async {
     OrderModel newOrder = OrderModel(
+        orderId: "",
         products: (_dialogProducts),
         quantities: _dialogProductQuantities,
-        tableId: _selectedTable);
+        tableId: _selectedTable,
+        price: 0);
 
-    OrderList.addOrder(newOrder);
+    await OrderService.addOrder(newOrder);
 
+    var orders = await OrderService.getOrderList();
     setState(() {
-      orders = OrderList.getOrderList();
+      _orders = orders;
     });
-
-    saveOrders();
   }
 }
 

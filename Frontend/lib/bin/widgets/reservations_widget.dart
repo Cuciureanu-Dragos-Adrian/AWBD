@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:restaurant_management_app/bin/constants.dart';
-import 'package:restaurant_management_app/bin/providers/reservation_provider.dart';
-import 'package:restaurant_management_app/bin/providers/table_provider.dart';
-import 'package:restaurant_management_app/bin/models/reservation_model.dart';
 import 'package:restaurant_management_app/bin/services/reservation_service.dart';
+import 'package:restaurant_management_app/bin/services/table_service.dart';
+import 'package:restaurant_management_app/bin/models/reservation_model.dart';
+import 'package:restaurant_management_app/bin/utilities/reservation_utils.dart';
 import 'package:restaurant_management_app/bin/widgets/custom_button.dart';
 import 'package:restaurant_management_app/bin/widgets/dialog.dart';
 import 'package:restaurant_management_app/bin/widgets/time_picker.dart';
@@ -40,7 +40,7 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
   void loadTablesAsync() async 
   {
     try {
-      _tables = await TableProvider.getTables();
+      _tables = await TableService.getTables();
     } on Exception {
       showMessageBox(context, 'Failed to fetch tables!');
       return;
@@ -55,7 +55,7 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
   {
     try 
     {
-      var fetch = await ReservationProvider.getReservationList();
+      var fetch = await ReservationService.getReservationList();
 
       setState(()
       {
@@ -279,9 +279,9 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
 
     try
     {
-      String generatedId = await ReservationProvider.addReservation(newReservation);
+      String generatedId = await ReservationService.addReservation(newReservation);
       newReservation.reservationId = generatedId;
-      var fetch = await ReservationProvider.getReservationList();
+      var fetch = await ReservationService.getReservationList();
 
       setState(() {
         reservations = fetch;
