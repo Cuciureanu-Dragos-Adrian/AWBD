@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class GlobalsModel {
   late double tableImagesScale;
   late int floorGridStep;
@@ -18,10 +20,6 @@ class GlobalsModel {
 
   @override
   String toString() {
-    String rep = "{\n";
-    rep += '"tableImagesScale": "$tableImagesScale",\n';
-    rep += '"floorGridStep": $floorGridStep,\n';
-    rep += "}";
-    return rep;
+    return jsonEncode(toJson());
   }
 }

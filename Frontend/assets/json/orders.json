@@ -1,26 +1,4 @@
 [{
-"tableId": "A1",
-"price": 160.0,
-"quantities": [3, 2, 1],
-"products": [
-{
-"name": "Babaroles",
-"price": 20.0,
-"category": "Main courses"
-},
-{
-"name": "gin",
-"price": 30.0,
-"category": "Spirits"
-},
-{
-"name": "tequila",
-"price": 40.0,
-"category": "Spirits"
-}
-]
-},
-{
 "tableId": "D3",
 "price": 200.0,
 "quantities": [1, 2, 3],

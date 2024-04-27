@@ -1,8 +1,6 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:restaurant_management_app/bin/widgets/unmovable_table_widget.dart';
-import 'package:restaurant_management_app/main.dart';
-import '../entities/table_list.dart';
 import '../models/table_model.dart' as table_model;
 import '../models/table_model.dart';
 
@@ -46,20 +44,6 @@ List<table_model.TableModel> getTablesFromTableWidgets(
   }
 
   return tables;
-}
-
-/// Loads a list of tables and returns it
-///
-Future<List<TableModel>> loadTables() async {
-  List<TableModel> tables = await data.readTables();
-  return tables;
-}
-
-///Saves tables to disk
-///
-void saveTables() {
-  List<TableModel> toSave = TableList.getTableList();
-  data.writeTables(toSave); // use global data service to store tables
 }
 
 /// Generates unique ID for a table. Must receive either a list of tables or list of tableWidgets.

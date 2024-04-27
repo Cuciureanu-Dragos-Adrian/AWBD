@@ -4,12 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:restaurant_management_app/bin/models/product_model.dart';
 import 'package:restaurant_management_app/bin/services/order_service.dart';
 import 'package:restaurant_management_app/bin/widgets/custom_button.dart';
+import 'package:restaurant_management_app/bin/widgets/dialog.dart';
 
 import '../constants.dart';
-import '../entities/product_list.dart';
-import '../entities/table_list.dart';
+import '../providers/product_list.dart';
+import '../providers/table_provider.dart';
 import '../models/order_model.dart';
-import '../entities/order_list.dart';
+import '../providers/order_list.dart';
 import '../models/table_model.dart';
 
 const double expandedMaxHeight = 400;
@@ -39,9 +40,22 @@ class _OrdersWidgetState extends State<OrdersWidget> {
   void initState() {
     super.initState();
     _products = ProductList.getProductList();
-    _tables = TableList.getTableList();
     _currentSelectedProduct = _products[0].name;
-    _selectedTable = _tables[0].id;
+
+    loadTablesAsync();
+  }
+
+  void loadTablesAsync() async {
+    try {
+    _tables = await TableProvider.getTables();
+    } on Exception {
+      showMessageBox(context, 'Failed to fetch tables!');
+      return;
+    }
+
+    if (_tables.isNotEmpty) {
+      _selectedTable = _tables[0].id;
+    }
   }
 
   @override

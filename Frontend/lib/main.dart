@@ -2,18 +2,17 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import 'package:restaurant_management_app/bin/constants.dart';
-import 'package:restaurant_management_app/bin/entities/capacity_list.dart';
-import 'package:restaurant_management_app/bin/entities/order_list.dart';
-import 'package:restaurant_management_app/bin/entities/product_list.dart';
-import 'package:restaurant_management_app/bin/entities/reservation_list.dart';
+import 'package:restaurant_management_app/bin/data_providers/json_provider.dart';
+import 'package:restaurant_management_app/bin/providers/capacity_list.dart';
+import 'package:restaurant_management_app/bin/providers/order_list.dart';
+import 'package:restaurant_management_app/bin/providers/product_list.dart';
 import 'package:restaurant_management_app/bin/widgets/floorplan.dart';
 import 'package:restaurant_management_app/bin/widgets/orders.dart';
 import 'package:restaurant_management_app/bin/widgets/reservations_widget.dart';
 import 'package:restaurant_management_app/bin/widgets/table_manager.dart';
 
 import 'bin/data_providers/data_provider.dart';
-import 'bin/entities/globals.dart';
-import 'bin/entities/table_list.dart';
+import 'bin/providers/globals.dart';
 import 'bin/widgets/menu.dart';
 
 DataProvider data = JsonProvider();
@@ -21,11 +20,9 @@ DataProvider data = JsonProvider();
 Future<void> init() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Globals.loadGlobals();
-  await TableList.loadTableList();
   await CapacityList.loadCapacityList();
   await ProductList.loadProductList();
   await OrderList.loadOrderList();
-  await ReservationList.loadReservationList();
 }
 
 void main() async {

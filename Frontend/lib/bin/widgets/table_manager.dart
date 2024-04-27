@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:restaurant_management_app/bin/constants.dart';
-import 'package:restaurant_management_app/bin/entities/table_list.dart';
+import 'package:restaurant_management_app/bin/providers/table_provider.dart';
 import 'package:restaurant_management_app/bin/models/table_model.dart';
 import 'package:restaurant_management_app/bin/services/unmovable_table_service.dart';
+import 'package:restaurant_management_app/bin/widgets/dialog.dart';
 import 'package:restaurant_management_app/bin/widgets/unmovable_table_widget.dart';
-
-import 'custom_button.dart';
 
 /// Floor plan builder
 class TableManager extends StatefulWidget {
@@ -28,9 +27,21 @@ class _TableManagerState extends State<TableManager> {
   bool _firstBuild = true;
 
   @override
-  void initState() {
+  void initState()  {
     super.initState();
-    _tableModelList = TableList.getTableList();
+    
+    loadTablesAsync();
+  }
+
+  void loadTablesAsync() async 
+  {
+    try {
+    _tableModelList = await TableProvider.getTables();
+    } on Exception {
+      showMessageBox(context, 'Failed to fetch tables!');
+      return;
+    }
+
     setState(() {
       _read = true;
 
@@ -98,26 +109,6 @@ class _TableManagerState extends State<TableManager> {
                       ),
                     ],
                   )),
-                  // ignore: avoid_unnecessary_containers
-                  Container(
-                    child: Row(
-                      // save changes group
-                      children: [
-                        Container(
-                            margin: const EdgeInsets.only(
-                              right: 5,
-                            ),
-                            child: const Text("Save")),
-                        // save changes button
-                        CustomButton(
-                          size: buttonSize,
-                          icon: const Icon(Icons.save),
-                          color: mainColor,
-                          function: () => {saveTables()},
-                        ),
-                      ],
-                    ),
-                  ),
                 ],
               ),
             ),

@@ -1,6 +1,8 @@
 // table images paths. WARNING they do not include extensions = .png
 import 'package:flutter/material.dart';
 
+const backendUrl = "http://localhost:8080";
+
 const twoTablePath = "assets/2Table";
 const threeTablePath = "assets/3Table";
 const fourTablePath = "assets/4Table";
@@ -160,6 +162,6 @@ Map sectionIcons = {
 
 //reservation Section
 
-const int reservationDuration = 3;
+const int reservationDurationHours = 3;
 
 //---------------------------------

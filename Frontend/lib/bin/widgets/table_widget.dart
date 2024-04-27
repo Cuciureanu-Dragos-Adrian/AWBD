@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:restaurant_management_app/bin/constants.dart' as constants;
 import 'package:restaurant_management_app/bin/services/table_service.dart';
 
-import '../entities/globals.dart';
-import '../entities/table_list.dart';
+import '../providers/globals.dart';
+import '../providers/table_provider.dart';
 
 /// Movable table object
 ///
@@ -40,14 +40,26 @@ class _MovableTableWidgetState extends State<MovableTableWidget> {
   late double _scale;
   late int _gridStep;
   late bool _hasOrder;
-  late bool _hasReservation;
+  late bool _hasReservation = false;
 
   @override
   void initState() {
     super.initState();
     _position = widget.position;
     _hasOrder = getAssignedOrder(widget.id) != null;
-    _hasReservation = getUpcomingReservation(widget.id) != null;
+    fetchReservation();
+  }
+
+  void fetchReservation() async {
+    try {
+      var upcomingReservation = await getUpcomingReservation(widget.id);
+      //has a reservation in the next 3 hours
+      setState(() {
+        _hasReservation = upcomingReservation != null;
+      });
+    } on Exception {
+      return;
+    }
   }
 
   @override
@@ -127,7 +139,7 @@ class _MovableTableWidgetState extends State<MovableTableWidget> {
 
               _position = Offset(xOffset, yOffset);
 
-              TableList.editTablePosition(widget.id, xOffset, yOffset);
+              TableProvider.editTablePosition(widget.id, xOffset, yOffset);
             }
           });
         },

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:restaurant_management_app/bin/models/product_model.dart';
 
 class OrderModel {
@@ -34,14 +36,7 @@ class OrderModel {
 
   @override
   String toString() {
-    Iterable<String> productStrings = products.map((element) => element.toString());
-    String rep = "{\n";
-    rep += '"tableId": "$tableId",\n';
-    rep += '"price": $price,\n';
-    rep += '"quantities": [${quantities.join(', ')}],\n';
-    rep += '"products": [\n${productStrings.join(',\n')}\n]\n';
-    rep += "}";
-    return rep;
+    return jsonEncode(toJson());
   }
 
 

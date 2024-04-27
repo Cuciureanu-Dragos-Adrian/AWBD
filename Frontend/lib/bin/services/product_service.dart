@@ -1,7 +1,7 @@
 import 'package:restaurant_management_app/bin/models/product_model.dart';
 
 import '../../main.dart';
-import '../entities/product_list.dart';
+import '../providers/product_list.dart';
 
 /// Loads a list of tables, saves it to TableList and returns it
 ///

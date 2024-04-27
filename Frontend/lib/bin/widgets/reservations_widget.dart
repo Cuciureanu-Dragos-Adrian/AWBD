@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:restaurant_management_app/bin/constants.dart';
-import 'package:restaurant_management_app/bin/entities/reservation_list.dart';
-import 'package:restaurant_management_app/bin/entities/table_list.dart';
+import 'package:restaurant_management_app/bin/providers/reservation_provider.dart';
+import 'package:restaurant_management_app/bin/providers/table_provider.dart';
 import 'package:restaurant_management_app/bin/models/reservation_model.dart';
 import 'package:restaurant_management_app/bin/services/reservation_service.dart';
 import 'package:restaurant_management_app/bin/widgets/custom_button.dart';
+import 'package:restaurant_management_app/bin/widgets/dialog.dart';
 import 'package:restaurant_management_app/bin/widgets/time_picker.dart';
 
 import '../models/table_model.dart';
 
 const double expandedMaxHeight = 400;
-List<ReservationModel> reservations = ReservationList.getReservationList();
+List<ReservationModel> reservations = [];
 
 class ReservationsWidget extends StatefulWidget {
   const ReservationsWidget({Key? key}) : super(key: key);
@@ -32,10 +33,39 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
   @override
   void initState() {
     super.initState();
-    _tables = TableList.getTableList();
-    _chosenTable = _tables[0].id;
+    loadTablesAsync();
+    loadReservationsAsync();
   }
 
+  void loadTablesAsync() async 
+  {
+    try {
+      _tables = await TableProvider.getTables();
+    } on Exception {
+      showMessageBox(context, 'Failed to fetch tables!');
+      return;
+    }
+
+    if (_tables.isNotEmpty) {
+      _chosenTable = _tables[0].id;
+    }
+  }
+
+  void loadReservationsAsync() async 
+  {
+    try 
+    {
+      var fetch = await ReservationProvider.getReservationList();
+
+      setState(()
+      {
+        reservations = fetch;
+      });
+    } on Exception {
+      showMessageBox(context, 'Failed to fetch tables!');
+      return;
+    }
+  }
   @override
   void dispose() {
     _reservationNameController.dispose();
@@ -241,27 +271,31 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
     }
 
     ReservationModel newReservation = ReservationModel(
+        reservationId: "-",
         numberOfPeople: numberOfPeople,
         name: _reservedBy,
         dateTime: getSelectedDate(),
         tableId: _chosenTable);
 
-    bool valid = await ReservationList.addReservation(newReservation);
+    try
+    {
+      String generatedId = await ReservationProvider.addReservation(newReservation);
+      newReservation.reservationId = generatedId;
+      var fetch = await ReservationProvider.getReservationList();
 
-    //check if the table is already reserved
-    if (!valid) {
       setState(() {
-        _dialogErrorMessage = "Table already reserved";
+        reservations = fetch;
       });
-      return valid;
+
+      return true;
+    } 
+    on Exception catch (e) 
+    {
+      setState(() {
+        _dialogErrorMessage = e.toString();
+      });
+      return false;
     }
-    saveReservations();
-
-    setState(() {
-      reservations = ReservationList.getReservationList();
-    });
-
-    return valid;
   }
 }
 

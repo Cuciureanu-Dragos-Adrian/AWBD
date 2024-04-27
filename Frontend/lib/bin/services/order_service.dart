@@ -1,7 +1,7 @@
 import 'package:restaurant_management_app/bin/models/order_model.dart';
 
 import '../../main.dart';
-import '../entities/order_list.dart';
+import '../providers/order_list.dart';
 
 /// Loads a list of orders, saves it to TableList and returns it
 ///

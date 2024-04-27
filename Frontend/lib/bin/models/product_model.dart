@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class ProductModel implements Comparable<dynamic> {
   late String name;
   late double price;
@@ -25,14 +27,8 @@ class ProductModel implements Comparable<dynamic> {
 
   @override
   String toString() {
-    String rep = "{\n";
-    rep += '"name": "$name",\n';
-    rep += '"price": $price,\n';
-    rep += '"category": "$category"\n';
-    rep += "}";
-    return rep;
+    return jsonEncode(toJson());
   }
-
   @override
   int compareTo(other) {
     return name.compareTo(other.name);

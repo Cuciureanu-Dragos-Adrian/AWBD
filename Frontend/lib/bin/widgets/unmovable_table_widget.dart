@@ -1,18 +1,17 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:restaurant_management_app/bin/constants.dart' as constants;
-import 'package:restaurant_management_app/bin/entities/order_list.dart'
+import 'package:restaurant_management_app/bin/providers/order_list.dart'
     as orders;
-import 'package:restaurant_management_app/bin/entities/reservation_list.dart'
+import 'package:restaurant_management_app/bin/providers/reservation_provider.dart'
     as reservations;
 import 'package:restaurant_management_app/bin/models/order_model.dart';
 import 'package:restaurant_management_app/bin/models/reservation_model.dart';
 import 'package:restaurant_management_app/bin/services/order_service.dart';
-import 'package:restaurant_management_app/bin/services/reservation_service.dart';
 import 'package:restaurant_management_app/bin/services/table_service.dart';
 
 import '../constants.dart';
-import '../entities/globals.dart';
+import '../providers/globals.dart';
 import 'orders.dart';
 
 /// Movable table object
@@ -48,7 +47,7 @@ class _UnmovableTableWidgetState extends State<UnmovableTableWidget> {
   late Offset _position;
   late double _scale;
   late bool _hasOrder;
-  late bool _hasReservation;
+  late bool _hasReservation = false;
   late OrderModel? _order;
   late ReservationModel? _reservation;
 
@@ -61,9 +60,19 @@ class _UnmovableTableWidgetState extends State<UnmovableTableWidget> {
     _order = getAssignedOrder(widget.id);
     _hasOrder = _order != null;
 
-    //has a reservation in the next 3 hours
-    _reservation = getUpcomingReservation(widget.id);
-    _hasReservation = _reservation != null;
+    fetchReservation();
+  }
+
+  void fetchReservation() async {
+    try {
+      var upcomingReservation = await getUpcomingReservation(widget.id);
+      //has a reservation in the next 3 hours
+      setState(() {
+        _hasReservation = upcomingReservation != null;
+      });
+    } on Exception {
+      return;
+    }
   }
 
   @override
@@ -226,9 +235,9 @@ class _UnmovableTableWidgetState extends State<UnmovableTableWidget> {
         },
       );
     } else {
-      reservations.ReservationList.removeReservationByNameAndId(
-          _reservation!.name, _reservation!.dateTime);
-      saveReservations();
+      reservations.ReservationProvider.removeReservationById(
+          _reservation!.reservationId);
+
       _hasReservation = false;
       _reservation = null;
     }
@@ -250,7 +259,7 @@ class _UnmovableTableWidgetState extends State<UnmovableTableWidget> {
 
   String getReservationText() {
     if (_reservation == null) {
-      return 'The table is not reserved in the next $reservationDuration hours.';
+      return 'The table is not reserved in the next $reservationDurationHours hours.';
     } else {
       return 'The table is reserved by ${_reservation!.name} at ${_reservation!.dateTime.hour}:${_reservation!.dateTime.minute}';
     }

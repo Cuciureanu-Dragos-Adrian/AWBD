@@ -1,12 +1,10 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
-import 'package:restaurant_management_app/main.dart';
-import '../entities/table_list.dart';
 import '../constants.dart';
 import '../models/table_model.dart';
 import '../models/order_model.dart';
-import '../entities/order_list.dart';
-import '../entities/reservation_list.dart';
+import '../providers/order_list.dart';
+import '../providers/reservation_provider.dart';
 import '../models/reservation_model.dart';
 import '../widgets/table_widget.dart';
 
@@ -50,36 +48,6 @@ List<TableModel> getTablesFromTableWidgets(
   }
 
   return tables;
-}
-
-/// Loads a list of tables and returns it
-///
-Future<List<TableModel>> loadTables() async {
-  List<TableModel> tables = await data.readTables();
-  return tables;
-}
-
-///Saves tables to disk
-///
-Future<void> saveTables() async {
-  List<TableModel> toSave = TableList.getTableList();
-  await data.writeTables(toSave); // use global data service to store tables
-}
-
-String getTableLetterFromSize(tableSize) {
-  switch (tableSize) {
-    case 2:
-      return 'A';
-    case 3:
-      return 'B';
-    case 4:
-      return 'C';
-    case 6:
-      return 'D';
-    case 8:
-      return 'E';
-  }
-  throw Exception("Invalid table size!");
 }
 
 /// Generates unique ID for a table. Must receive either a list of tables or list of tableWidgets.
@@ -173,12 +141,12 @@ OrderModel? getAssignedOrder(String tableId) {
   return result;
 }
 
-ReservationModel? getUpcomingReservation(String tableId) {
+Future<ReservationModel?> getUpcomingReservation(String tableId) async{
   ReservationModel? result;
 
   var reservationExpirationTerm =
-      DateTime.now().add(const Duration(hours: reservationDuration));
-  var tableReservations = ReservationList.getReservationList()
+      DateTime.now().add(const Duration(hours: reservationDurationHours));
+  var tableReservations = (await ReservationProvider.getReservationList())
       .where((reservation) =>
           reservation.tableId == tableId &&
           reservation.dateTime.isBefore(reservationExpirationTerm));

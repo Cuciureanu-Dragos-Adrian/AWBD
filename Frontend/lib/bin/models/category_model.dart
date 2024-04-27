@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:restaurant_management_app/bin/constants.dart';
 
@@ -18,10 +20,6 @@ class CategoryModel {
 
   @override
   String toString() {
-    String rep = "{\n";
-    rep += '"name": "$name",\n';
-    rep += '"icon": $name\n';
-    rep += "}";
-    return rep;
+    return jsonEncode(toJson());
   }
 }

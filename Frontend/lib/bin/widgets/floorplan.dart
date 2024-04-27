@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:restaurant_management_app/bin/constants.dart';
-import 'package:restaurant_management_app/bin/entities/globals.dart';
-import 'package:restaurant_management_app/bin/entities/table_list.dart';
+import 'package:restaurant_management_app/bin/providers/globals.dart';
+import 'package:restaurant_management_app/bin/providers/table_provider.dart';
 import 'package:restaurant_management_app/bin/models/table_model.dart';
-import 'package:restaurant_management_app/bin/services/capacity_service.dart';
 import 'package:restaurant_management_app/bin/services/globals_service.dart';
 import 'package:restaurant_management_app/bin/services/table_service.dart';
+import 'package:restaurant_management_app/bin/widgets/dialog.dart';
 import 'package:restaurant_management_app/bin/widgets/table_widget.dart';
 
-import '../entities/capacity_list.dart';
+import '../providers/capacity_list.dart';
 import 'custom_button.dart';
 
 /// Floor plan builder
@@ -32,7 +32,7 @@ class _FloorPlanState extends State<FloorPlan> {
   List<TableModel> _tableModelList =
       []; //required for the first initialization of _tableWidgets
   List<String> _tableIds = ['none'];
-  List<int> _floorCapacities = [];
+  List<int> _floorCapacities = [-1];
   bool _read = false;
   bool _firstBuild = true;
   int _currentSeats = 0;
@@ -40,7 +40,18 @@ class _FloorPlanState extends State<FloorPlan> {
   @override
   void initState() {
     super.initState();
-    _tableModelList = TableList.getTableList();
+    loadTablesAsync();
+  }
+
+  void loadTablesAsync() async {
+
+    try {
+      _tableModelList = await TableProvider.getTables();
+    } on Exception {
+      showMessageBox(context, 'Failed to fetch tables!');
+      return;
+    }
+
     _floorCapacities = CapacityList.getCapacityList();
     setState(() {
       _read = true;
@@ -109,7 +120,7 @@ class _FloorPlanState extends State<FloorPlan> {
                                 foregroundColor: mainColor),
                           ),
                           Text(
-                              "$_currentSeats / ${_floorCapacities[_currentFloor] == -1 ? "∞" : _floorCapacities[_currentFloor]}"),
+                              "$_currentSeats / ${(_floorCapacities[_currentFloor] == -1) ? "∞" : _floorCapacities[_currentFloor]}"),
                           TextButton(
                             onPressed: () => incrementCapacity(),
                             child: const Text("+",
@@ -204,27 +215,6 @@ class _FloorPlanState extends State<FloorPlan> {
                       ],
                     ),
                   ),
-                  // Container is necessary for grouping
-                  // ignore: avoid_unnecessary_containers
-                  Container(
-                    child: Row(
-                      // save changes group
-                      children: [
-                        Container(
-                            margin: const EdgeInsets.only(
-                              right: 5,
-                            ),
-                            child: const Text("Save")),
-                        // save changes button
-                        CustomButton(
-                          size: buttonSize,
-                          icon: const Icon(Icons.save),
-                          color: mainColor,
-                          function: () => {save()},
-                        ),
-                      ],
-                    ),
-                  ),
                   Row(
                     children: [
                       Container(
@@ -299,6 +289,13 @@ class _FloorPlanState extends State<FloorPlan> {
             tableWidgets: _tableWidgets),
       );
 
+      try {
+        await TableProvider.addTable(getTableModelFromWidget(newTableWidget));
+      } on Exception catch (e) {
+        showMessageBox(context, 'Failed to add table: $e');
+        return;
+      }
+
       setState(() {
         _tableWidgets.add(newTableWidget);
         if (_tableIds[0] == 'none') {
@@ -311,27 +308,8 @@ class _FloorPlanState extends State<FloorPlan> {
         _removeDropdownValue = _tableIds[0];
       });
 
-      TableList.addTable(getTableModelFromWidget(newTableWidget));
     } else {
-      await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text("Operation failed"),
-            content: const Text(
-                "Cannot add a new table because the seat limit would be exceeded!"),
-            actions: [
-              TextButton(
-                child:
-                    const Text("OK", style: TextStyle(color: Colors.redAccent)),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
+      showMessageBox(context, "Cannot add a new table because the seat limit would be exceeded!");
     }
   }
 
@@ -339,7 +317,7 @@ class _FloorPlanState extends State<FloorPlan> {
     final String id = _removeDropdownValue;
     if (id != 'none') {
       //check that a table is selected
-      TableList.removeTable(id);
+      TableProvider.removeTable(id);
 
       setState(() {
         _tableWidgets.removeWhere((element) => element.id == id);
@@ -389,12 +367,6 @@ class _FloorPlanState extends State<FloorPlan> {
         _floorCapacities[_currentFloor] -= 1;
       }
     });
-  }
-
-  void save() {
-    saveTables();
-    CapacityList.setCapacities(_floorCapacities); // set capacity list and save
-    saveCapacities();
   }
 
   int getCurrentSeatNumber() {

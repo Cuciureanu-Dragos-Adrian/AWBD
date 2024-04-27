@@ -4,7 +4,7 @@ import 'package:restaurant_management_app/bin/services/product_service.dart';
 import 'package:restaurant_management_app/bin/widgets/custom_button.dart';
 import 'dart:math';
 
-import '../entities/product_list.dart';
+import '../providers/product_list.dart';
 import '../models/product_model.dart';
 
 const double expandedMaxHeight = 400;
