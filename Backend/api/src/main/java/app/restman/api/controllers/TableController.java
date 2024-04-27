@@ -1,6 +1,7 @@
 package app.restman.api.controllers;
 
 import app.restman.api.DTOs.TableCreateDTO;
+import app.restman.api.DTOs.TableReturnDTO;
 import app.restman.api.DTOs.TableUpdateDTO;
 import app.restman.api.entities.Table;
 import app.restman.api.services.TableService;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("tables")
@@ -21,18 +23,20 @@ public class TableController {
     public TableController(TableService tableService) {
         this.tableService = tableService;
     }
-
     @GetMapping("/getAll")
-    public ResponseEntity<List<Table>> getAllTables() {
+    public ResponseEntity<List<TableReturnDTO>> getAllTables() {
         List<Table> tables = tableService.getAllTables();
-        return new ResponseEntity<>(tables, HttpStatus.OK);
+        List<TableReturnDTO> tableDTOs = tables.stream()
+                .map(TableReturnDTO::new) // Convert each Table to TableDTO
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(tableDTOs, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Table> getTableById(@PathVariable String id) {
+    public ResponseEntity<TableReturnDTO> getTableById(@PathVariable String id) {
         Table table = tableService.getTableById(id);
         if (table != null) {
-            return new ResponseEntity<>(table, HttpStatus.OK);
+            return new ResponseEntity<>(new TableReturnDTO(table), HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }

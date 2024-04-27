@@ -8,7 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("reservations")
@@ -24,24 +26,50 @@ public class ReservationController {
     @PostMapping
     public ResponseEntity<String> createReservation(@RequestBody ReservationDTO newReservation) {
         try {
-            reservationService.createReservation(newReservation);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Reservation created successfully");
+            Reservation createdReservation = reservationService.createReservation(newReservation);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdReservation.getReservationId());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
     @GetMapping("/getAll")
-    public ResponseEntity<List<Reservation>> getAllReservations() {
+    public ResponseEntity<List<ReservationDTO>> getAllReservations() {
         List<Reservation> reservations = reservationService.getAllReservations();
-        return ResponseEntity.ok(reservations);
+        List<ReservationDTO> reservationDTOs = reservations.stream()
+                .map(ReservationDTO::new) // Convert each Reservation to ReservationDTO
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(reservationDTOs);
     }
 
+    // Helper method to check reservation expiration
+    private boolean isReservationNotExpired(Reservation reservation) {
+        OffsetDateTime endTime = reservation.getDateTime().plusHours(reservationService.getReservationDuration());
+        return endTime.isAfter(OffsetDateTime.now());
+    }
+
+    @GetMapping("/getAllNotExpired")
+    public ResponseEntity<List<ReservationDTO>> getAllNotExpiredReservations() {
+        List<Reservation> reservations = reservationService.getAllReservations();
+
+        // Filter reservations based on expiration criteria
+        List<Reservation> notExpiredReservations = reservations.stream()
+                .filter(this::isReservationNotExpired)
+                .toList();
+
+        List<ReservationDTO> reservationDTOs = notExpiredReservations.stream()
+                .map(ReservationDTO::new) // Convert each Reservation to ReservationDTO
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(reservationDTOs);
+    }
+
+
+
     @GetMapping("/{reservationId}")
-    public ResponseEntity<Reservation> getReservationById(@PathVariable String reservationId) {
+    public ResponseEntity<ReservationDTO> getReservationById(@PathVariable String reservationId) {
         Reservation reservation = reservationService.getReservationById(reservationId);
         if (reservation != null) {
-            return ResponseEntity.ok(reservation);
+            return ResponseEntity.ok(new ReservationDTO(reservation)); // Convert to ReservationDTO
         } else {
             return ResponseEntity.notFound().build();
         }

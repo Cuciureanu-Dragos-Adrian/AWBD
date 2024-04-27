@@ -5,18 +5,22 @@ import app.restman.api.entities.Reservation;
 import app.restman.api.entities.Table;
 import app.restman.api.repositories.ReservationRepository;
 import app.restman.api.repositories.TableRepository;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 @Service
 public class ReservationService {
 
     private final ReservationRepository reservationRepository;
     private final TableRepository tableRepository; // Assuming you have a TableRepository
+    @Getter
+    private final int reservationDuration = 3;
 
     @Autowired
     public ReservationService(ReservationRepository reservationRepository, TableRepository tableRepository) {
@@ -24,27 +28,47 @@ public class ReservationService {
         this.tableRepository = tableRepository;
     }
 
-    public void createReservation(ReservationDTO newReservation) throws Exception {
+    //TODO - remove hardcoded duration
+    // Helper method to check for overlapping date times
+    private boolean isDateTimeOverlapping(OffsetDateTime dateTime1, OffsetDateTime dateTime2) {
+        return dateTime1.isBefore(dateTime2.plusHours(reservationDuration)) && dateTime2.isBefore(dateTime1.plusHours(reservationDuration));
+    }
 
-        if (newReservation.getNumberOfPeople() < 1)
+    public Reservation createReservation(ReservationDTO newReservation) throws Exception {
+
+        if (newReservation.getNumberOfPeople() < 1) {
             throw new Exception("Reservation must have at least 1 person!");
+        }
 
-        if (tableRepository.existsById(newReservation.getTableId()))
+        if (!tableRepository.existsById(newReservation.getTableId())) {
             throw new Exception("Table with given ID does not exist!");
+        }
 
-        if (newReservation.getName().isBlank())
+        if (newReservation.getName().isBlank()) {
             throw new Exception("Name cannot be blank!");
+        }
 
-        if (newReservation.getDateTime().isBefore(OffsetDateTime.now()))
+        if (newReservation.getDateTime().isBefore(OffsetDateTime.now())) {
             throw new Exception("Reservation time cannot be before the present!");
+        }
+
+        // Check for overlapping reservations
+        List<Reservation> allReservations = reservationRepository.findAll();
+        for (Reservation existingReservation : allReservations) {
+            if (existingReservation.getReservedTable().getTableId().equals(newReservation.getTableId()) &&
+                    isDateTimeOverlapping(existingReservation.getDateTime(), newReservation.getDateTime())) {
+                throw new Exception("This table is already booked at this time!");
+            }
+        }
 
         Reservation reservation = new Reservation();
+        reservation.setReservationId(UUID.randomUUID().toString());;
         reservation.setNumberOfPeople(newReservation.getNumberOfPeople());
         reservation.setName(newReservation.getName());
         reservation.setDateTime(newReservation.getDateTime());
         Table reservedTable = tableRepository.getReferenceById(newReservation.getTableId());
         reservation.setReservedTable(reservedTable);
-        reservationRepository.save(reservation);
+        return reservationRepository.save(reservation);
     }
 
     public List<Reservation> getAllReservations() {
@@ -72,6 +96,15 @@ public class ReservationService {
 
         if (updatedReservation.getDateTime().isBefore(OffsetDateTime.now()))
             throw new Exception("Reservation time cannot be before the present!");
+
+        // Check for overlapping reservations
+        List<Reservation> allReservations = reservationRepository.findAll();
+        for (Reservation existingReservation : allReservations) {
+            if (existingReservation.getReservedTable().getTableId().equals(updatedReservation.getTableId()) &&
+                    isDateTimeOverlapping(existingReservation.getDateTime(), updatedReservation.getDateTime())) {
+                throw new Exception("This table is already booked at this time!");
+            }
+        }
 
         reservation.setNumberOfPeople(updatedReservation.getNumberOfPeople());
         reservation.setName(updatedReservation.getName());
