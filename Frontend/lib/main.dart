@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:restaurant_management_app/bin/constants.dart';
 import 'package:restaurant_management_app/bin/data_providers/json_provider.dart';
 import 'package:restaurant_management_app/bin/services/capacity_list.dart';
-import 'package:restaurant_management_app/bin/services/product_list.dart';
 import 'package:restaurant_management_app/bin/widgets/floorplan.dart';
 import 'package:restaurant_management_app/bin/widgets/orders.dart';
 import 'package:restaurant_management_app/bin/widgets/reservations_widget.dart';
@@ -20,7 +19,6 @@ Future<void> init() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Globals.loadGlobals();
   await CapacityList.loadCapacityList();
-  await ProductList.loadProductList();
 }
 
 void main() async {

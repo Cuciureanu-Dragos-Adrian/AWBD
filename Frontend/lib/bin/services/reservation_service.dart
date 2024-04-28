@@ -15,7 +15,7 @@ class ReservationService {
           .map((reservation) => ReservationModel.fromJson(reservation))
           .toList();
     } else {
-      throw Exception('Failed to fetch reservations');
+      throw Exception(response.body);
     }
   }
 
@@ -30,7 +30,7 @@ class ReservationService {
     if (response.statusCode == 201) {
       return response.body;
     } else {
-      throw Exception('Failed to add reservation, ${response.body}');
+      throw Exception(response.body);
     }
   }
 
@@ -43,7 +43,7 @@ class ReservationService {
     final response = await http.delete(url);
 
     if (response.statusCode != 200) {
-      throw Exception('Failed to remove reservation by ID');
+      throw Exception(response.body);
     }
   }
 }

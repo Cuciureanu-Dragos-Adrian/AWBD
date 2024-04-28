@@ -14,14 +14,14 @@ class ProductModel implements Comparable<dynamic> {
   ProductModel.fromJson(Map<String, dynamic> json) {
     name = json['name'];
     price = json['price'];
-    category = json['category'];
+    category = json['categoryName'];
   }
 
   Map<String, dynamic> toJson() {
     return {
       'name': name,
       'price': price,
-      'category': category
+      'categoryName': category
     };
   }
 

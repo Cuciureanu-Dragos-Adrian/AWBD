@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:restaurant_management_app/bin/constants.dart';
-import 'package:restaurant_management_app/bin/utilities/product_utils.dart';
 import 'package:restaurant_management_app/bin/widgets/custom_button.dart';
+import 'package:restaurant_management_app/bin/widgets/dialog.dart';
 import 'dart:math';
 
-import '../services/product_list.dart';
+import '../services/product_service.dart';
 import '../models/product_model.dart';
 
 const double expandedMaxHeight = 400;
@@ -46,7 +46,20 @@ class _MenuSectionState extends State<MenuSection> {
   @override
   void initState() {
     super.initState();
-    _products = ProductList.getProductList();
+
+    loadProductsAsync();
+  }
+
+  void loadProductsAsync() async {
+    try {
+      var response = await ProductService.getProductList();
+      setState(() {
+        _products = response;
+      });
+    } on Exception {
+      showMessageBox(context, 'Failed to fetch products!');
+      return;
+    }
   }
 
   @override
@@ -155,7 +168,7 @@ class _MenuSectionState extends State<MenuSection> {
                                     actions: [
                                       TextButton(
                                         child: const Text('Add'),
-                                        onPressed: () {
+                                        onPressed: () async {
                                           setState(() {
                                             _errorMessage = "";
                                           });
@@ -179,18 +192,6 @@ class _MenuSectionState extends State<MenuSection> {
                                             return;
                                           }
 
-                                          for (var product
-                                              in ProductList.getProductList()) {
-                                            if (name.toLowerCase() ==
-                                                product.name.toLowerCase()) {
-                                              setState(() {
-                                                _errorMessage =
-                                                    "Product name already exists!";
-                                              });
-                                              return;
-                                            }
-                                          }
-
                                           double? price = double.tryParse(
                                               priceController.text);
 
@@ -202,7 +203,7 @@ class _MenuSectionState extends State<MenuSection> {
                                             return;
                                           }
 
-                                          createProduct(
+                                          await createProduct(
                                               name, price, widget.title);
                                         },
                                         style: TextButton.styleFrom(
@@ -264,26 +265,34 @@ class _MenuSectionState extends State<MenuSection> {
     );
   }
 
-  void createProduct(String name, double price, String category) {
+  Future<void> createProduct(String name, double price, String category) async{
     ProductModel newProduct =
         ProductModel(name: name, price: price, category: category);
-    ProductList.addProduct(newProduct);
+    try
+    {
+      await ProductService.addProduct(newProduct);
+      var products = await ProductService.getProductList();
 
-    setState(() {
-      _products = ProductList.getProductList();
-    });
-
-    saveProducts();
+      setState(() {
+        _products = products;
+      });
+    } on Exception catch (e) {
+      showMessageBox(context, "Failed to add product! " + e.toString());
+    }
   }
 
-  void deleteProductByName(String name) {
-    ProductList.removeProductByName(name);
+  Future<void> deleteProductByName(String name) async {
+    try
+    {
+      await ProductService.removeProductByName(name);
+      var products = await ProductService.getProductList();
 
-    setState(() {
-      _products = ProductList.getProductList();
-    });
-
-    saveProducts();
+      setState(() {
+        _products = products;
+      });
+    } on Exception catch (e) {
+      showMessageBox(context, "Failed to remove product! " + e.toString());
+    }
   }
 }
 
@@ -327,7 +336,7 @@ class MenuItem extends StatelessWidget {
   final String name;
   final double price;
   final String category;
-  final void Function(String) function;
+  final Future<void> Function(String) function;
 
   const MenuItem({
     Key? key,
@@ -354,8 +363,8 @@ class MenuItem extends StatelessWidget {
                   child: Text(price.toString())),
               CustomButton(
                   color: Colors.red,
-                  function: () {
-                    function(name);
+                  function: () async {
+                    await function(name);
                   },
                   size: 25,
                   icon: const Icon(Icons.delete)),

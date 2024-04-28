@@ -15,7 +15,7 @@ class TableService {
       final jsonData = json.decode(response.body) as List;
       return jsonData.map((data) => TableModel.fromJson(data)).toList();
     } else {
-      throw Exception('Failed to fetch tables: ${response.statusCode}');
+      throw Exception(response.body);
     }
   }
 
@@ -26,7 +26,7 @@ class TableService {
       final jsonData = json.decode(response.body) as Map<String, dynamic>;
       return TableModel.fromJson(jsonData);
     } else {
-      throw Exception('Failed to get table by ID: ${response.statusCode}');
+      throw Exception(response.body);
     }
   }
 
@@ -39,7 +39,7 @@ class TableService {
         headers: {"Content-Type": "application/json"},
         body: json.encode(tableMap));
     if (response.statusCode != 201) {
-      throw Exception('Method returned ${response.statusCode}, ${response.body}');
+      throw Exception(response.body);
     }
   }
 
@@ -55,7 +55,7 @@ class TableService {
           headers: {"Content-Type": "application/json"},
           body: json.encode(table.toJson()));
       if (response.statusCode != 200) {
-        throw Exception('Failed to update table position: ${response.statusCode}');
+        throw Exception(response.body);
       }
     } else {
       throw Exception('Table with ID $id not found');
@@ -69,7 +69,7 @@ class TableService {
       final url = Uri.parse(_baseUrl + '/$tableId');
       final response = await http.delete(url);
       if (response.statusCode != 200) {
-        throw Exception('Failed to remove table: ${response.statusCode}');
+        throw Exception(response.body);
       } 
     } else {
       throw Exception('Table with ID $tableId not found');

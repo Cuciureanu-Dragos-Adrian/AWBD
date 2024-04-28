@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:restaurant_management_app/bin/models/product_model.dart';
-import 'package:restaurant_management_app/bin/services/product_list.dart';
 
 class OrderModel {
   late String orderId;
@@ -43,14 +42,13 @@ class OrderModel {
     final tableId = json['tableId'] as String;
     final price = json['price'] as double;
 
-    final productIds = json['productNames'] as List<dynamic>;
+    final jsonProducts = json['products'] as List<dynamic>;
     final quantities = json['quantities'] as List<dynamic>;
 
     final products = <ProductModel>[];
 
-    for (var name in productIds) {
-      final product = ProductList.getProductByName(name);
-      products.add(product);
+    for (var json in jsonProducts) {
+      products.add(ProductModel.fromJson(json));
     }
 
     return OrderModel(

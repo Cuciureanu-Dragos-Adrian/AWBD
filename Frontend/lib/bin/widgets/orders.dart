@@ -6,7 +6,7 @@ import 'package:restaurant_management_app/bin/widgets/custom_button.dart';
 import 'package:restaurant_management_app/bin/widgets/dialog.dart';
 
 import '../constants.dart';
-import '../services/product_list.dart';
+import '../services/product_service.dart';
 import '../services/table_service.dart';
 import '../models/order_model.dart';
 import '../services/order_service.dart';
@@ -37,16 +37,18 @@ class _OrdersWidgetState extends State<OrdersWidget> {
   @override
   void initState() {
     super.initState();
-    _products = ProductList.getProductList();
-    _currentSelectedProduct = _products[0].name;
 
+    loadProductsAsync();
     loadTablesAsync();
     loadOrdersAsync();
   }
 
   void loadTablesAsync() async {
     try {
-      _tables = await TableService.getTables();
+      var response = await TableService.getTables();
+      setState(() {
+        _tables = response;
+      });
     } on Exception {
       showMessageBox(context, 'Failed to fetch tables!');
       return;
@@ -59,9 +61,28 @@ class _OrdersWidgetState extends State<OrdersWidget> {
 
   void loadOrdersAsync() async {
     try {
-      _orders = await OrderService.getOrderList();
+      var response = await OrderService.getOrderList();
+      setState(() {
+        _orders = response;
+      });
     } on Exception {
       showMessageBox(context, 'Failed to fetch orders!');
+      return;
+    }
+  }
+
+  void loadProductsAsync() async {
+    try {
+      var response = await ProductService.getProductList();
+      setState(() {
+        _products = response;
+
+        if (_products.isNotEmpty) {
+          _currentSelectedProduct = _products[0].name;
+        }
+      });
+    } on Exception {
+      showMessageBox(context, 'Failed to fetch products!');
       return;
     }
   }
@@ -294,7 +315,7 @@ class _OrdersWidgetState extends State<OrdersWidget> {
     }
 
     ProductModel product =
-        ProductList.getProductByName(_currentSelectedProduct);
+        _products.firstWhere((prod) => prod.name == _currentSelectedProduct);
 
     //the product already exists if this != -1
     bool exists = false;
@@ -316,38 +337,24 @@ class _OrdersWidgetState extends State<OrdersWidget> {
   }
 
   Future<void> tryAddOrder() async {
-    setState(() {
-        //TODO - fix this POS
-      _dialogErrorMessage = "";
-    });
-
     //check if table is available
     _selectedTable;
     if (_orders.any((element) => element.tableId == _selectedTable)) {
-      setState(() {
-        _dialogErrorMessage =
-            "The selected table already has an assigned order!";
-      });
-
+      showMessageBox(
+          context, "The selected table already has an assigned order!");
       return;
     }
 
     //validate number of products
     if (_dialogProductQuantities.isEmpty) {
-      setState(() {
-        //TODO - fix this POS
-        _dialogErrorMessage = "Order must have at least one product!";
-      });
-      
+      showMessageBox(context, "Order must have at least one product!");
       return;
     }
 
-    try
-    {
+    try {
       await createOrder();
       Navigator.of(context).pop();
-    }
-    on Exception catch (e) {
+    } on Exception catch (e) {
       showMessageBox(context, "Failed to add order! " + e.toString());
     }
   }

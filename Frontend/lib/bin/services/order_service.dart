@@ -14,7 +14,7 @@ class OrderService {
       final jsonData = jsonDecode(response.body) as List<dynamic>;
       return jsonData.map((data) => OrderModel.fromJson(data)).toList();
     } else {
-      throw Exception('Failed to get orders: ${response.statusCode}');
+      throw Exception(response.body);
     }
   }
 
@@ -29,7 +29,7 @@ class OrderService {
     );
 
     if (response.statusCode != 201) {
-      throw Exception('Failed to add order: ${response.statusCode}');
+      throw Exception(response.body);
     }
   }
 
@@ -38,7 +38,7 @@ class OrderService {
     final response = await http.delete(url);
 
     if (response.statusCode != 200) {
-      throw Exception('Failed to remove orders: ${response.statusCode}');
+      throw Exception(response.body);
     }
   }
 }
