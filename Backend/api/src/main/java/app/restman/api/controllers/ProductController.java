@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("products")
@@ -21,16 +22,19 @@ public class ProductController {
     }
 
     @GetMapping("/getAll")
-    public ResponseEntity<List<Product>> getAllProducts() {
+    public ResponseEntity<List<ProductDTO>> getAllProducts() {
         List<Product> products = productService.getAllProducts();
-        return ResponseEntity.ok(products);
+        List<ProductDTO> productDTOs = products.stream()
+                .map(ProductDTO::new) // Use the constructor with Product argument
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(productDTOs);
     }
 
     @GetMapping("/{productName}")
-    public ResponseEntity<Product> getProductByName(@PathVariable String productName) {
+    public ResponseEntity<ProductDTO> getProductByName(@PathVariable String productName) {
         Product product = productService.getProductByName(productName);
         if (product != null) {
-            return ResponseEntity.ok(product);
+            return ResponseEntity.ok(new ProductDTO(product)); // Use the constructor with Product argument
         } else {
             return ResponseEntity.notFound().build();
         }

@@ -5,7 +5,6 @@ import app.restman.api.DTOs.TableUpdateDTO;
 import app.restman.api.entities.Table;
 import app.restman.api.repositories.TableRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -40,6 +39,9 @@ public class TableService {
 
         if (newTable.getFloor() < 0)
             throw new Exception("Floor cannot be negative!");
+
+        if (tableRepository.existsById(newTable.getTableId()))
+            throw new Exception("Table with given Id already exist!");
 
         // Create a new Table entity from the DTO
         Table table = new Table();

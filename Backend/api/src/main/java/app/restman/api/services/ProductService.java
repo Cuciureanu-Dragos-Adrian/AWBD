@@ -61,10 +61,14 @@ public class ProductService {
         if (productDTO.getName().isBlank())
             throw new Exception("Name cannot be blank!");
 
+        if (productRepository.existsById(productDTO.getName()))
+            throw new Exception("Product with given name already exists!");
+
         Product product = new Product();
         product.setName(productDTO.getName());
         product.setPrice(productDTO.getPrice());
         //TODO - implement
+        product.setProdCategory(productDTO.getCategoryName());
         //product.setCategory(menuCategoryRepository.getReferenceById(productDTO.getCategoryName()));
 
         return productRepository.save(product);
@@ -87,6 +91,7 @@ public class ProductService {
             // Update product details
             product.setPrice(updatedProductDTO.getPrice());
             //TODO - implement
+            product.setProdCategory(updatedProductDTO.getCategoryName());
             //product.setCategory(menuCategoryRepository.getReferenceById(updatedProductDTO.getCategoryName()));
 
             for (var order : product.getOrders())

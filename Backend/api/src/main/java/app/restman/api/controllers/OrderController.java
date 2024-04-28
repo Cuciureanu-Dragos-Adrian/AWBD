@@ -1,6 +1,7 @@
 package app.restman.api.controllers;
 
 import app.restman.api.DTOs.OrderDTO;
+import app.restman.api.DTOs.OrderReturnDTO;
 import app.restman.api.entities.Order;
 import app.restman.api.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("orders")
@@ -21,20 +23,24 @@ public class OrderController {
     }
 
     @GetMapping("/getAll")
-    public ResponseEntity<List<Order>> getAllOrders() {
+    public ResponseEntity<List<OrderReturnDTO>> getAllOrders() {
         List<Order> orders = orderService.getAllOrders();
-        return ResponseEntity.ok(orders);
+        List<OrderReturnDTO> orderDTOs = orders.stream()
+                .map(OrderReturnDTO::new) // Use your OrderDTO constructor
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(orderDTOs);
     }
 
     @GetMapping("/{orderId}")
-    public ResponseEntity<Order> getOrderById(@PathVariable String orderId) {
+    public ResponseEntity<OrderReturnDTO> getOrderById(@PathVariable String orderId) {
         Order order = orderService.getOrderById(orderId);
         if (order != null) {
-            return ResponseEntity.ok(order);
+            return ResponseEntity.ok(new OrderReturnDTO(order)); // Use your OrderDTO constructor
         } else {
             return ResponseEntity.notFound().build();
         }
     }
+
 
     @PostMapping
     public ResponseEntity<String> createOrder(@RequestBody OrderDTO orderDTO) {
