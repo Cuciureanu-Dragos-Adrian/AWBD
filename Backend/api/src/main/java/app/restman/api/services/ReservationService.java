@@ -13,12 +13,15 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Service
 public class ReservationService {
 
     private final ReservationRepository reservationRepository;
     private final TableRepository tableRepository; // Assuming you have a TableRepository
+
     @Getter
     private final int reservationDuration = 3;
 
@@ -28,7 +31,10 @@ public class ReservationService {
         this.tableRepository = tableRepository;
     }
 
+    private static final Logger logger = Logger.getLogger(ReservationService.class.getName());
+
     //TODO - remove hardcoded duration
+
     // Helper method to check for overlapping date times
     private boolean isDateTimeOverlapping(OffsetDateTime dateTime1, OffsetDateTime dateTime2) {
         return dateTime1.isBefore(dateTime2.plusHours(reservationDuration)) && dateTime2.isBefore(dateTime1.plusHours(reservationDuration));
@@ -37,18 +43,22 @@ public class ReservationService {
     public Reservation createReservation(ReservationDTO newReservation) throws Exception {
 
         if (newReservation.getNumberOfPeople() < 1) {
+            logger.log(Level.SEVERE, "Reservation must have at least 1 person!");
             throw new Exception("Reservation must have at least 1 person!");
         }
 
         if (!tableRepository.existsById(newReservation.getTableId())) {
+            logger.log(Level.SEVERE, "Table with given ID does not exist!");
             throw new Exception("Table with given ID does not exist!");
         }
 
         if (newReservation.getName().isBlank()) {
+            logger.log(Level.SEVERE, "Name cannot be blank!");
             throw new Exception("Name cannot be blank!");
         }
 
         if (newReservation.getDateTime().isBefore(OffsetDateTime.now())) {
+            logger.log(Level.SEVERE, "Reservation time cannot be before the present!");
             throw new Exception("Reservation time cannot be before the present!");
         }
 
@@ -57,6 +67,7 @@ public class ReservationService {
         for (Reservation existingReservation : allReservations) {
             if (existingReservation.getReservedTable().getTableId().equals(newReservation.getTableId()) &&
                     isDateTimeOverlapping(existingReservation.getDateTime(), newReservation.getDateTime())) {
+                logger.log(Level.SEVERE, "This table is already booked at this time!");
                 throw new Exception("This table is already booked at this time!");
             }
         }
@@ -82,26 +93,37 @@ public class ReservationService {
     public void updateReservation(String reservationId, ReservationDTO updatedReservation) throws NoSuchElementException, Exception  {
         Reservation reservation = reservationRepository.findById(reservationId).orElse(null);
 
-        if (reservation == null)
+        if (reservation == null) {
+            logger.log(Level.SEVERE, "Reservation does not exist!");
             throw new NoSuchElementException("Reservation does not exist!");
+        }
 
-        if (updatedReservation.getNumberOfPeople() < 1)
+        if (updatedReservation.getNumberOfPeople() < 1) {
+            logger.log(Level.SEVERE, "Reservation must have at least 1 person!");
             throw new Exception("Reservation must have at least 1 person!");
+        }
 
-        if (tableRepository.existsById(updatedReservation.getTableId()))
+        if (!tableRepository.existsById(updatedReservation.getTableId())) {
+            logger.log(Level.SEVERE, "Table with given ID does not exist!");
             throw new Exception("Table with given ID does not exist!");
+        }
 
-        if (updatedReservation.getName().isBlank())
+        if (updatedReservation.getName().isBlank()) {
+            logger.log(Level.SEVERE, "Name cannot be blank!");
             throw new Exception("Name cannot be blank!");
+        }
 
-        if (updatedReservation.getDateTime().isBefore(OffsetDateTime.now()))
+        if (updatedReservation.getDateTime().isBefore(OffsetDateTime.now())) {
+            logger.log(Level.SEVERE, "Reservation time cannot be before the present!");
             throw new Exception("Reservation time cannot be before the present!");
+        }
 
         // Check for overlapping reservations
         List<Reservation> allReservations = reservationRepository.findAll();
         for (Reservation existingReservation : allReservations) {
             if (existingReservation.getReservedTable().getTableId().equals(updatedReservation.getTableId()) &&
                     isDateTimeOverlapping(existingReservation.getDateTime(), updatedReservation.getDateTime())) {
+                logger.log(Level.SEVERE, "This table is already booked at this time!");
                 throw new Exception("This table is already booked at this time!");
             }
         }
@@ -112,12 +134,13 @@ public class ReservationService {
         Table reservedTable = tableRepository.getReferenceById(updatedReservation.getTableId());
         reservation.setReservedTable(reservedTable);
         reservationRepository.save(reservation);
-
     }
 
     public void deleteReservation(String reservationId) throws Exception {
-        if (!reservationRepository.existsById(reservationId))
+        if (!reservationRepository.existsById(reservationId)) {
+            logger.log(Level.SEVERE, "Given reservation ID does not exist!");
             throw new Exception("Given reservation ID does not exist!");
+        }
 
         reservationRepository.deleteById(reservationId);
     }

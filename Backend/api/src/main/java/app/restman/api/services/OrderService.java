@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Service
 public class OrderService {
@@ -15,6 +17,8 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductService productService;
     private final TableService tableService;
+
+    private static final Logger logger = Logger.getLogger(OrderService.class.getName());
 
     @Autowired
     public OrderService(OrderRepository orderRepository, TableService tableService, ProductService productService) {
@@ -30,10 +34,13 @@ public class OrderService {
     public Order createOrder(OrderDTO orderDTO) throws Exception {
         List<Product> products = productService.getProductsByNames(orderDTO.getProductNames());
 
-        if (tableService.getTableById(orderDTO.getTableId()) == null)
+        if (tableService.getTableById(orderDTO.getTableId()) == null) {
+            logger.log(Level.SEVERE, "Table does not exist!");
             throw new Exception("Table does not exist!");
+        }
 
         if (products.size() != orderDTO.getQuantities().size()) {
+            logger.log(Level.SEVERE, "Number of products must match number of quantities!");
             throw new Exception("Number of products must match number of quantities");
         }
 
@@ -50,8 +57,10 @@ public class OrderService {
     public void updateOrder(String orderId, OrderDTO updatedOrderDTO) throws Exception {
         Order order = orderRepository.findById(orderId).orElse(null);
         if (order != null) {
-            if (tableService.getTableById(updatedOrderDTO.getTableId()) == null)
+            if (tableService.getTableById(updatedOrderDTO.getTableId()) == null) {
+                logger.log(Level.SEVERE, "Table does not exist!");
                 throw new Exception("Table does not exist!");
+            }
 
             order.setTableId(updatedOrderDTO.getTableId());
 
@@ -63,17 +72,18 @@ public class OrderService {
     }
 
     public void deleteOrder(String orderId) {
-        if (!orderRepository.existsById(orderId))
+        if (!orderRepository.existsById(orderId)) {
+            logger.log(Level.SEVERE, "Order does not exist!");
             throw new NoSuchElementException("Order does not exist!");
+        }
 
         orderRepository.deleteById(orderId);
     }
 
-    public void deleteOrdersByTableId(String tableId)
-    {
+    public void deleteOrdersByTableId(String tableId) {
         var orders = orderRepository.findAll();
 
-        for (var order : orders){
+        for (var order : orders) {
             if (order.getTableId().equals(tableId))
                 orderRepository.deleteById(order.getOrderId());
         }

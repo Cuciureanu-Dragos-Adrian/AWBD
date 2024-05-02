@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Service
 public class TableService {
@@ -21,6 +23,8 @@ public class TableService {
         this.tableRepository = tableRepository;
     }
 
+    private static final Logger logger = Logger.getLogger(TableService.class.getName());
+
     public List<Table> getAllTables() {
         return tableRepository.findAll();
     }
@@ -31,17 +35,25 @@ public class TableService {
 
     public Table createTable(TableCreateDTO newTable) throws Exception {
 
-        if (newTable.getTableSize() < 1)
+        if (newTable.getTableSize() < 1){
+            logger.log(Level.SEVERE, "Table size cannot be less than 1!");
             throw new Exception("Table size cannot be less than 1!");
+        }
 
-        if (newTable.getXOffset() < 0 || newTable.getYOffset() < 0)
+        if (newTable.getXOffset() < 0 || newTable.getYOffset() < 0){
+            logger.log(Level.SEVERE, "Table offset cannot be negative!");
             throw new Exception("Table offset cannot be negative!");
+        }
 
-        if (newTable.getFloor() < 0)
+        if (newTable.getFloor() < 0) {
+            logger.log(Level.SEVERE, "Floor cannot be negative!");
             throw new Exception("Floor cannot be negative!");
+        }
 
-        if (tableRepository.existsById(newTable.getTableId()))
+        if (tableRepository.existsById(newTable.getTableId())) {
+            logger.log(Level.SEVERE, "Table with given Id already exist!");
             throw new Exception("Table with given Id already exist!");
+        }
 
         // Create a new Table entity from the DTO
         Table table = new Table();
@@ -58,17 +70,23 @@ public class TableService {
         return tableRepository.save(table);
     }
 
-    public void updateTable(String id, TableUpdateDTO updatedTable) throws Exception, NoSuchElementException {
+    public void updateTable(String id, TableUpdateDTO updatedTable) throws Exception {
         var table = tableRepository.getReferenceById(id);
 
-        if (updatedTable.getTableSize() < 1)
+        if (updatedTable.getTableSize() < 1){
+            logger.log(Level.SEVERE, "Table size cannot be less than 1!");
             throw new Exception("Table size cannot be less than 1!");
+        }
 
-        if (updatedTable.getXOffset() < 0 || updatedTable.getYOffset() < 0)
+        if (updatedTable.getXOffset() < 0 || updatedTable.getYOffset() < 0) {
+            logger.log(Level.SEVERE, "Table offset cannot be negative!");
             throw new Exception("Table offset cannot be negative!");
+        }
 
-        if (updatedTable.getFloor() < 0)
+        if (updatedTable.getFloor() < 0) {
+            logger.log(Level.SEVERE, "Floor cannot be negative!");
             throw new Exception("Floor cannot be negative!");
+        }
 
         if (tableRepository.existsById(id)) {
             table.setFloor(updatedTable.getFloor());
@@ -78,13 +96,18 @@ public class TableService {
 
             tableRepository.save(table);
         }
-        else
+        else {
+            logger.log(Level.SEVERE, "Table does not exist!");
             throw new NoSuchElementException("Table does not exist!");
+        }
     }
 
     public void deleteTable(String id) throws Exception {
-        if (!tableRepository.existsById(id))
+        if (!tableRepository.existsById(id)) {
+            logger.log(Level.SEVERE, "The table does not exist!");
             throw new Exception("The table does not exist!");
+        }
+
         tableRepository.deleteById(id);
     }
 }

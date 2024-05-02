@@ -9,11 +9,15 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Service
 public class MenuCategoryService {
 
     private final MenuCategoryRepository menuCategoryRepository;
+
+    private static final Logger logger = Logger.getLogger(MenuCategoryService.class.getName());
 
     @Autowired
     public MenuCategoryService(MenuCategoryRepository menuCategoryRepository) {
@@ -29,8 +33,10 @@ public class MenuCategoryService {
     }
 
     public MenuCategory createCategory(MenuCategoryDTO categoryDTO) throws Exception {
-        if (categoryDTO.getName().isBlank())
+        if (categoryDTO.getName().isBlank()) {
+            logger.log(Level.SEVERE, "Name cannot be blank!");
             throw new Exception("Name cannot be blank!");
+        }
 
         MenuCategory category = new MenuCategory();
         BeanUtils.copyProperties(categoryDTO, category);
@@ -38,21 +44,26 @@ public class MenuCategoryService {
     }
 
     public void updateCategory(String name, MenuCategoryDTO updatedCategoryDTO) throws Exception, NoSuchElementException {
-        if (updatedCategoryDTO.getName().isBlank())
+        if (updatedCategoryDTO.getName().isBlank()) {
+            logger.log(Level.SEVERE, "Name cannot be blank!");
             throw new Exception("Name cannot be blank!");
+        }
 
         MenuCategory existingCategory = menuCategoryRepository.findById(name).orElse(null);
         if (existingCategory != null) {
             BeanUtils.copyProperties(updatedCategoryDTO, existingCategory);
             menuCategoryRepository.save(existingCategory);
-        }
-        else
+        } else {
+            logger.log(Level.SEVERE, "Menu category does not exist!");
             throw new NoSuchElementException("Menu category does not exist!");
+        }
     }
 
-    public void deleteCategory(String name) throws NoSuchElementException{
-        if (!menuCategoryRepository.existsById(name))
+    public void deleteCategory(String name) throws NoSuchElementException {
+        if (!menuCategoryRepository.existsById(name)) {
+            logger.log(Level.SEVERE, "Category does not exist!");
             throw new NoSuchElementException("Category does not exist!");
+        }
 
         menuCategoryRepository.deleteById(name);
     }

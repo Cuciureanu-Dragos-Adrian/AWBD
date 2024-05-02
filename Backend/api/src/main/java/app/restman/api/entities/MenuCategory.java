@@ -2,14 +2,12 @@ package app.restman.api.entities;
 
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
 @Entity
-@Getter
-@Setter
+@Data
 public class MenuCategory {
 
     @Id

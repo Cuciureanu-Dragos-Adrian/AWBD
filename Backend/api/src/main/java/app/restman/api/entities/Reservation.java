@@ -1,15 +1,13 @@
 package app.restman.api.entities;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
 @Entity
-@Setter
-@Getter
+@Data
 public class Reservation {
 
     @Id

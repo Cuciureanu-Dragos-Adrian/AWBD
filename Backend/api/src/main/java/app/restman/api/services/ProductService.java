@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Service
 public class ProductService {
@@ -25,6 +27,8 @@ public class ProductService {
         this.menuCategoryRepository = menuCategoryRepository;
     }
 
+    private static final Logger logger = Logger.getLogger(ProductService.class.getName());
+
     public List<Product> getAllProducts()
     {
         return productRepository.findAll();
@@ -38,8 +42,10 @@ public class ProductService {
     public List<Product> getProductsByNames(List<String> productNames) throws Exception {
         List<Product> products = new ArrayList<>();
         for (var productName : productNames){
-            if (!productRepository.existsById(productName))
+            if (!productRepository.existsById(productName)) {
+                logger.log(Level.SEVERE, "Product with name " + productName + " does not exist!");
                 throw new Exception("Product with name " + productName + " does not exist!");
+            }
 
             Product product = productRepository.getReferenceById(productName);
             products.add(product);
@@ -55,14 +61,20 @@ public class ProductService {
             throw new Exception("Menu category does not exist!");
          */
 
-        if (productDTO.getPrice() < 0)
+        if (productDTO.getPrice() < 0) {
+            logger.log(Level.SEVERE, "Price cannot be negative!");
             throw new Exception("Price cannot be negative!");
+        }
 
-        if (productDTO.getName().isBlank())
+        if (productDTO.getName().isBlank()) {
+            logger.log(Level.SEVERE, "Name cannot be blank!");
             throw new Exception("Name cannot be blank!");
+        }
 
-        if (productRepository.existsById(productDTO.getName()))
+        if (productRepository.existsById(productDTO.getName())) {
+            logger.log(Level.SEVERE, "Product with given name already exists!");
             throw new Exception("Product with given name already exists!");
+        }
 
         Product product = new Product();
         product.setName(productDTO.getName());
@@ -80,11 +92,15 @@ public class ProductService {
             throw new Exception("Menu category does not exist!");
          */
 
-        if (updatedProductDTO.getPrice() < 0)
+        if (updatedProductDTO.getPrice() < 0) {
+            logger.log(Level.SEVERE, "Price cannot be negative!");
             throw new Exception("Price cannot be negative!");
+        }
 
-        if (updatedProductDTO.getName().isBlank())
+        if (updatedProductDTO.getName().isBlank()) {
+            logger.log(Level.SEVERE, "Name cannot be blank!");
             throw new Exception("Name cannot be blank!");
+        }
 
         Product product = productRepository.findById(productName).orElse(null);
         if (product != null) {
@@ -99,15 +115,17 @@ public class ProductService {
 
             productRepository.save(product);
         }
-        else
-        {
+        else {
+            logger.log(Level.SEVERE, "Product does not exist!");
             throw new NoSuchElementException("Product does not exist!");
         }
     }
 
     public void deleteProduct(String productName) throws NoSuchElementException{
-        if (!productRepository.existsById(productName))
+        if (!productRepository.existsById(productName)) {
+            logger.log(Level.SEVERE, "Product does not exist!");
             throw new NoSuchElementException("Product does not exist!");
+        }
 
         productRepository.deleteById(productName);
     }

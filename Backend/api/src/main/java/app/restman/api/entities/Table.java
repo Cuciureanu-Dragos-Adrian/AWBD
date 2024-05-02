@@ -4,14 +4,12 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
 @Entity
-@Setter
-@Getter
+@Data
 @jakarta.persistence.Table(name="table_tbl")
 public class Table {
 
