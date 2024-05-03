@@ -105,6 +105,14 @@ public class ReservationService {
         return reservationRepository.findByReservationId(reservationId).orElse(null);
     }
 
+    public Page<Reservation> getAllReservationsPageAsc(Pageable page) {
+        return reservationRepository.findAll(page);
+    }
+
+    public Page<Reservation> getAllReservationsPageDesc(Pageable page) {
+        return reservationRepository.findAll(page);
+    }
+
     public void updateReservation(String reservationId, ReservationDTO updatedReservation) throws NoSuchElementException, Exception  {
         Reservation reservation = reservationRepository.findByReservationId(reservationId).orElse(null);
 
@@ -154,7 +162,6 @@ public class ReservationService {
     }
 
     public void deleteReservation(String reservationId) throws Exception {
-        if (!reservationRepository.existsById(reservationId)) {
         if (!reservationRepository.existsByReservationId(reservationId)) {
             logger.log(Level.SEVERE, "Given reservation ID does not exist!");
             throw new Exception("Given reservation ID does not exist!");

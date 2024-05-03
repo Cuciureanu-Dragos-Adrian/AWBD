@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:restaurant_management_app/bin/constants.dart';
 import 'package:restaurant_management_app/bin/services/reservation_service.dart';
@@ -25,18 +24,21 @@ class ReservationsWidget extends StatefulWidget {
 class _ReservationsWidgetState extends State<ReservationsWidget> {
   List<TableModel> _tables = [];
 
-  String _chosenTable = '';
-  final TextEditingController _reservationNameController =
-      TextEditingController();
+  final TextEditingController _reservationNameController = TextEditingController();
 
+  String _chosenTable = '';
   String _dialogErrorMessage = "";
   String _reservedBy = "";
+  int _currentPage = 1;
+  bool _hasMoreData = true;
+  bool _asc = true;
+
   @override
   void initState() {
     super.initState();
     loadTablesAsync();
-    loadReservationsAscAsync();
-    //loadReservationsDescAsync();
+    loadReservationsPageAsync(_currentPage);
+    //loadReservationsAscAsync();
   }
 
   void loadTablesAsync() async 
@@ -85,6 +87,34 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
     }
   }
 
+  void loadReservationsPageAsync(int page) async 
+  {
+    try 
+    {
+      List<ReservationModel> fetch;
+      
+      if (_asc)
+      {
+        fetch = await ReservationService.getReservationListPageAsc(page: page);
+      }
+      else
+      {
+        fetch = await ReservationService.getReservationListPageDesc(page: page);
+      }
+       
+
+      setState(()
+      {
+        reservations.addAll(fetch);
+        _currentPage++;
+        _hasMoreData = fetch.length == 10;
+      });
+    } on Exception {
+      showMessageBox(context, 'Failed to fetch tables!');
+      return;
+    }
+  }
+
   @override
   void dispose() {
     _reservationNameController.dispose();
@@ -100,22 +130,33 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
         SizedBox(
           width: constraints.maxWidth,
           height: constraints.maxHeight * 9 / 10,
-          child: ListView.builder(
-            controller: ScrollController(),
-            itemBuilder: (BuildContext context, int index) {
-              return ReservationSection(
-                  title: '    ' +
-                      reservations[index].tableId +
-                      ' : ' +
-                      dateFormat
-                          .format(reservations[index].dateTime)
-                          .toString() +
-                      ', ' +
-                      reservations[index].name,
-                  reservationModel: reservations[index]);
+          child: NotificationListener<ScrollNotification>(
+            onNotification: (notification) {
+              if (notification is ScrollEndNotification) {
+                if (_hasMoreData) {
+                  loadReservationsPageAsync(_currentPage);
+                }
+              }
+              return true;
             },
-            itemCount: reservations.length,
-          ),
+            child: ListView.builder(
+              controller: ScrollController(),
+              itemBuilder: (BuildContext context, int index) {
+                return ReservationSection(
+                    title: '    ' +
+                        reservations[index].tableId +
+                        ' : ' +
+                        dateFormat
+                            .format(reservations[index].dateTime)
+                            .toString() +
+                        ', ' +
+                        reservations[index].name,
+                    reservationModel: reservations[index]);
+              },
+              itemCount: reservations.length,
+          
+            ),
+          )
         ),
         SizedBox(
             width: constraints.maxWidth,
@@ -269,7 +310,11 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
                     size: 40,
                     icon: const Icon(Icons.arrow_upward),
                     function: () {
-                      loadReservationsAscAsync();
+                      _asc = true;
+                      _currentPage = 1;
+                      reservations.clear();
+                      loadReservationsPageAsync(_currentPage);
+                      //loadReservationsAscAsync();
                     },
                   )
                 ),
@@ -280,7 +325,11 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
                     size: 40,
                     icon: const Icon(Icons.arrow_downward),
                     function: () {
-                      loadReservationsDescAsync();
+                      _asc = false;
+                      _currentPage = 1;
+                      reservations.clear();
+                      loadReservationsPageAsync(_currentPage);
+                      //loadReservationsDescAsync();
                     },
                   )
                 ),
@@ -364,7 +413,7 @@ class _ReservationSectionState extends State<ReservationSection> {
           children: <Widget>[
             Container(
               color: accent1Color,
-              padding: const EdgeInsets.symmetric(vertical: 5.0),
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[

@@ -33,6 +33,38 @@ class ReservationService {
     }
   }
 
+  static Future<List<ReservationModel>> getReservationListPageAsc({int page = 1}) async {
+    final url = Uri.parse('${constants.backendUrl}/reservations/getAllNotExpiredPageAsc?page=$page');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      //final reservationsJson = json.decode(response.body) as List;
+      final Map<String, dynamic> responseBody = json.decode(response.body);
+      final reservationsJson = responseBody['content'] as List;
+      return reservationsJson
+          .map((reservation) => ReservationModel.fromJson(reservation))
+          .toList();
+    } else {
+      throw Exception(response.body);
+    }
+  }
+
+  static Future<List<ReservationModel>> getReservationListPageDesc({int page = 1}) async {
+    final url = Uri.parse('${constants.backendUrl}/reservations/getAllNotExpiredPageDesc?page=$page');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      //final reservationsJson = json.decode(response.body) as List;
+      final Map<String, dynamic> responseBody = json.decode(response.body);
+      final reservationsJson = responseBody['content'] as List;
+      return reservationsJson
+          .map((reservation) => ReservationModel.fromJson(reservation))
+          .toList();
+    } else {
+      throw Exception(response.body);
+    }
+  }
+
   static Future<String> addReservation(ReservationModel reservation) async {
     final url = Uri.parse('${constants.backendUrl}/reservations');
     final response = await http.post(

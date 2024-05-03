@@ -4,6 +4,7 @@ import app.restman.api.DTOs.ReservationDTO;
 import app.restman.api.entities.Reservation;
 import app.restman.api.services.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -76,6 +77,34 @@ public class ReservationController {
                 .map(ReservationDTO::new) // Convert each Reservation to ReservationDTO
                 .collect(Collectors.toList());
         return ResponseEntity.ok(reservationDTOs);
+    }
+
+    @GetMapping("/getAllNotExpiredPageAsc")
+    public ResponseEntity<Page<ReservationDTO>> getAllNotExpiredReservationsAsc(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "dateTime") String sortBy) {
+        Pageable pageable = PageRequest.of(page - 1, 10, Sort.by(sortBy).ascending());
+        Page<Reservation> notExpiredReservations = reservationService.getAllReservationsPageAsc(pageable);
+
+        List<ReservationDTO> reservationDTOs = notExpiredReservations.getContent().stream()
+                .map(ReservationDTO::new)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(new PageImpl<>(reservationDTOs, pageable, notExpiredReservations.getTotalElements()));
+    }
+
+    @GetMapping("/getAllNotExpiredPageDesc")
+    public ResponseEntity<Page<ReservationDTO>> getAllNotExpiredReservationsDesc(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "dateTime") String sortBy) {
+        Pageable pageable = PageRequest.of(page - 1, 10, Sort.by(sortBy).descending());
+        Page<Reservation> notExpiredReservations = reservationService.getAllReservationsPageAsc(pageable);
+
+        List<ReservationDTO> reservationDTOs = notExpiredReservations.getContent().stream()
+                .map(ReservationDTO::new)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(new PageImpl<>(reservationDTOs, pageable, notExpiredReservations.getTotalElements()));
     }
 
     @GetMapping("/{reservationId}")
