@@ -146,7 +146,7 @@ Future<ReservationModel?> getUpcomingReservation(String tableId) async{
 
   var reservationExpirationTerm =
       DateTime.now().add(const Duration(hours: reservationDurationHours));
-  var tableReservations = (await ReservationService.getReservationList())
+  var tableReservations = (await ReservationService.getReservationListAsc())
       .where((reservation) =>
           reservation.tableId == tableId &&
           reservation.dateTime.isBefore(reservationExpirationTerm));

@@ -35,7 +35,7 @@ public class ReservationController {
 
     @GetMapping("/getAll")
     public ResponseEntity<List<ReservationDTO>> getAllReservations() {
-        List<Reservation> reservations = reservationService.getAllReservations();
+        List<Reservation> reservations = reservationService.getAllReservationsAsc();
         List<ReservationDTO> reservationDTOs = reservations.stream()
                 .map(ReservationDTO::new) // Convert each Reservation to ReservationDTO
                 .collect(Collectors.toList());
@@ -48,9 +48,9 @@ public class ReservationController {
         return endTime.isAfter(OffsetDateTime.now());
     }
 
-    @GetMapping("/getAllNotExpired")
-    public ResponseEntity<List<ReservationDTO>> getAllNotExpiredReservations() {
-        List<Reservation> reservations = reservationService.getAllReservations();
+    @GetMapping("/getAllNotExpiredAsc")
+    public ResponseEntity<List<ReservationDTO>> getAllNotExpiredReservationsAsc() {
+        List<Reservation> reservations = reservationService.getAllReservationsAsc();
 
         // Filter reservations based on expiration criteria
         List<Reservation> notExpiredReservations = reservations.stream()
@@ -63,7 +63,20 @@ public class ReservationController {
         return ResponseEntity.ok(reservationDTOs);
     }
 
+    @GetMapping("/getAllNotExpiredDesc")
+    public ResponseEntity<List<ReservationDTO>> getAllNotExpiredReservationsDesc() {
+        List<Reservation> reservations = reservationService.getAllReservationsDesc();
 
+        // Filter reservations based on expiration criteria
+        List<Reservation> notExpiredReservations = reservations.stream()
+                .filter(this::isReservationNotExpired)
+                .toList();
+
+        List<ReservationDTO> reservationDTOs = notExpiredReservations.stream()
+                .map(ReservationDTO::new) // Convert each Reservation to ReservationDTO
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(reservationDTOs);
+    }
 
     @GetMapping("/{reservationId}")
     public ResponseEntity<ReservationDTO> getReservationById(@PathVariable String reservationId) {

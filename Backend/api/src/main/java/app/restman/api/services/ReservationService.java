@@ -7,14 +7,19 @@ import app.restman.api.repositories.ReservationRepository;
 import app.restman.api.repositories.TableRepository;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.springframework.data.domain.Sort;
 
 @Service
 public class ReservationService {
@@ -63,7 +68,9 @@ public class ReservationService {
         }
 
         // Check for overlapping reservations
-        List<Reservation> allReservations = reservationRepository.findAll();
+        List<Reservation> allReservations = new LinkedList<>();
+        reservationRepository.findAll(Sort.by("dateTime")).iterator().forEachRemaining(allReservations::add);
+
         for (Reservation existingReservation : allReservations) {
             if (existingReservation.getReservedTable().getTableId().equals(newReservation.getTableId()) &&
                     isDateTimeOverlapping(existingReservation.getDateTime(), newReservation.getDateTime())) {
@@ -82,16 +89,24 @@ public class ReservationService {
         return reservationRepository.save(reservation);
     }
 
-    public List<Reservation> getAllReservations() {
-        return reservationRepository.findAll();
+    public List<Reservation> getAllReservationsAsc() {
+        List<Reservation> allReservations = new LinkedList<>();
+        reservationRepository.findAll(Sort.by("dateTime")).iterator().forEachRemaining(allReservations::add);
+        return allReservations;
+    }
+
+    public List<Reservation> getAllReservationsDesc() {
+        List<Reservation> allReservations = new LinkedList<>();
+        reservationRepository.findAll(Sort.by(Sort.Direction.DESC,"dateTime")).iterator().forEachRemaining(allReservations::add);
+        return allReservations;
     }
 
     public Reservation getReservationById(String reservationId) {
-        return reservationRepository.findById(reservationId).orElse(null);
+        return reservationRepository.findByReservationId(reservationId).orElse(null);
     }
 
     public void updateReservation(String reservationId, ReservationDTO updatedReservation) throws NoSuchElementException, Exception  {
-        Reservation reservation = reservationRepository.findById(reservationId).orElse(null);
+        Reservation reservation = reservationRepository.findByReservationId(reservationId).orElse(null);
 
         if (reservation == null) {
             logger.log(Level.SEVERE, "Reservation does not exist!");
@@ -119,7 +134,9 @@ public class ReservationService {
         }
 
         // Check for overlapping reservations
-        List<Reservation> allReservations = reservationRepository.findAll();
+        List<Reservation> allReservations = new LinkedList<>();
+        reservationRepository.findAll(Sort.by("dateTime")).iterator().forEachRemaining(allReservations::add);
+
         for (Reservation existingReservation : allReservations) {
             if (existingReservation.getReservedTable().getTableId().equals(updatedReservation.getTableId()) &&
                     isDateTimeOverlapping(existingReservation.getDateTime(), updatedReservation.getDateTime())) {
@@ -138,10 +155,11 @@ public class ReservationService {
 
     public void deleteReservation(String reservationId) throws Exception {
         if (!reservationRepository.existsById(reservationId)) {
+        if (!reservationRepository.existsByReservationId(reservationId)) {
             logger.log(Level.SEVERE, "Given reservation ID does not exist!");
             throw new Exception("Given reservation ID does not exist!");
         }
 
-        reservationRepository.deleteById(reservationId);
+        reservationRepository.deleteByReservationId(reservationId);
     }
 }

@@ -5,8 +5,22 @@ import '../models/reservation_model.dart';
 import '../constants.dart' as constants;
 
 class ReservationService {
-  static Future<List<ReservationModel>> getReservationList() async {
-    final url = Uri.parse('${constants.backendUrl}/reservations/getAllNotExpired');
+  static Future<List<ReservationModel>> getReservationListAsc() async {
+    final url = Uri.parse('${constants.backendUrl}/reservations/getAllNotExpiredAsc');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final reservationsJson = json.decode(response.body) as List;
+      return reservationsJson
+          .map((reservation) => ReservationModel.fromJson(reservation))
+          .toList();
+    } else {
+      throw Exception(response.body);
+    }
+  }
+
+  static Future<List<ReservationModel>> getReservationListDesc() async {
+    final url = Uri.parse('${constants.backendUrl}/reservations/getAllNotExpiredDesc');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
