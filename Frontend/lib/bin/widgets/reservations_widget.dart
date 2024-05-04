@@ -7,6 +7,7 @@ import 'package:restaurant_management_app/bin/models/reservation_model.dart';
 import 'package:restaurant_management_app/bin/widgets/custom_button.dart';
 import 'package:restaurant_management_app/bin/widgets/dialog.dart';
 import 'package:restaurant_management_app/bin/widgets/time_picker.dart';
+import 'package:restaurant_management_app/main.dart';
 
 import '../models/table_model.dart';
 
@@ -46,7 +47,7 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
     try {
       _tables = await TableService.getTables();
     } on Exception {
-      showMessageBox(context, 'Failed to fetch tables!');
+      showMessageBox(NavigationService.navigatorKey.currentContext!, 'Failed to fetch tables!');
       return;
     }
 
@@ -63,7 +64,7 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
         reservations = fetch;
       });
     } on Exception {
-      showMessageBox(context, 'Failed to fetch tables!');
+      showMessageBox(NavigationService.navigatorKey.currentContext!, 'Failed to fetch tables!');
       return;
     }
   }
@@ -76,7 +77,7 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
         reservations = fetch;
       });
     } on Exception {
-      showMessageBox(context, 'Failed to fetch tables!');
+      showMessageBox(NavigationService.navigatorKey.currentContext!, 'Failed to fetch tables!');
       return;
     }
   }
@@ -97,7 +98,7 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
         _hasMoreData = fetch.length == 10;
       });
     } on Exception {
-      showMessageBox(context, 'Failed to fetch tables!');
+      showMessageBox(NavigationService.navigatorKey.currentContext!, 'Failed to fetch tables!');
       return;
     }
   }

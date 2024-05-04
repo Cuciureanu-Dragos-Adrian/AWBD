@@ -230,7 +230,7 @@ class _OrdersWidgetState extends State<OrdersWidget> {
                                                     addProductToCurrentOrder();
                                                   });
                                                 },
-                                                child: const Text("Add",
+                                                child: const Text("Add product",
                                                     style: TextStyle(
                                                         fontWeight:
                                                             FontWeight.bold)),
@@ -277,7 +277,7 @@ class _OrdersWidgetState extends State<OrdersWidget> {
                                 ),
                                 actions: [
                                   TextButton(
-                                    child: const Text('Add'),
+                                    child: const Text('Create order'),
                                     onPressed: () async {
                                       await tryAddOrder();
                                     },
