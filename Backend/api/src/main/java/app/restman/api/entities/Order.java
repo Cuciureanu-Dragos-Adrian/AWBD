@@ -1,8 +1,7 @@
 package app.restman.api.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
+import jakarta.annotation.Nullable;
+import jakarta.persistence.*;
 import jakarta.persistence.Table;
 import lombok.*;
 
@@ -22,6 +21,10 @@ public class Order {
 
     @ManyToMany
     private Set<Product> products;
+
+    @OneToOne(mappedBy="order")
+    @Nullable
+    private Payment payment;
 
     public Order() {
     }
