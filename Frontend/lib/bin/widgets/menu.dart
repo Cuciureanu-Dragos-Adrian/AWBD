@@ -323,7 +323,7 @@ class _MenuSectionState extends State<MenuSection> {
         ProductModel(name: name, price: price, category: category);
     try {
       await ProductService.addProduct(newProduct);
-      var products = await ProductService.getProductList();
+      var products = await ProductService.getProductListByCategory(category);
 
       setState(() {
         _products = products;
@@ -336,7 +336,7 @@ class _MenuSectionState extends State<MenuSection> {
   Future<void> deleteProductByName(String name) async {
     try {
       await ProductService.removeProductByName(name);
-      var products = await ProductService.getProductList();
+      var products = await ProductService.getProductListByCategory(widget.categoryName);
 
       setState(() {
         _products = products;
