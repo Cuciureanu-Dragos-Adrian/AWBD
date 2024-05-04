@@ -4,6 +4,7 @@ import 'package:restaurant_management_app/bin/models/category_model.dart';
 import 'package:restaurant_management_app/bin/services/category_service.dart';
 import 'package:restaurant_management_app/bin/widgets/custom_button.dart';
 import 'package:restaurant_management_app/bin/widgets/dialog.dart';
+import 'package:restaurant_management_app/main.dart';
 import 'dart:math';
 
 import '../services/product_service.dart';
@@ -21,6 +22,8 @@ class Menu extends StatefulWidget {
 class _MenuState extends State<Menu> {
   // Declare sections as a state variable
   List<CategoryModel> _menuCategories = [];
+  final TextEditingController nameController = TextEditingController();
+  String _removeDropdownValue = 'none';
 
   @override
   void initState() {
@@ -35,9 +38,14 @@ class _MenuState extends State<Menu> {
       var response = await CategoryService.getCategoryList();
       setState(() {
         _menuCategories = response;
+
+        if (_menuCategories.isNotEmpty) {
+          _removeDropdownValue = _menuCategories[0].name;
+        }
       });
     } on Exception {
-      showMessageBox(context, 'Failed to fetch categories!');
+      showMessageBox(NavigationService.navigatorKey.currentContext!,
+          'Failed to fetch categories!');
       return;
     }
   }
@@ -52,14 +60,121 @@ class _MenuState extends State<Menu> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             Container(
+              // <Delete category> GROUP
+              margin: const EdgeInsets.only(right: 25),
+              child: Row(
+                children: [
+                  const Text(
+                    "Remove category -",
+                    style: TextStyle(fontWeight: FontWeight.w400),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 10),
+                    child: DropdownButton<String>(
+                      //category selector
+                      value: _removeDropdownValue,
+                      icon: const Icon(Icons.arrow_downward),
+                      elevation: 16,
+                      style: const TextStyle(color: Colors.black),
+                      underline: Container(
+                        height: 2,
+                        color: mainColor,
+                      ),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _removeDropdownValue = newValue!;
+                        });
+                      },
+                      items: _menuCategories
+                          .map((e) => e.name)
+                          .toList()
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  //delete table button
+                  CustomButton(
+                    size: 50,
+                    icon: const Icon(Icons.delete),
+                    color: mainColor,
+                    onPressed: () => {deleteCategory(_removeDropdownValue)},
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              margin: const EdgeInsets.only(bottom: 10, top: 10, right: 10),
+              child: const Text(
+                "Add category",
+                style: TextStyle(fontWeight: FontWeight.w400),
+              ),
+            ),
+            Container(
               margin: const EdgeInsets.only(bottom: 10, top: 10, right: 10),
               child: CustomButton(
                   // Add CustomButton to actions
                   icon: const Icon(Icons.add),
                   size: 50,
-                  onPressed: () {
-                    // Handle button press (e.g., navigate to add category page)
-                    print('Add button pressed!');
+                  onPressed: () async {
+                    await showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext context) {
+                          return StatefulBuilder(builder: (context, setState) {
+                            return AlertDialog(
+                              title: const Text(
+                                "Create category",
+                                style: TextStyle(color: mainColor),
+                              ),
+                              content: SizedBox(
+                                height: 100,
+                                child: Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: [
+                                    TextField(
+                                      decoration: const InputDecoration(
+                                          hintText: "Enter category name"),
+                                      controller: nameController,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              actions: [
+                                TextButton(
+                                  child: const Text('Create'),
+                                  onPressed: () async {
+                                    String name = nameController.text.trim();
+
+                                    if (name.length < 3) {
+                                      showMessageBox(
+                                          NavigationService
+                                              .navigatorKey.currentContext!,
+                                          "Category name needs at least 3 characters!");
+                                      return;
+                                    }
+
+                                    await createCategory(name);
+                                  },
+                                  style: TextButton.styleFrom(
+                                      foregroundColor: mainColor),
+                                ),
+                                TextButton(
+                                  child: const Text('Cancel'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  style: TextButton.styleFrom(
+                                      foregroundColor: mainColor),
+                                ),
+                              ],
+                            );
+                          });
+                        });
                   },
                   color: mainColor),
             )
@@ -77,6 +192,67 @@ class _MenuState extends State<Menu> {
         ),
       ),
     ]);
+  }
+
+  Future<void> createCategory(String name) async {
+    //TODO - add a method to select an icon
+    CategoryModel newCategory =
+        CategoryModel(name: name, icon: Icons.food_bank);
+    try {
+      await CategoryService.addCategory(newCategory);
+      var categories = await CategoryService.getCategoryList();
+
+      setState(() {
+        _removeDropdownValue = categories[0].name;
+        _menuCategories = categories;
+      });
+    } on Exception catch (e) {
+      showMessageBox(NavigationService.navigatorKey.currentContext!,
+          "Failed to add category! " + e.toString());
+    }
+  }
+
+  Future<void> deleteCategory(String name) async {
+    //show dialog asking for confirmation
+    bool? dialogResult = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Are you sure?'),
+        content: const Text('Category deletion will also delete nested products and cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
+    );
+
+    if (dialogResult == false) {
+      return;
+    }
+
+    try {
+      await CategoryService.removeCategoryByName(name);
+      var categories = await CategoryService.getCategoryList();
+
+      setState(() {
+        if (categories.isNotEmpty) {
+          _removeDropdownValue = categories[0].name;
+        } else {
+          _removeDropdownValue = '-none-';
+        }
+
+        _menuCategories = categories;
+      });
+    } on Exception catch (e) {
+      showMessageBox(NavigationService.navigatorKey.currentContext!,
+          "Failed to delete category! " + e.toString());
+    }
   }
 }
 
@@ -112,7 +288,8 @@ class _MenuSectionState extends State<MenuSection> {
         _products = response;
       });
     } on Exception {
-      showMessageBox(context, 'Failed to fetch products!');
+      showMessageBox(NavigationService.navigatorKey.currentContext!,
+          'Failed to fetch products!');
       return;
     }
   }
@@ -192,9 +369,10 @@ class _MenuSectionState extends State<MenuSection> {
                                 return StatefulBuilder(
                                     builder: (context, setState) {
                                   return AlertDialog(
-                                    title: const Text(
-                                      "Add new item",
-                                      style: TextStyle(color: mainColor),
+                                    title: Text(
+                                      "Add new product to " +
+                                          widget.categoryName,
+                                      style: const TextStyle(color: mainColor),
                                     ),
                                     content: SizedBox(
                                       height: 200,
@@ -277,6 +455,10 @@ class _MenuSectionState extends State<MenuSection> {
                                 });
                               });
                         }),
+                    const Text(
+                      "Add product",
+                      style: TextStyle(fontWeight: FontWeight.w400),
+                    ),
                   ],
                 ),
                 Text(
@@ -329,20 +511,23 @@ class _MenuSectionState extends State<MenuSection> {
         _products = products;
       });
     } on Exception catch (e) {
-      showMessageBox(context, "Failed to add product! " + e.toString());
+      showMessageBox(NavigationService.navigatorKey.currentContext!,
+          "Failed to add product! " + e.toString());
     }
   }
 
   Future<void> deleteProductByName(String name) async {
     try {
       await ProductService.removeProductByName(name);
-      var products = await ProductService.getProductListByCategory(widget.categoryName);
+      var products =
+          await ProductService.getProductListByCategory(widget.categoryName);
 
       setState(() {
         _products = products;
       });
     } on Exception catch (e) {
-      showMessageBox(context, "Failed to remove product! " + e.toString());
+      showMessageBox(NavigationService.navigatorKey.currentContext!,
+          "Failed to remove product! " + e.toString());
     }
   }
 }
