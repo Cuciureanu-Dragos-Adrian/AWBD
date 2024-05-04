@@ -34,6 +34,12 @@ public class ProductService {
         return productRepository.findAll();
     }
 
+    public List<Product> getAllProductsByCategory(String categoryName)
+    {
+        return productRepository.findAll().stream()
+                .filter(product -> product.getCategory().getName().equals(categoryName)).toList();
+    }
+
     public Product getProductByName(String id)
     {
         return productRepository.findById(id).orElse(null);
