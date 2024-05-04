@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:restaurant_management_app/bin/constants.dart';
-import 'package:restaurant_management_app/bin/services/globals.dart';
+import 'package:restaurant_management_app/bin/utilities/globals.dart';
 import 'package:restaurant_management_app/bin/services/table_service.dart';
 import 'package:restaurant_management_app/bin/models/table_model.dart';
-import 'package:restaurant_management_app/bin/utilities/globals_utils.dart';
 import 'package:restaurant_management_app/bin/utilities/table_utils.dart';
 import 'package:restaurant_management_app/bin/widgets/dialog.dart';
 import 'package:restaurant_management_app/bin/widgets/table_widget.dart';
 
-import '../services/capacity_list.dart';
+import '../utilities/capacity_list.dart';
 import 'custom_button.dart';
 
 /// Floor plan builder

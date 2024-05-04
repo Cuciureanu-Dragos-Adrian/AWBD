@@ -528,8 +528,9 @@ class OrderItem extends StatelessWidget {
           Text(name + ' X' + quantity.toString()),
           Text(totalPrice.toString()),
         ]),
-        leading: Icon(
-          sectionIcons[category],
+        leading: const Icon(
+          //TODO - get icon from category
+          Icons.food_bank,
           color: mainColor,
         ),
       ),
@@ -561,8 +562,9 @@ class DialogListItem extends StatelessWidget {
           Text(name),
           Text('X' + quantity.toString()),
         ]),
-        leading: Icon(
-          sectionIcons[category],
+        leading: const Icon(
+          //TODO - get icon from category
+          Icons.food_bank,
           color: mainColor,
         ),
       ),

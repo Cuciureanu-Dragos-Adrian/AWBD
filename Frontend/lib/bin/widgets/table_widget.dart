@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:restaurant_management_app/bin/constants.dart' as constants;
 import 'package:restaurant_management_app/bin/utilities/table_utils.dart';
 
-import '../services/globals.dart';
+import '../utilities/globals.dart';
 import '../services/table_service.dart';
 
 /// Movable table object

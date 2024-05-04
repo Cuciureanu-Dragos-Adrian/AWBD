@@ -16,6 +16,16 @@ class ProductService {
     }
   }
 
+  static Future<List<ProductModel>> getProductListByCategory(String category) async {
+    final response = await http.get(Uri.parse(_baseUrl + "/getAllByCategory/" + category));
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body) as List<dynamic>;
+      return jsonData.map((data) => ProductModel.fromJson(data)).toList();
+    } else {
+      throw Exception(response.body);
+    }
+  }
+
   static Future<ProductModel> getProductByName(String productName) async {
     final url = Uri.parse('$_baseUrl/$productName');
     final response = await http.get(url);

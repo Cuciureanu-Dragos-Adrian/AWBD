@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:restaurant_management_app/bin/constants.dart';
+import 'package:restaurant_management_app/bin/models/category_model.dart';
+import 'package:restaurant_management_app/bin/services/category_service.dart';
 import 'package:restaurant_management_app/bin/widgets/custom_button.dart';
 import 'package:restaurant_management_app/bin/widgets/dialog.dart';
 import 'dart:math';
@@ -9,28 +11,56 @@ import '../models/product_model.dart';
 
 const double expandedMaxHeight = 400;
 
-//menu window widget
-class Menu extends StatelessWidget {
+class Menu extends StatefulWidget {
   const Menu({Key? key}) : super(key: key);
+
+  @override
+  _MenuState createState() => _MenuState();
+}
+
+class _MenuState extends State<Menu> {
+  // Declare sections as a state variable
+  List<CategoryModel> _menuCategories = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    //load categories
+    loadCategoriesAsync();
+  }
+
+  void loadCategoriesAsync() async 
+  {
+    try {
+      var response = await CategoryService.getCategoryList();
+      setState(() {
+        _menuCategories = response;
+      });
+    } on Exception {
+      showMessageBox(context, 'Failed to fetch categories!');
+      return;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      //list of each section
+      // Access sections state variable
       controller: ScrollController(),
       itemBuilder: (BuildContext context, int index) {
-        return MenuSection(title: sections[index]);
+        return MenuSection(categoryName: _menuCategories[index].name);
       },
-      itemCount: sections.length,
+      itemCount: _menuCategories.length,
     );
   }
 }
 
 //menu section/category widget
 class MenuSection extends StatefulWidget {
-  final String title;
+  final String categoryName;
 
-  const MenuSection({Key? key, required this.title}) : super(key: key);
+  const MenuSection({Key? key, required this.categoryName}) : super(key: key);
 
   @override
   _MenuSectionState createState() => _MenuSectionState();
@@ -52,7 +82,7 @@ class _MenuSectionState extends State<MenuSection> {
 
   void loadProductsAsync() async {
     try {
-      var response = await ProductService.getProductList();
+      var response = await ProductService.getProductListByCategory(widget.categoryName);
       setState(() {
         _products = response;
       });
@@ -204,7 +234,7 @@ class _MenuSectionState extends State<MenuSection> {
                                           }
 
                                           await createProduct(
-                                              name, price, widget.title);
+                                              name, price, widget.categoryName);
                                         },
                                         style: TextButton.styleFrom(
                                             foregroundColor: mainColor),
@@ -226,7 +256,7 @@ class _MenuSectionState extends State<MenuSection> {
                 ),
                 Text(
                   // Section title
-                  widget.title.toUpperCase(),
+                  widget.categoryName.toUpperCase(),
                   style: const TextStyle(
                       fontWeight: FontWeight.bold, color: mainColor),
                 )
@@ -237,26 +267,26 @@ class _MenuSectionState extends State<MenuSection> {
               // expanded content
               expanded: _expandFlag,
               itemCount: _products
-                  .where((element) => element.category == widget.title)
+                  .where((element) => element.category == widget.categoryName)
                   .toList()
                   .length,
               child: ListView.builder(
                 controller: ScrollController(),
                 itemBuilder: (BuildContext context, int index) {
                   List<ProductModel> items = _products
-                      .where((element) => element.category == widget.title)
+                      .where((element) => element.category == widget.categoryName)
                       .toList();
 
                   items.sort();
                   return MenuItem(
                     price: items[index].price,
                     name: items[index].name,
-                    category: widget.title,
+                    category: widget.categoryName,
                     function: deleteProductByName,
                   );
                 },
                 itemCount: _products
-                    .where((element) => element.category == widget.title)
+                    .where((element) => element.category == widget.categoryName)
                     .toList()
                     .length,
               ))
@@ -371,8 +401,9 @@ class MenuItem extends StatelessWidget {
             ],
           ),
         ]),
-        leading: Icon(
-          sectionIcons[category],
+        leading: const Icon(
+          //TODO - get icon from category
+          Icons.dining_sharp,
           color: mainColor,
         ),
       ),
