@@ -124,7 +124,7 @@ class _OrdersWidgetState extends State<OrdersWidget> {
                     color: mainColor,
                     size: 50,
                     icon: const Icon(Icons.add),
-                    function: () async {
+                    onPressed: () async {
                       _dialogProducts = [];
                       _dialogProductQuantities = [];
                       await showDialog(

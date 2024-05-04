@@ -30,8 +30,7 @@ class _MenuState extends State<Menu> {
     loadCategoriesAsync();
   }
 
-  void loadCategoriesAsync() async 
-  {
+  void loadCategoriesAsync() async {
     try {
       var response = await CategoryService.getCategoryList();
       setState(() {
@@ -45,14 +44,39 @@ class _MenuState extends State<Menu> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      // Access sections state variable
-      controller: ScrollController(),
-      itemBuilder: (BuildContext context, int index) {
-        return MenuSection(categoryName: _menuCategories[index].name);
-      },
-      itemCount: _menuCategories.length,
-    );
+    return Column(children: [
+      Container(
+        //wrap row with container to set color
+        color: accent1Color,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(bottom: 10, top: 10, right: 10),
+              child: CustomButton(
+                  // Add CustomButton to actions
+                  icon: const Icon(Icons.add),
+                  size: 50,
+                  onPressed: () {
+                    // Handle button press (e.g., navigate to add category page)
+                    print('Add button pressed!');
+                  },
+                  color: mainColor),
+            )
+          ],
+        ),
+      ),
+      Expanded(
+        // Wrap ListView with Expanded
+        child: ListView.builder(
+          controller: ScrollController(),
+          itemBuilder: (BuildContext context, int index) {
+            return MenuSection(categoryName: _menuCategories[index].name);
+          },
+          itemCount: _menuCategories.length,
+        ),
+      ),
+    ]);
   }
 }
 
@@ -82,7 +106,8 @@ class _MenuSectionState extends State<MenuSection> {
 
   void loadProductsAsync() async {
     try {
-      var response = await ProductService.getProductListByCategory(widget.categoryName);
+      var response =
+          await ProductService.getProductListByCategory(widget.categoryName);
       setState(() {
         _products = response;
       });
@@ -264,42 +289,39 @@ class _MenuSectionState extends State<MenuSection> {
             ),
           ),
           MenuSectionContent(
-              // expanded content
-              expanded: _expandFlag,
-              itemCount: _products
-                  .where((element) => element.category == widget.categoryName)
-                  .toList()
-                  .length,
-              child: ListView.builder(
-                controller: ScrollController(),
-                itemBuilder: (BuildContext context, int index) {
-                  List<ProductModel> items = _products
-                      .where((element) => element.category == widget.categoryName)
-                      .toList();
-
-                  items.sort();
-                  return MenuItem(
-                    price: items[index].price,
-                    name: items[index].name,
-                    category: widget.categoryName,
-                    function: deleteProductByName,
-                  );
-                },
-                itemCount: _products
-                    .where((element) => element.category == widget.categoryName)
-                    .toList()
-                    .length,
-              ))
+            expanded: _expandFlag,
+            itemCount: _products.length,
+            child: _products.isEmpty
+                ? const Center(
+                    child: Text(
+                      'No products found in this category.',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  )
+                : ListView.builder(
+                    controller: ScrollController(),
+                    itemBuilder: (BuildContext context, int index) {
+                      List<ProductModel> items = _products;
+                      items.sort();
+                      return MenuItem(
+                        price: items[index].price,
+                        name: items[index].name,
+                        category: widget.categoryName,
+                        function: deleteProductByName,
+                      );
+                    },
+                    itemCount: _products.length,
+                  ),
+          )
         ],
       ),
     );
   }
 
-  Future<void> createProduct(String name, double price, String category) async{
+  Future<void> createProduct(String name, double price, String category) async {
     ProductModel newProduct =
         ProductModel(name: name, price: price, category: category);
-    try
-    {
+    try {
       await ProductService.addProduct(newProduct);
       var products = await ProductService.getProductList();
 
@@ -312,8 +334,7 @@ class _MenuSectionState extends State<MenuSection> {
   }
 
   Future<void> deleteProductByName(String name) async {
-    try
-    {
+    try {
       await ProductService.removeProductByName(name);
       var products = await ProductService.getProductList();
 
@@ -341,8 +362,12 @@ class MenuSectionContent extends StatelessWidget {
       this.collapsedHeight = 0.0,
       this.expanded = true})
       : super(key: key) {
-    expandedHeight =
-        min(expandedMaxHeight, itemCount * 50); //50 is the height of a MenuItem
+    if (itemCount == 0) {
+      expandedHeight = 50;
+    } else {
+      expandedHeight = min(
+          expandedMaxHeight, itemCount * 50); //50 is the height of a MenuItem
+    }
   }
 
   @override
@@ -393,7 +418,7 @@ class MenuItem extends StatelessWidget {
                   child: Text(price.toString())),
               CustomButton(
                   color: Colors.red,
-                  function: () async {
+                  onPressed: () async {
                     await function(name);
                   },
                   size: 25,

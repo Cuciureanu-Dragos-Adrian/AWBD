@@ -160,7 +160,7 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
                           color: mainColor,
                           size: 40,
                           icon: const Icon(Icons.arrow_upward),
-                          function: () {
+                          onPressed: () {
                             _asc = true;
                             _currentPage = 1;
                             reservations.clear();
@@ -172,7 +172,7 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
                       color: mainColor,
                       size: 40,
                       icon: const Icon(Icons.add),
-                      function: () async {
+                      onPressed: () async {
                         await showDialog(
                             context: context,
                             barrierDismissible: false,
@@ -311,7 +311,7 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
                           color: mainColor,
                           size: 40,
                           icon: const Icon(Icons.arrow_downward),
-                          function: () {
+                          onPressed: () {
                             _asc = false;
                             _currentPage = 1;
                             reservations.clear();
