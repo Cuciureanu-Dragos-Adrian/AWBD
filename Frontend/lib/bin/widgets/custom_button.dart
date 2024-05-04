@@ -22,7 +22,6 @@ class CustomButton extends StatelessWidget {
       child: FittedBox(
         child: FloatingActionButton(
           onPressed: onPressed,
-          enableFeedback: false,
           child: icon,
           backgroundColor: color,
           foregroundColor: Colors.white,
