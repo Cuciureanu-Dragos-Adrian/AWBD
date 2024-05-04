@@ -25,6 +25,14 @@ insert into reservation (reservation_id, number_of_people, name, date_time, tabl
 insert into reservation (reservation_id, number_of_people, name, date_time, table_id) values ('reservation20', 2, 'Test 20', '2024-06-20T20:30:00.000Z', 'A1');
 insert into reservation (reservation_id, number_of_people, name, date_time, table_id) values ('reservation30', 3, 'Test 30', '2024-05-30T21:30:00.000Z', 'C1');
 
--- insert into product (name, price) values ('Coca Cola', 10)
--- insert into product (name, price, category_name) values ('Burger', 35, 'Main courses')
--- insert into product (name, price, category_name) values ('Vodka', 50, 'Spirits')
+insert into menu_category (icon_base64, name) values ('', 'Appetizers')
+insert into menu_category (icon_base64, name) values ('', 'Main Courses')
+insert into menu_category (icon_base64, name) values ('', 'Sides')
+insert into menu_category (icon_base64, name) values ('', 'Soft Drinks')
+insert into menu_category (icon_base64, name) values ('', 'Spirits')
+
+insert into product (name, price, category_name) values ('Coca Cola', 10, 'Soft Drinks')
+insert into product (name, price, category_name) values ('Burger', 35, 'Main Courses')
+insert into product (name, price, category_name) values ('Soup', 25, 'Main Courses')
+insert into product (name, price, category_name) values ('Drunk Fish', 30.5, 'Main Courses')
+insert into product (name, price, category_name) values ('Vodka', 50, 'Spirits')
