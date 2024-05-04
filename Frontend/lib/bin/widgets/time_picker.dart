@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:restaurant_management_app/bin/constants.dart';
-import 'package:restaurant_management_app/bin/utilities/reservation_utils.dart';
 
 class TimePicker extends StatefulWidget {
-  const TimePicker({Key? key}) : super(key: key);
+  final DateTime Function() getSelectedDate;
+  final void Function(DateTime) setSelectedDate;
+
+  const TimePicker({Key? key, required this.getSelectedDate, required this.setSelectedDate}) : super(key: key);
 
   @override
   _TimePickerState createState() => _TimePickerState();
@@ -14,7 +16,7 @@ class _TimePickerState extends State<TimePicker> {
   late DateTime _selectedDate;
   @override
   Widget build(BuildContext context){
-    _selectedDate = getSelectedDate();
+    _selectedDate = widget.getSelectedDate();
     return DateButton(
         text: getDateTime(_selectedDate),
         onClicked: () => pickDateTime(context),
@@ -64,7 +66,7 @@ class _TimePickerState extends State<TimePicker> {
         time.hour,
         time.minute,
       );
-      setSelectedDate(newDate); //set the date inside the service
+      widget.setSelectedDate(newDate); //set the date inside the service
       _selectedDate = newDate;
     });
   }

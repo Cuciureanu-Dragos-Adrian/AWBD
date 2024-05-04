@@ -4,7 +4,6 @@ import 'package:restaurant_management_app/bin/constants.dart';
 import 'package:restaurant_management_app/bin/services/reservation_service.dart';
 import 'package:restaurant_management_app/bin/services/table_service.dart';
 import 'package:restaurant_management_app/bin/models/reservation_model.dart';
-import 'package:restaurant_management_app/bin/utilities/reservation_utils.dart';
 import 'package:restaurant_management_app/bin/widgets/custom_button.dart';
 import 'package:restaurant_management_app/bin/widgets/dialog.dart';
 import 'package:restaurant_management_app/bin/widgets/time_picker.dart';
@@ -30,6 +29,7 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
   String _chosenTable = '';
   String _dialogErrorMessage = "";
   String _reservedBy = "";
+  DateTime _selectedDate = DateTime.now();
   int _currentPage = 1;
   bool _hasMoreData = true;
   bool _asc = true;
@@ -100,6 +100,17 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
       showMessageBox(context, 'Failed to fetch tables!');
       return;
     }
+  }
+
+  DateTime getSelectedDate() 
+  {
+    return _selectedDate;
+  }
+
+  void setSelectedDate(DateTime toSet)
+  {
+    //do not use SetState since this does not need to trigger a redraw
+    _selectedDate = toSet;
   }
 
   @override
@@ -250,7 +261,7 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
                                                       margin: const EdgeInsets
                                                           .symmetric(
                                                           vertical: 10),
-                                                      child: const TimePicker())
+                                                      child: TimePicker(getSelectedDate: getSelectedDate, setSelectedDate: setSelectedDate))
                                                 ],
                                               ),
                                               TextField(
@@ -353,7 +364,7 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
         reservationId: "-",
         numberOfPeople: numberOfPeople,
         name: _reservedBy,
-        dateTime: getSelectedDate(),
+        dateTime: _selectedDate,
         tableId: _chosenTable);
 
     try {
