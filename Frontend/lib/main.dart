@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 
 import 'package:restaurant_management_app/bin/constants.dart';
 import 'package:restaurant_management_app/bin/data_providers/json_provider.dart';
-import 'package:restaurant_management_app/bin/services/capacity_list.dart';
+import 'package:restaurant_management_app/bin/utilities/capacity_list.dart';
 import 'package:restaurant_management_app/bin/widgets/floorplan.dart';
 import 'package:restaurant_management_app/bin/widgets/orders.dart';
 import 'package:restaurant_management_app/bin/widgets/reservations_widget.dart';
 import 'package:restaurant_management_app/bin/widgets/table_manager.dart';
 
 import 'bin/data_providers/data_provider.dart';
-import 'bin/services/globals.dart';
+import 'bin/utilities/globals.dart';
 import 'bin/widgets/menu.dart';
 
 DataProvider data = JsonProvider();
@@ -26,12 +26,18 @@ void main() async {
   runApp(const MyApp());
 }
 
+class NavigationService { 
+  static GlobalKey<NavigatorState> navigatorKey = 
+  GlobalKey<NavigatorState>();
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: NavigationService.navigatorKey,
       theme: ThemeData(
         primaryColor: mainColor,
         primarySwatch: mainMaterialColor,

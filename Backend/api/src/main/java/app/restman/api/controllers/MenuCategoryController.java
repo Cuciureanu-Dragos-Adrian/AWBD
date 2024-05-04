@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("menu_categories")
@@ -23,23 +24,12 @@ public class MenuCategoryController {
     }
 
     @GetMapping("/getAll")
-    public ResponseEntity<List<MenuCategory>> getAllCategories() {
+    public ResponseEntity<List<MenuCategoryDTO>> getAllCategories() {
         List<MenuCategory> categories = menuCategoryService.getAllCategories();
-        return ResponseEntity.ok(categories);
-    }
-
-    @GetMapping("/{name}")
-    public ResponseEntity<MenuCategory> getCategoryByName(@PathVariable String name) {
-        try {
-            MenuCategory category = menuCategoryService.getCategoryByName(name);
-
-            if (category == null)
-                throw new NoSuchElementException("Category does not exist!");
-
-            return ResponseEntity.ok(category);
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
-        }
+        List<MenuCategoryDTO> categoryDTOs = categories.stream()
+                .map(MenuCategoryDTO::new) // Convert each MenuCategory to MenuCategoryDTO
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(categoryDTOs);
     }
 
     @PostMapping

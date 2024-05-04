@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:restaurant_management_app/bin/constants.dart';
-import 'package:restaurant_management_app/bin/services/globals.dart';
+import 'package:restaurant_management_app/bin/utilities/globals.dart';
 import 'package:restaurant_management_app/bin/services/table_service.dart';
 import 'package:restaurant_management_app/bin/models/table_model.dart';
-import 'package:restaurant_management_app/bin/utilities/globals_utils.dart';
 import 'package:restaurant_management_app/bin/utilities/table_utils.dart';
 import 'package:restaurant_management_app/bin/widgets/dialog.dart';
 import 'package:restaurant_management_app/bin/widgets/table_widget.dart';
+import 'package:restaurant_management_app/main.dart';
 
-import '../services/capacity_list.dart';
+import '../utilities/capacity_list.dart';
 import 'custom_button.dart';
 
 /// Floor plan builder
@@ -48,7 +48,7 @@ class _FloorPlanState extends State<FloorPlan> {
     try {
       _tableModelList = await TableService.getTables();
     } on Exception {
-      showMessageBox(context, 'Failed to fetch tables!');
+      showMessageBox(NavigationService.navigatorKey.currentContext!, 'Failed to fetch tables!');
       return;
     }
 
@@ -169,7 +169,7 @@ class _FloorPlanState extends State<FloorPlan> {
                             size: buttonSize,
                             icon: const Icon(Icons.add),
                             color: mainColor,
-                            function: () => addTable()),
+                            onPressed: () => addTable()),
                       ],
                     ),
                   ),
@@ -210,7 +210,7 @@ class _FloorPlanState extends State<FloorPlan> {
                           size: buttonSize,
                           icon: const Icon(Icons.delete),
                           color: mainColor,
-                          function: () => {deleteTable()},
+                          onPressed: () => {deleteTable()},
                         ),
                       ],
                     ),
@@ -222,7 +222,7 @@ class _FloorPlanState extends State<FloorPlan> {
                             size: buttonSize,
                             icon: const Icon(Icons.zoom_in),
                             color: mainColor,
-                            function: () => {zoomIn()},
+                            onPressed: () => {zoomIn()},
                           ),
                           margin: const EdgeInsets.symmetric(horizontal: 10.0)),
                       Container(
@@ -230,7 +230,7 @@ class _FloorPlanState extends State<FloorPlan> {
                             size: buttonSize,
                             icon: const Icon(Icons.zoom_out),
                             color: mainColor,
-                            function: () => {zoomOut()},
+                            onPressed: () => {zoomOut()},
                           ),
                           margin: const EdgeInsets.symmetric(horizontal: 10.0))
                     ],
@@ -292,7 +292,7 @@ class _FloorPlanState extends State<FloorPlan> {
       try {
         await TableService.addTable(getTableModelFromWidget(newTableWidget));
       } on Exception catch (e) {
-        showMessageBox(context, 'Failed to add table: $e');
+        showMessageBox(NavigationService.navigatorKey.currentContext!, 'Failed to add table: $e');
         return;
       }
 
@@ -309,7 +309,7 @@ class _FloorPlanState extends State<FloorPlan> {
       });
 
     } else {
-      showMessageBox(context, "Cannot add a new table because the seat limit would be exceeded!");
+      showMessageBox(NavigationService.navigatorKey.currentContext!, "Cannot add a new table because the seat limit would be exceeded!");
     }
   }
 

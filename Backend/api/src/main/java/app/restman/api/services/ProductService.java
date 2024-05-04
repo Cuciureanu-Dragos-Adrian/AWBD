@@ -34,6 +34,12 @@ public class ProductService {
         return productRepository.findAll();
     }
 
+    public List<Product> getAllProductsByCategory(String categoryName)
+    {
+        return productRepository.findAll().stream()
+                .filter(product -> product.getCategory().getName().equals(categoryName)).toList();
+    }
+
     public Product getProductByName(String id)
     {
         return productRepository.findById(id).orElse(null);
@@ -56,10 +62,8 @@ public class ProductService {
 
     public Product createProduct(ProductDTO productDTO) throws Exception {
 
-        /*
         if (!menuCategoryRepository.existsById(productDTO.getCategoryName()))
             throw new Exception("Menu category does not exist!");
-         */
 
         if (productDTO.getPrice() < 0) {
             logger.log(Level.SEVERE, "Price cannot be negative!");
@@ -79,18 +83,14 @@ public class ProductService {
         Product product = new Product();
         product.setName(productDTO.getName());
         product.setPrice(productDTO.getPrice());
-        //TODO - implement
-        product.setProdCategory(productDTO.getCategoryName());
-        //product.setCategory(menuCategoryRepository.getReferenceById(productDTO.getCategoryName()));
+        product.setCategory(menuCategoryRepository.getReferenceById(productDTO.getCategoryName()));
 
         return productRepository.save(product);
     }
 
     public void updateProduct(String productName, ProductDTO updatedProductDTO) throws NoSuchElementException, Exception{
-        /*
         if (!menuCategoryRepository.existsById(updatedProductDTO.getCategoryName()))
             throw new Exception("Menu category does not exist!");
-         */
 
         if (updatedProductDTO.getPrice() < 0) {
             logger.log(Level.SEVERE, "Price cannot be negative!");
@@ -106,9 +106,7 @@ public class ProductService {
         if (product != null) {
             // Update product details
             product.setPrice(updatedProductDTO.getPrice());
-            //TODO - implement
-            product.setProdCategory(updatedProductDTO.getCategoryName());
-            //product.setCategory(menuCategoryRepository.getReferenceById(updatedProductDTO.getCategoryName()));
+            product.setCategory(menuCategoryRepository.getReferenceById(updatedProductDTO.getCategoryName()));
 
             for (var order : product.getOrders())
                 order.calculatePrice();

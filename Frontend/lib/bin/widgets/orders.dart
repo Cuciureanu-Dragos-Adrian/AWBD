@@ -124,7 +124,7 @@ class _OrdersWidgetState extends State<OrdersWidget> {
                     color: mainColor,
                     size: 50,
                     icon: const Icon(Icons.add),
-                    function: () async {
+                    onPressed: () async {
                       _dialogProducts = [];
                       _dialogProductQuantities = [];
                       await showDialog(
@@ -230,7 +230,7 @@ class _OrdersWidgetState extends State<OrdersWidget> {
                                                     addProductToCurrentOrder();
                                                   });
                                                 },
-                                                child: const Text("Add",
+                                                child: const Text("Add product",
                                                     style: TextStyle(
                                                         fontWeight:
                                                             FontWeight.bold)),
@@ -277,7 +277,7 @@ class _OrdersWidgetState extends State<OrdersWidget> {
                                 ),
                                 actions: [
                                   TextButton(
-                                    child: const Text('Add'),
+                                    child: const Text('Create order'),
                                     onPressed: () async {
                                       await tryAddOrder();
                                     },
@@ -528,8 +528,9 @@ class OrderItem extends StatelessWidget {
           Text(name + ' X' + quantity.toString()),
           Text(totalPrice.toString()),
         ]),
-        leading: Icon(
-          sectionIcons[category],
+        leading: const Icon(
+          //TODO - get icon from category
+          Icons.food_bank,
           color: mainColor,
         ),
       ),
@@ -561,8 +562,9 @@ class DialogListItem extends StatelessWidget {
           Text(name),
           Text('X' + quantity.toString()),
         ]),
-        leading: Icon(
-          sectionIcons[category],
+        leading: const Icon(
+          //TODO - get icon from category
+          Icons.food_bank,
           color: mainColor,
         ),
       ),

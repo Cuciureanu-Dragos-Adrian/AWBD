@@ -143,23 +143,6 @@ const Color accent1Color = Color.fromRGBO(224, 216, 176, 1);
 const Color accent2Color = Color.fromRGBO(252, 255, 231, 1);
 // --------------------------------
 
-//menu sections
-List<String> sections = [
-  "Appetizers",
-  "Main courses",
-  "Sides",
-  "Soft drinks",
-  "Spirits"
-];
-
-Map sectionIcons = {
-  'Appetizers': Icons.apple,
-  'Main courses': Icons.food_bank,
-  'Sides': Icons.food_bank_outlined,
-  'Soft drinks': Icons.local_drink,
-  'Spirits': Icons.wine_bar
-};
-
 //reservation Section
 
 const int reservationDurationHours = 3;

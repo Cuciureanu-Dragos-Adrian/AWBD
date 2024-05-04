@@ -30,6 +30,15 @@ public class ProductController {
         return ResponseEntity.ok(productDTOs);
     }
 
+    @GetMapping("/getAllByCategory/{categoryName}")
+    public ResponseEntity<List<ProductDTO>> getAllProductsByCategory(@PathVariable String categoryName) {
+        List<Product> products = productService.getAllProductsByCategory(categoryName);
+        List<ProductDTO> productDTOs = products.stream()
+                .map(ProductDTO::new) // Use the constructor with Product argument
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(productDTOs);
+    }
+
     @GetMapping("/{productName}")
     public ResponseEntity<ProductDTO> getProductByName(@PathVariable String productName) {
         Product product = productService.getProductByName(productName);

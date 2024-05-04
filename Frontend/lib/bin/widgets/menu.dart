@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:restaurant_management_app/bin/constants.dart';
+import 'package:restaurant_management_app/bin/models/category_model.dart';
+import 'package:restaurant_management_app/bin/services/category_service.dart';
 import 'package:restaurant_management_app/bin/widgets/custom_button.dart';
 import 'package:restaurant_management_app/bin/widgets/dialog.dart';
+import 'package:restaurant_management_app/main.dart';
 import 'dart:math';
 
 import '../services/product_service.dart';
@@ -9,28 +12,255 @@ import '../models/product_model.dart';
 
 const double expandedMaxHeight = 400;
 
-//menu window widget
-class Menu extends StatelessWidget {
+class Menu extends StatefulWidget {
   const Menu({Key? key}) : super(key: key);
 
   @override
+  _MenuState createState() => _MenuState();
+}
+
+class _MenuState extends State<Menu> {
+  // Declare sections as a state variable
+  List<CategoryModel> _menuCategories = [];
+  final TextEditingController nameController = TextEditingController();
+  String _removeDropdownValue = 'none';
+
+  @override
+  void initState() {
+    super.initState();
+
+    //load categories
+    loadCategoriesAsync();
+  }
+
+  void loadCategoriesAsync() async {
+    try {
+      var response = await CategoryService.getCategoryList();
+      setState(() {
+        _menuCategories = response;
+
+        if (_menuCategories.isNotEmpty) {
+          _removeDropdownValue = _menuCategories[0].name;
+        }
+      });
+    } on Exception {
+      showMessageBox(NavigationService.navigatorKey.currentContext!,
+          'Failed to fetch categories!');
+      return;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      //list of each section
-      controller: ScrollController(),
-      itemBuilder: (BuildContext context, int index) {
-        return MenuSection(title: sections[index]);
-      },
-      itemCount: sections.length,
+    return Column(children: [
+      Container(
+        //wrap row with container to set color
+        color: accent1Color,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Container(
+              // <Delete category> GROUP
+              margin: const EdgeInsets.only(right: 25),
+              child: Row(
+                children: [
+                  const Text(
+                    "Remove category -",
+                    style: TextStyle(fontWeight: FontWeight.w400),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 10),
+                    child: DropdownButton<String>(
+                      //category selector
+                      value: _removeDropdownValue,
+                      icon: const Icon(Icons.arrow_downward),
+                      elevation: 16,
+                      style: const TextStyle(color: Colors.black),
+                      underline: Container(
+                        height: 2,
+                        color: mainColor,
+                      ),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _removeDropdownValue = newValue!;
+                        });
+                      },
+                      items: _menuCategories
+                          .map((e) => e.name)
+                          .toList()
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  //delete table button
+                  CustomButton(
+                    size: 50,
+                    icon: const Icon(Icons.delete),
+                    color: mainColor,
+                    onPressed: () => {deleteCategory(_removeDropdownValue)},
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              margin: const EdgeInsets.only(bottom: 10, top: 10, right: 10),
+              child: const Text(
+                "Add category",
+                style: TextStyle(fontWeight: FontWeight.w400),
+              ),
+            ),
+            Container(
+              margin: const EdgeInsets.only(bottom: 10, top: 10, right: 10),
+              child: CustomButton(
+                  // Add CustomButton to actions
+                  icon: const Icon(Icons.add),
+                  size: 50,
+                  onPressed: () async {
+                    await showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext context) {
+                          return StatefulBuilder(builder: (context, setState) {
+                            return AlertDialog(
+                              title: const Text(
+                                "Create category",
+                                style: TextStyle(color: mainColor),
+                              ),
+                              content: SizedBox(
+                                height: 100,
+                                child: Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: [
+                                    TextField(
+                                      decoration: const InputDecoration(
+                                          hintText: "Enter category name"),
+                                      controller: nameController,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              actions: [
+                                TextButton(
+                                  child: const Text('Create'),
+                                  onPressed: () async {
+                                    String name = nameController.text.trim();
+
+                                    if (name.length < 3) {
+                                      showMessageBox(
+                                          NavigationService
+                                              .navigatorKey.currentContext!,
+                                          "Category name needs at least 3 characters!");
+                                      return;
+                                    }
+
+                                    await createCategory(name);
+                                  },
+                                  style: TextButton.styleFrom(
+                                      foregroundColor: mainColor),
+                                ),
+                                TextButton(
+                                  child: const Text('Cancel'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  style: TextButton.styleFrom(
+                                      foregroundColor: mainColor),
+                                ),
+                              ],
+                            );
+                          });
+                        });
+                  },
+                  color: mainColor),
+            )
+          ],
+        ),
+      ),
+      Expanded(
+        // Wrap ListView with Expanded
+        child: ListView.builder(
+          controller: ScrollController(),
+          itemBuilder: (BuildContext context, int index) {
+            return MenuSection(categoryName: _menuCategories[index].name);
+          },
+          itemCount: _menuCategories.length,
+        ),
+      ),
+    ]);
+  }
+
+  Future<void> createCategory(String name) async {
+    //TODO - add a method to select an icon
+    CategoryModel newCategory =
+        CategoryModel(name: name, icon: Icons.food_bank);
+    try {
+      await CategoryService.addCategory(newCategory);
+      var categories = await CategoryService.getCategoryList();
+
+      setState(() {
+        _removeDropdownValue = categories[0].name;
+        _menuCategories = categories;
+      });
+    } on Exception catch (e) {
+      showMessageBox(NavigationService.navigatorKey.currentContext!,
+          "Failed to add category! " + e.toString());
+    }
+  }
+
+  Future<void> deleteCategory(String name) async {
+    //show dialog asking for confirmation
+    bool? dialogResult = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Are you sure?'),
+        content: const Text('Category deletion will also delete nested products and cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
     );
+
+    if (dialogResult == false) {
+      return;
+    }
+
+    try {
+      await CategoryService.removeCategoryByName(name);
+      var categories = await CategoryService.getCategoryList();
+
+      setState(() {
+        if (categories.isNotEmpty) {
+          _removeDropdownValue = categories[0].name;
+        } else {
+          _removeDropdownValue = '-none-';
+        }
+
+        _menuCategories = categories;
+      });
+    } on Exception catch (e) {
+      showMessageBox(NavigationService.navigatorKey.currentContext!,
+          "Failed to delete category! " + e.toString());
+    }
   }
 }
 
 //menu section/category widget
 class MenuSection extends StatefulWidget {
-  final String title;
+  final String categoryName;
 
-  const MenuSection({Key? key, required this.title}) : super(key: key);
+  const MenuSection({Key? key, required this.categoryName}) : super(key: key);
 
   @override
   _MenuSectionState createState() => _MenuSectionState();
@@ -52,12 +282,14 @@ class _MenuSectionState extends State<MenuSection> {
 
   void loadProductsAsync() async {
     try {
-      var response = await ProductService.getProductList();
+      var response =
+          await ProductService.getProductListByCategory(widget.categoryName);
       setState(() {
         _products = response;
       });
     } on Exception {
-      showMessageBox(context, 'Failed to fetch products!');
+      showMessageBox(NavigationService.navigatorKey.currentContext!,
+          'Failed to fetch products!');
       return;
     }
   }
@@ -137,9 +369,10 @@ class _MenuSectionState extends State<MenuSection> {
                                 return StatefulBuilder(
                                     builder: (context, setState) {
                                   return AlertDialog(
-                                    title: const Text(
-                                      "Add new item",
-                                      style: TextStyle(color: mainColor),
+                                    title: Text(
+                                      "Add new product to " +
+                                          widget.categoryName,
+                                      style: const TextStyle(color: mainColor),
                                     ),
                                     content: SizedBox(
                                       height: 200,
@@ -204,7 +437,7 @@ class _MenuSectionState extends State<MenuSection> {
                                           }
 
                                           await createProduct(
-                                              name, price, widget.title);
+                                              name, price, widget.categoryName);
                                         },
                                         style: TextButton.styleFrom(
                                             foregroundColor: mainColor),
@@ -222,11 +455,15 @@ class _MenuSectionState extends State<MenuSection> {
                                 });
                               });
                         }),
+                    const Text(
+                      "Add product",
+                      style: TextStyle(fontWeight: FontWeight.w400),
+                    ),
                   ],
                 ),
                 Text(
                   // Section title
-                  widget.title.toUpperCase(),
+                  widget.categoryName.toUpperCase(),
                   style: const TextStyle(
                       fontWeight: FontWeight.bold, color: mainColor),
                 )
@@ -234,64 +471,63 @@ class _MenuSectionState extends State<MenuSection> {
             ),
           ),
           MenuSectionContent(
-              // expanded content
-              expanded: _expandFlag,
-              itemCount: _products
-                  .where((element) => element.category == widget.title)
-                  .toList()
-                  .length,
-              child: ListView.builder(
-                controller: ScrollController(),
-                itemBuilder: (BuildContext context, int index) {
-                  List<ProductModel> items = _products
-                      .where((element) => element.category == widget.title)
-                      .toList();
-
-                  items.sort();
-                  return MenuItem(
-                    price: items[index].price,
-                    name: items[index].name,
-                    category: widget.title,
-                    function: deleteProductByName,
-                  );
-                },
-                itemCount: _products
-                    .where((element) => element.category == widget.title)
-                    .toList()
-                    .length,
-              ))
+            expanded: _expandFlag,
+            itemCount: _products.length,
+            child: _products.isEmpty
+                ? const Center(
+                    child: Text(
+                      'No products found in this category.',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  )
+                : ListView.builder(
+                    controller: ScrollController(),
+                    itemBuilder: (BuildContext context, int index) {
+                      List<ProductModel> items = _products;
+                      items.sort();
+                      return MenuItem(
+                        price: items[index].price,
+                        name: items[index].name,
+                        category: widget.categoryName,
+                        function: deleteProductByName,
+                      );
+                    },
+                    itemCount: _products.length,
+                  ),
+          )
         ],
       ),
     );
   }
 
-  Future<void> createProduct(String name, double price, String category) async{
+  Future<void> createProduct(String name, double price, String category) async {
     ProductModel newProduct =
         ProductModel(name: name, price: price, category: category);
-    try
-    {
+    try {
       await ProductService.addProduct(newProduct);
-      var products = await ProductService.getProductList();
+      var products = await ProductService.getProductListByCategory(category);
 
       setState(() {
         _products = products;
       });
     } on Exception catch (e) {
-      showMessageBox(context, "Failed to add product! " + e.toString());
+      showMessageBox(NavigationService.navigatorKey.currentContext!,
+          "Failed to add product! " + e.toString());
     }
   }
 
   Future<void> deleteProductByName(String name) async {
-    try
-    {
+    try {
       await ProductService.removeProductByName(name);
-      var products = await ProductService.getProductList();
+      var products =
+          await ProductService.getProductListByCategory(widget.categoryName);
 
       setState(() {
         _products = products;
       });
     } on Exception catch (e) {
-      showMessageBox(context, "Failed to remove product! " + e.toString());
+      showMessageBox(NavigationService.navigatorKey.currentContext!,
+          "Failed to remove product! " + e.toString());
     }
   }
 }
@@ -311,8 +547,12 @@ class MenuSectionContent extends StatelessWidget {
       this.collapsedHeight = 0.0,
       this.expanded = true})
       : super(key: key) {
-    expandedHeight =
-        min(expandedMaxHeight, itemCount * 50); //50 is the height of a MenuItem
+    if (itemCount == 0) {
+      expandedHeight = 50;
+    } else {
+      expandedHeight = min(
+          expandedMaxHeight, itemCount * 50); //50 is the height of a MenuItem
+    }
   }
 
   @override
@@ -363,7 +603,7 @@ class MenuItem extends StatelessWidget {
                   child: Text(price.toString())),
               CustomButton(
                   color: Colors.red,
-                  function: () async {
+                  onPressed: () async {
                     await function(name);
                   },
                   size: 25,
@@ -371,8 +611,9 @@ class MenuItem extends StatelessWidget {
             ],
           ),
         ]),
-        leading: Icon(
-          sectionIcons[category],
+        leading: const Icon(
+          //TODO - get icon from category
+          Icons.dining_sharp,
           color: mainColor,
         ),
       ),

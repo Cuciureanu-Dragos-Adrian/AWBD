@@ -5,6 +5,7 @@ import 'package:restaurant_management_app/bin/models/table_model.dart';
 import 'package:restaurant_management_app/bin/utilities/unmovable_table_utils.dart';
 import 'package:restaurant_management_app/bin/widgets/dialog.dart';
 import 'package:restaurant_management_app/bin/widgets/unmovable_table_widget.dart';
+import 'package:restaurant_management_app/main.dart';
 
 /// Floor plan builder
 class TableManager extends StatefulWidget {
@@ -38,7 +39,7 @@ class _TableManagerState extends State<TableManager> {
     try {
     _tableModelList = await TableService.getTables();
     } on Exception {
-      showMessageBox(context, 'Failed to fetch tables!');
+      showMessageBox(NavigationService.navigatorKey.currentContext!, 'Failed to fetch tables!');
       return;
     }
 

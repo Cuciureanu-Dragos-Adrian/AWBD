@@ -10,7 +10,7 @@ import 'package:restaurant_management_app/bin/models/reservation_model.dart';
 import 'package:restaurant_management_app/bin/utilities/table_utils.dart';
 
 import '../constants.dart';
-import '../services/globals.dart';
+import '../utilities/globals.dart';
 import 'orders.dart';
 
 /// Movable table object

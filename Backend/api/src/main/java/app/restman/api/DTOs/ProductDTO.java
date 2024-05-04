@@ -16,6 +16,6 @@ public class ProductDTO {
     public ProductDTO(Product prod) {
         this.name = prod.getName();
         this.price = prod.getPrice();
-        this.categoryName = prod.getProdCategory();
+        this.categoryName = prod.getCategory().getName();
     }
 }

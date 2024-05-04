@@ -1,21 +1,21 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:restaurant_management_app/bin/constants.dart';
 
 class CategoryModel {
   late String name;
-  late Icon icon;
+  //TODO - for now, all categories use a default Icon
+  late IconData icon;
 
   CategoryModel({required this.name, required this.icon});
 
   CategoryModel.fromJson(Map<String, dynamic> json) {
     name = json['name'];
-    icon = sectionIcons[json['icon']];
+    icon = Icons.food_bank;
   }
 
   Map<String, dynamic> toJson() {
-    return {'name': name, 'icon': name};
+    return {'name': name, 'iconBase64': ''};
   }
 
   @override

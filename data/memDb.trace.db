@@ -1,0 +1,3 @@
+2024-05-04 14:24:01.068831+03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "insert into product (name, price, [*]) values ('Coca Cola', 10)"; expected "identifier"; SQL statement:
+insert into product (name, price, ) values ('Coca Cola', 10) [42001-224]
