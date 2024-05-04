@@ -217,19 +217,17 @@ class _MenuState extends State<Menu> {
     bool? dialogResult = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Are you sure?',
-        style: TextStyle(color: mainColor)),
-        content: const Text('Category deletion will also delete nested products and cannot be undone.'),
+        title: const Text('Are you sure?', style: TextStyle(color: mainColor)),
+        content: const Text(
+            'Category deletion will also delete nested products and cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel',
-            style: TextStyle(color: mainColor)),
+            child: const Text('Cancel', style: TextStyle(color: mainColor)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Yes',
-            style: TextStyle(color: mainColor)),
+            child: const Text('Yes', style: TextStyle(color: mainColor)),
           ),
         ],
       ),

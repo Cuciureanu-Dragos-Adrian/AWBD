@@ -18,7 +18,7 @@ void saveGlobalObject() {
   data.writeGlobalObject(toSave); // use global data service to store tables
 }
 
-int getZoomIndex(){
+int getZoomIndex() {
   return zoomFactors.indexOf(Globals.getGlobals().tableImagesScale);
 }
 
@@ -29,7 +29,7 @@ class Globals {
   Globals._();
 
   static Future<void> loadGlobals() async {
-    if(object == null){
+    if (object == null) {
       object = Globals._();
       object!._globals = await loadGlobalObject();
     }
@@ -40,5 +40,4 @@ class Globals {
 
     return object!._globals;
   }
-
 }

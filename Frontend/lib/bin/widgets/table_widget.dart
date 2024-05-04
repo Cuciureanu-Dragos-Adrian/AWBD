@@ -63,7 +63,7 @@ class _MovableTableWidgetState extends State<MovableTableWidget> {
   }
 
   void fetchOrder() async {
-    try{
+    try {
       var order = await getAssignedOrder(widget.id);
       setState(() {
         _hasOrder = order != null;

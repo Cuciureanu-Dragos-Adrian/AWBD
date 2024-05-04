@@ -44,11 +44,11 @@ class _FloorPlanState extends State<FloorPlan> {
   }
 
   void loadTablesAsync() async {
-
     try {
       _tableModelList = await TableService.getTables();
     } on Exception {
-      showMessageBox(NavigationService.navigatorKey.currentContext!, 'Failed to fetch tables!');
+      showMessageBox(NavigationService.navigatorKey.currentContext!,
+          'Failed to fetch tables!');
       return;
     }
 
@@ -292,7 +292,8 @@ class _FloorPlanState extends State<FloorPlan> {
       try {
         await TableService.addTable(getTableModelFromWidget(newTableWidget));
       } on Exception catch (e) {
-        showMessageBox(NavigationService.navigatorKey.currentContext!, 'Failed to add table: $e');
+        showMessageBox(NavigationService.navigatorKey.currentContext!,
+            'Failed to add table: $e');
         return;
       }
 
@@ -307,9 +308,9 @@ class _FloorPlanState extends State<FloorPlan> {
         _tableIds.sort();
         _removeDropdownValue = _tableIds[0];
       });
-
     } else {
-      showMessageBox(NavigationService.navigatorKey.currentContext!, "Cannot add a new table because the seat limit would be exceeded!");
+      showMessageBox(NavigationService.navigatorKey.currentContext!,
+          "Cannot add a new table because the seat limit would be exceeded!");
     }
   }
 

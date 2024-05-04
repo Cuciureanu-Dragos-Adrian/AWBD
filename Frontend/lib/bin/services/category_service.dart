@@ -4,7 +4,8 @@ import 'dart:convert'; // Import for jsonEncode
 import '../constants.dart' as constants;
 
 class CategoryService {
-  static const String _baseUrl = constants.backendUrl + '/menu_categories'; // Construct URL with base path
+  static const String _baseUrl =
+      constants.backendUrl + '/menu_categories'; // Construct URL with base path
 
   static Future<List<CategoryModel>> getCategoryList() async {
     final response = await http.get(Uri.parse(_baseUrl + "/getAll"));
@@ -21,7 +22,8 @@ class CategoryService {
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(category.toJson()), // Convert category to JSON for request body
+      body: jsonEncode(
+          category.toJson()), // Convert category to JSON for request body
     );
     if (response.statusCode != 201) {
       throw Exception(response.body);
@@ -32,7 +34,8 @@ class CategoryService {
     final url = Uri.parse('$_baseUrl/$categoryName');
     final response = await http.delete(url);
     if (response.statusCode == 404) {
-      throw Exception('Category not found: $categoryName'); // Handle 404 for specific category
+      throw Exception(
+          'Category not found: $categoryName'); // Handle 404 for specific category
     } else if (response.statusCode != 200) {
       throw Exception(response.body);
     }

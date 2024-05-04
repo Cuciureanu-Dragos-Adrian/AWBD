@@ -76,7 +76,7 @@ class _UnmovableTableWidgetState extends State<UnmovableTableWidget> {
   }
 
   void fetchOrder() async {
-    try{
+    try {
       var order = await getAssignedOrder(widget.id);
       setState(() {
         _order = order;
@@ -140,11 +140,12 @@ class _UnmovableTableWidgetState extends State<UnmovableTableWidget> {
                                             width: 200,
                                             child: ListView.builder(
                                               controller: ScrollController(),
-                                              itemBuilder: (BuildContext context,
-                                                  int index) {
+                                              itemBuilder:
+                                                  (BuildContext context,
+                                                      int index) {
                                                 return DialogListItem(
-                                                  name:
-                                                      _order!.products[index].name,
+                                                  name: _order!
+                                                      .products[index].name,
                                                   category: _order!
                                                       .products[index].category,
                                                   quantity:

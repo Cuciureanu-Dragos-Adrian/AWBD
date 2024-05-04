@@ -20,7 +20,7 @@ class CapacityList {
   CapacityList._();
 
   static Future<void> loadCapacityList() async {
-    if(object == null){
+    if (object == null) {
       object = CapacityList._();
       object!._capacities = await loadCapacities();
     }
@@ -32,8 +32,7 @@ class CapacityList {
     return object!._capacities;
   }
 
-
-  static void setCapacities(List<int> newTables){
+  static void setCapacities(List<int> newTables) {
     object ??= CapacityList._();
     object!._capacities = newTables;
   }

@@ -5,7 +5,6 @@ import 'dart:convert';
 import '../constants.dart' as constants;
 
 class TableService {
-
   static const String _baseUrl = constants.backendUrl + '/tables';
 
   static Future<List<TableModel>> getTables() async {
@@ -34,8 +33,7 @@ class TableService {
     // Send POST request to backend to create table
     final tableMap = table.toJson();
     final url = Uri.parse(_baseUrl);
-    final response = await http.post(
-        url,
+    final response = await http.post(url,
         headers: {"Content-Type": "application/json"},
         body: json.encode(tableMap));
     if (response.statusCode != 201) {
@@ -43,15 +41,15 @@ class TableService {
     }
   }
 
-  static Future<void> editTablePosition(String id, double xOffset, double yOffset) async {
+  static Future<void> editTablePosition(
+      String id, double xOffset, double yOffset) async {
     var table = await getTableById(id);
     if (table != null) {
       table.xOffset = xOffset;
       table.yOffset = yOffset;
 
       final url = Uri.parse(_baseUrl + '/$id');
-      final response = await http.put(
-          url,
+      final response = await http.put(url,
           headers: {"Content-Type": "application/json"},
           body: json.encode(table.toJson()));
       if (response.statusCode != 200) {
@@ -70,7 +68,7 @@ class TableService {
       final response = await http.delete(url);
       if (response.statusCode != 200) {
         throw Exception(response.body);
-      } 
+      }
     } else {
       throw Exception('Table with ID $tableId not found');
     }

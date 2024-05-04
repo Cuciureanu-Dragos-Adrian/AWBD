@@ -8,7 +8,7 @@ class ReservationModel {
   late String tableId;
 
   ReservationModel(
-      { required this.reservationId,
+      {required this.reservationId,
       required this.numberOfPeople,
       required this.name,
       required this.dateTime,

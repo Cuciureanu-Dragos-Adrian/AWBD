@@ -47,7 +47,8 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
     try {
       _tables = await TableService.getTables();
     } on Exception {
-      showMessageBox(NavigationService.navigatorKey.currentContext!, 'Failed to fetch tables!');
+      showMessageBox(NavigationService.navigatorKey.currentContext!,
+          'Failed to fetch tables!');
       return;
     }
 
@@ -64,7 +65,8 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
         reservations = fetch;
       });
     } on Exception {
-      showMessageBox(NavigationService.navigatorKey.currentContext!, 'Failed to fetch tables!');
+      showMessageBox(NavigationService.navigatorKey.currentContext!,
+          'Failed to fetch tables!');
       return;
     }
   }
@@ -77,7 +79,8 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
         reservations = fetch;
       });
     } on Exception {
-      showMessageBox(NavigationService.navigatorKey.currentContext!, 'Failed to fetch tables!');
+      showMessageBox(NavigationService.navigatorKey.currentContext!,
+          'Failed to fetch tables!');
       return;
     }
   }
@@ -98,18 +101,17 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
         _hasMoreData = fetch.length == 10;
       });
     } on Exception {
-      showMessageBox(NavigationService.navigatorKey.currentContext!, 'Failed to fetch tables!');
+      showMessageBox(NavigationService.navigatorKey.currentContext!,
+          'Failed to fetch tables!');
       return;
     }
   }
 
-  DateTime getSelectedDate() 
-  {
+  DateTime getSelectedDate() {
     return _selectedDate;
   }
 
-  void setSelectedDate(DateTime toSet)
-  {
+  void setSelectedDate(DateTime toSet) {
     //do not use SetState since this does not need to trigger a redraw
     _selectedDate = toSet;
   }
@@ -164,174 +166,189 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
                 Expanded(
                   child: Center(
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                    Container(
-                        margin: const EdgeInsets.only(bottom: 10, top: 10, right: 10),
-                        child: CustomButton(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                        Container(
+                            margin: const EdgeInsets.only(
+                                bottom: 10, top: 10, right: 10),
+                            child: CustomButton(
+                              color: mainColor,
+                              size: 40,
+                              icon: const Icon(Icons.arrow_upward),
+                              onPressed: () {
+                                _asc = true;
+                                _currentPage = 1;
+                                reservations.clear();
+                                loadReservationsPageAsync(_currentPage);
+                                //loadReservationsAscAsync();
+                              },
+                            )),
+                        CustomButton(
                           color: mainColor,
                           size: 40,
-                          icon: const Icon(Icons.arrow_upward),
-                          onPressed: () {
-                            _asc = true;
-                            _currentPage = 1;
-                            reservations.clear();
-                            loadReservationsPageAsync(_currentPage);
-                            //loadReservationsAscAsync();
-                          },
-                        )),
-                    CustomButton(
-                      color: mainColor,
-                      size: 40,
-                      icon: const Icon(Icons.add),
-                      onPressed: () async {
-                        await showDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (BuildContext context) {
-                              return StatefulBuilder(
-                                  builder: (context, setState) {
-                                return AlertDialog(
-                                  title: const Text(
-                                    'Add Reservation',
-                                    style: TextStyle(color: mainColor),
-                                  ),
-                                  content: SizedBox(
-                                      height: 300,
-                                      width: 300,
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceEvenly,
-                                        children: [
-                                          Column(
+                          icon: const Icon(Icons.add),
+                          onPressed: () async {
+                            await showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (BuildContext context) {
+                                  return StatefulBuilder(
+                                      builder: (context, setState) {
+                                    return AlertDialog(
+                                      title: const Text(
+                                        'Add Reservation',
+                                        style: TextStyle(color: mainColor),
+                                      ),
+                                      content: SizedBox(
+                                          height: 300,
+                                          width: 300,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
                                             children: [
-                                              const Text(
-                                                "Set table",
-                                                style: TextStyle(
-                                                    color: Colors.black87),
-                                              ),
-                                              Row(
+                                              Column(
                                                 children: [
-                                                  Container(
-                                                    margin: const EdgeInsets
-                                                        .symmetric(
-                                                        horizontal: 10),
-                                                    child:
-                                                        DropdownButton<String>(
-                                                      value: _chosenTable,
-                                                      icon: const Icon(
-                                                          Icons.arrow_downward),
-                                                      elevation: 16,
-                                                      style: const TextStyle(
-                                                          color: Colors.black),
-                                                      underline: Container(
-                                                        height: 2,
-                                                        color: mainColor,
-                                                      ),
-                                                      onChanged:
-                                                          (String? newValue) {
-                                                        setState(() {
-                                                          _chosenTable =
-                                                              newValue!;
-                                                        });
-                                                      },
-                                                      items: _tables.map<
-                                                              DropdownMenuItem<
-                                                                  String>>(
-                                                          (TableModel value) {
-                                                        return DropdownMenuItem<
+                                                  const Text(
+                                                    "Set table",
+                                                    style: TextStyle(
+                                                        color: Colors.black87),
+                                                  ),
+                                                  Row(
+                                                    children: [
+                                                      Container(
+                                                        margin: const EdgeInsets
+                                                            .symmetric(
+                                                            horizontal: 10),
+                                                        child: DropdownButton<
                                                             String>(
-                                                          value: value.id,
-                                                          child: Text(value.id),
-                                                        );
-                                                      }).toList(),
-                                                    ),
+                                                          value: _chosenTable,
+                                                          icon: const Icon(Icons
+                                                              .arrow_downward),
+                                                          elevation: 16,
+                                                          style:
+                                                              const TextStyle(
+                                                                  color: Colors
+                                                                      .black),
+                                                          underline: Container(
+                                                            height: 2,
+                                                            color: mainColor,
+                                                          ),
+                                                          onChanged: (String?
+                                                              newValue) {
+                                                            setState(() {
+                                                              _chosenTable =
+                                                                  newValue!;
+                                                            });
+                                                          },
+                                                          items: _tables.map<
+                                                                  DropdownMenuItem<
+                                                                      String>>(
+                                                              (TableModel
+                                                                  value) {
+                                                            return DropdownMenuItem<
+                                                                String>(
+                                                              value: value.id,
+                                                              child: Text(
+                                                                  value.id),
+                                                            );
+                                                          }).toList(),
+                                                        ),
+                                                      )
+                                                    ],
+                                                  ),
+                                                  const Text(
+                                                    "Set Reservation Time",
+                                                    style: TextStyle(
+                                                        color: Colors.black87),
+                                                  ),
+                                                  Row(
+                                                    children: [
+                                                      Container(
+                                                          height: 30,
+                                                          width: 300,
+                                                          margin:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  vertical: 10),
+                                                          child: TimePicker(
+                                                              getSelectedDate:
+                                                                  getSelectedDate,
+                                                              setSelectedDate:
+                                                                  setSelectedDate))
+                                                    ],
+                                                  ),
+                                                  TextField(
+                                                    decoration:
+                                                        const InputDecoration(
+                                                            hintText:
+                                                                "Enter Name"),
+                                                    controller:
+                                                        _reservationNameController,
+                                                  ),
+                                                  Text(
+                                                    _dialogErrorMessage,
+                                                    style: const TextStyle(
+                                                        color:
+                                                            Colors.redAccent),
                                                   )
                                                 ],
-                                              ),
-                                              const Text(
-                                                "Set Reservation Time",
-                                                style: TextStyle(
-                                                    color: Colors.black87),
-                                              ),
-                                              Row(
-                                                children: [
-                                                  Container(
-                                                      height: 30,
-                                                      width: 300,
-                                                      margin: const EdgeInsets
-                                                          .symmetric(
-                                                          vertical: 10),
-                                                      child: TimePicker(getSelectedDate: getSelectedDate, setSelectedDate: setSelectedDate))
-                                                ],
-                                              ),
-                                              TextField(
-                                                decoration:
-                                                    const InputDecoration(
-                                                        hintText: "Enter Name"),
-                                                controller:
-                                                    _reservationNameController,
-                                              ),
-                                              Text(
-                                                _dialogErrorMessage,
-                                                style: const TextStyle(
-                                                    color: Colors.redAccent),
                                               )
                                             ],
-                                          )
-                                        ],
-                                      )),
-                                  actions: [
-                                    TextButton(
-                                      child: const Text("Add"),
-                                      onPressed: () async {
-                                        setState(() {
-                                          _dialogErrorMessage = "";
-                                        });
+                                          )),
+                                      actions: [
+                                        TextButton(
+                                          child: const Text("Add"),
+                                          onPressed: () async {
+                                            setState(() {
+                                              _dialogErrorMessage = "";
+                                            });
 
-                                        setState(() {
-                                          _reservedBy =
-                                              _reservationNameController.text;
-                                        });
+                                            setState(() {
+                                              _reservedBy =
+                                                  _reservationNameController
+                                                      .text;
+                                            });
 
-                                        if (await createReservation()) {
-                                          _reservationNameController.text = "";
-                                          _reservedBy = "";
-                                          Navigator.of(context).pop();
-                                        }
-                                      },
-                                      style: TextButton.styleFrom(
-                                          foregroundColor: mainColor),
-                                    ),
-                                    TextButton(
-                                      child: const Text('Cancel'),
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      style: TextButton.styleFrom(
-                                          foregroundColor: mainColor),
-                                    ),
-                                  ],
-                                );
-                              });
-                            });
-                      },
-                    ),
-                    Container(
-                        margin: const EdgeInsets.only(left: 10, bottom: 10, top: 10),
-                        child: CustomButton(
-                          color: mainColor,
-                          size: 40,
-                          icon: const Icon(Icons.arrow_downward),
-                          onPressed: () {
-                            _asc = false;
-                            _currentPage = 1;
-                            reservations.clear();
-                            loadReservationsPageAsync(_currentPage);
-                            //loadReservationsDescAsync();
+                                            if (await createReservation()) {
+                                              _reservationNameController.text =
+                                                  "";
+                                              _reservedBy = "";
+                                              Navigator.of(context).pop();
+                                            }
+                                          },
+                                          style: TextButton.styleFrom(
+                                              foregroundColor: mainColor),
+                                        ),
+                                        TextButton(
+                                          child: const Text('Cancel'),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          style: TextButton.styleFrom(
+                                              foregroundColor: mainColor),
+                                        ),
+                                      ],
+                                    );
+                                  });
+                                });
                           },
-                        )),
-                  ])),
+                        ),
+                        Container(
+                            margin: const EdgeInsets.only(
+                                left: 10, bottom: 10, top: 10),
+                            child: CustomButton(
+                              color: mainColor,
+                              size: 40,
+                              icon: const Icon(Icons.arrow_downward),
+                              onPressed: () {
+                                _asc = false;
+                                _currentPage = 1;
+                                reservations.clear();
+                                loadReservationsPageAsync(_currentPage);
+                                //loadReservationsDescAsync();
+                              },
+                            )),
+                      ])),
                 ),
               ],
             ))

@@ -6,7 +6,9 @@ class TimePicker extends StatefulWidget {
   final DateTime Function() getSelectedDate;
   final void Function(DateTime) setSelectedDate;
 
-  const TimePicker({Key? key, required this.getSelectedDate, required this.setSelectedDate}) : super(key: key);
+  const TimePicker(
+      {Key? key, required this.getSelectedDate, required this.setSelectedDate})
+      : super(key: key);
 
   @override
   _TimePickerState createState() => _TimePickerState();
@@ -15,11 +17,11 @@ class TimePicker extends StatefulWidget {
 class _TimePickerState extends State<TimePicker> {
   late DateTime _selectedDate;
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     _selectedDate = widget.getSelectedDate();
     return DateButton(
-        text: getDateTime(_selectedDate),
-        onClicked: () => pickDateTime(context),
+      text: getDateTime(_selectedDate),
+      onClicked: () => pickDateTime(context),
     );
   }
 
@@ -41,15 +43,13 @@ class _TimePickerState extends State<TimePicker> {
   Future<TimeOfDay> pickTime(BuildContext context) async {
     final newTime = await showTimePicker(
         context: context,
-        initialTime: TimeOfDay(
-            hour: _selectedDate.hour,
-            minute: _selectedDate.minute));
+        initialTime:
+            TimeOfDay(hour: _selectedDate.hour, minute: _selectedDate.minute));
 
     if (newTime != null) {
       return newTime;
     } else {
-      return TimeOfDay(
-          hour: _selectedDate.hour, minute: _selectedDate.minute);
+      return TimeOfDay(hour: _selectedDate.hour, minute: _selectedDate.minute);
     }
   }
 

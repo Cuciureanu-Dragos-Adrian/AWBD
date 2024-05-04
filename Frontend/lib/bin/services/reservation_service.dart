@@ -6,7 +6,8 @@ import '../constants.dart' as constants;
 
 class ReservationService {
   static Future<List<ReservationModel>> getReservationListAsc() async {
-    final url = Uri.parse('${constants.backendUrl}/reservations/getAllNotExpiredAsc');
+    final url =
+        Uri.parse('${constants.backendUrl}/reservations/getAllNotExpiredAsc');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -20,7 +21,8 @@ class ReservationService {
   }
 
   static Future<List<ReservationModel>> getReservationListDesc() async {
-    final url = Uri.parse('${constants.backendUrl}/reservations/getAllNotExpiredDesc');
+    final url =
+        Uri.parse('${constants.backendUrl}/reservations/getAllNotExpiredDesc');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -33,8 +35,10 @@ class ReservationService {
     }
   }
 
-  static Future<List<ReservationModel>> getReservationListPageAsc({int page = 1}) async {
-    final url = Uri.parse('${constants.backendUrl}/reservations/getAllNotExpiredPageAsc?page=$page');
+  static Future<List<ReservationModel>> getReservationListPageAsc(
+      {int page = 1}) async {
+    final url = Uri.parse(
+        '${constants.backendUrl}/reservations/getAllNotExpiredPageAsc?page=$page');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -49,8 +53,10 @@ class ReservationService {
     }
   }
 
-  static Future<List<ReservationModel>> getReservationListPageDesc({int page = 1}) async {
-    final url = Uri.parse('${constants.backendUrl}/reservations/getAllNotExpiredPageDesc?page=$page');
+  static Future<List<ReservationModel>> getReservationListPageDesc(
+      {int page = 1}) async {
+    final url = Uri.parse(
+        '${constants.backendUrl}/reservations/getAllNotExpiredPageDesc?page=$page');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {

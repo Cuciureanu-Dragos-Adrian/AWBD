@@ -22,24 +22,25 @@ const double buttonSize = 45;
 class _TableManagerState extends State<TableManager> {
   int currentFloor = 0;
   List<UnmovableTableWidget> _tableWidgets = [];
-  List<TableModel> _tableModelList = []; //required for the first initialization of _tableWidgets
+  List<TableModel> _tableModelList =
+      []; //required for the first initialization of _tableWidgets
   List<String> _tableIds = ['none'];
   bool _read = false;
   bool _firstBuild = true;
 
   @override
-  void initState()  {
+  void initState() {
     super.initState();
-    
+
     loadTablesAsync();
   }
 
-  void loadTablesAsync() async 
-  {
+  void loadTablesAsync() async {
     try {
-    _tableModelList = await TableService.getTables();
+      _tableModelList = await TableService.getTables();
     } on Exception {
-      showMessageBox(NavigationService.navigatorKey.currentContext!, 'Failed to fetch tables!');
+      showMessageBox(NavigationService.navigatorKey.currentContext!,
+          'Failed to fetch tables!');
       return;
     }
 

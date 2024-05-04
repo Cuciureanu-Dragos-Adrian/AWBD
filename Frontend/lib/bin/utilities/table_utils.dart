@@ -141,7 +141,7 @@ Future<OrderModel?> getAssignedOrder(String tableId) async {
   return result;
 }
 
-Future<ReservationModel?> getUpcomingReservation(String tableId) async{
+Future<ReservationModel?> getUpcomingReservation(String tableId) async {
   ReservationModel? result;
 
   var reservationExpirationTerm =
