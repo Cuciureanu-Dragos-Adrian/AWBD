@@ -44,11 +44,9 @@ class ProductService {
   static Future<void> removeProductByName(String productName) async {
     final url = Uri.parse('$_baseUrl/$productName');
     final response = await http.delete(url);
-    if (response.statusCode == 200) {
-      ; //delete successful
-    } else if (response.statusCode == 404) {
+    if (response.statusCode == 404) {
       throw Exception('Product not found: $productName'); // Handle 404 for specific product
-    } else {
+    } else if (response.statusCode != 200){
       throw Exception(response.body);
     }
   }
