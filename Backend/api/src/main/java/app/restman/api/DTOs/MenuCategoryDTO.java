@@ -1,6 +1,7 @@
 package app.restman.api.DTOs;
 
 import app.restman.api.entities.MenuCategory;
+import app.restman.api.services.MenuCategoryService;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,6 +10,8 @@ import lombok.Setter;
 public class MenuCategoryDTO {
     private String name;
     private String iconBase64;
+
+    public MenuCategoryDTO() { }
 
     public MenuCategoryDTO(MenuCategory category)
     {
