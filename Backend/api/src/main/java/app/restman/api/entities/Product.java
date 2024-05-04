@@ -12,8 +12,6 @@ public class Product {
     @Id
     private String name;
     private double price;
-    //TODO - remove temp prop
-    private String prodCategory;
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "categoryName")
