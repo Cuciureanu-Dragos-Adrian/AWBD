@@ -2,15 +2,15 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:restaurant_management_app/bin/models/product_model.dart';
-import 'package:restaurant_management_app/bin/widgets/custom_button.dart';
-import 'package:restaurant_management_app/bin/widgets/dialog.dart';
+import 'package:restaurant_management_app/bin/widgets/common/custom_button.dart';
+import 'package:restaurant_management_app/bin/widgets/common/dialog.dart';
 
-import '../constants.dart';
-import '../services/product_service.dart';
-import '../services/table_service.dart';
-import '../models/order_model.dart';
-import '../services/order_service.dart';
-import '../models/table_model.dart';
+import '../../constants.dart';
+import '../../services/product_service.dart';
+import '../../services/table_service.dart';
+import '../../models/order_model.dart';
+import '../../services/order_service.dart';
+import '../../models/table_model.dart';
 
 const double expandedMaxHeight = 400;
 
@@ -46,9 +46,12 @@ class _OrdersWidgetState extends State<OrdersWidget> {
   void loadTablesAsync() async {
     try {
       var response = await TableService.getTables();
-      setState(() {
-        _tables = response;
-      });
+
+      if (mounted) {
+        setState(() {
+          _tables = response;
+        });
+      }
     } on Exception {
       showMessageBox(context, 'Failed to fetch tables!');
       return;
@@ -62,9 +65,11 @@ class _OrdersWidgetState extends State<OrdersWidget> {
   void loadOrdersAsync() async {
     try {
       var response = await OrderService.getOrderList();
-      setState(() {
-        _orders = response;
-      });
+      if (mounted) {
+        setState(() {
+          _orders = response;
+        });
+      }
     } on Exception {
       showMessageBox(context, 'Failed to fetch orders!');
       return;
@@ -74,13 +79,15 @@ class _OrdersWidgetState extends State<OrdersWidget> {
   void loadProductsAsync() async {
     try {
       var response = await ProductService.getProductList();
-      setState(() {
-        _products = response;
+      if (mounted) {
+        setState(() {
+          _products = response;
 
-        if (_products.isNotEmpty) {
-          _currentSelectedProduct = _products[0].name;
-        }
-      });
+          if (_products.isNotEmpty) {
+            _currentSelectedProduct = _products[0].name;
+          }
+        });
+      }
     } on Exception {
       showMessageBox(context, 'Failed to fetch products!');
       return;
@@ -95,6 +102,8 @@ class _OrdersWidgetState extends State<OrdersWidget> {
 
   @override
   Widget build(BuildContext context) {
+    ScrollController _scrollController = ScrollController();
+
     return LayoutBuilder(
       builder: (context, constraints) {
         return Column(children: [
@@ -102,7 +111,7 @@ class _OrdersWidgetState extends State<OrdersWidget> {
             width: constraints.maxWidth,
             height: constraints.maxHeight * 9 / 10,
             child: ListView.builder(
-                controller: ScrollController(),
+                controller: _scrollController,
                 itemBuilder: (BuildContext context, int index) {
                   return OrderSection(
                     title: _orders[index].tableId +

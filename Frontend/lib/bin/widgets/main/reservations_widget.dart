@@ -4,12 +4,12 @@ import 'package:restaurant_management_app/bin/constants.dart';
 import 'package:restaurant_management_app/bin/services/reservation_service.dart';
 import 'package:restaurant_management_app/bin/services/table_service.dart';
 import 'package:restaurant_management_app/bin/models/reservation_model.dart';
-import 'package:restaurant_management_app/bin/widgets/custom_button.dart';
-import 'package:restaurant_management_app/bin/widgets/dialog.dart';
-import 'package:restaurant_management_app/bin/widgets/time_picker.dart';
+import 'package:restaurant_management_app/bin/widgets/common/custom_button.dart';
+import 'package:restaurant_management_app/bin/widgets/common/dialog.dart';
+import 'package:restaurant_management_app/bin/widgets/common/time_picker.dart';
 import 'package:restaurant_management_app/main.dart';
 
-import '../models/table_model.dart';
+import '../../models/table_model.dart';
 
 const double expandedMaxHeight = 400;
 List<ReservationModel> reservations = [];
@@ -40,7 +40,6 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
     super.initState();
     loadTablesAsync();
     loadReservationsPageAsync(_currentPage);
-    //loadReservationsAscAsync();
   }
 
   void loadTablesAsync() async {
@@ -124,6 +123,7 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
 
   @override
   Widget build(BuildContext context) {
+    ScrollController _scrollController = ScrollController();
     DateFormat dateFormat = DateFormat("MM/dd HH:mm");
 
     return LayoutBuilder(builder: (context, constraints) {
@@ -141,7 +141,7 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
                 return true;
               },
               child: ListView.builder(
-                controller: ScrollController(),
+                controller: _scrollController,
                 itemBuilder: (BuildContext context, int index) {
                   return ReservationSection(
                       title: '    ' +

@@ -3,8 +3,8 @@ import 'package:restaurant_management_app/bin/constants.dart';
 import 'package:restaurant_management_app/bin/services/table_service.dart';
 import 'package:restaurant_management_app/bin/models/table_model.dart';
 import 'package:restaurant_management_app/bin/utilities/unmovable_table_utils.dart';
-import 'package:restaurant_management_app/bin/widgets/dialog.dart';
-import 'package:restaurant_management_app/bin/widgets/unmovable_table_widget.dart';
+import 'package:restaurant_management_app/bin/widgets/common/dialog.dart';
+import 'package:restaurant_management_app/bin/widgets/main/unmovable_table_widget.dart';
 import 'package:restaurant_management_app/main.dart';
 
 /// Floor plan builder

@@ -6,7 +6,7 @@ import '../models/order_model.dart';
 import '../services/order_service.dart';
 import '../services/reservation_service.dart';
 import '../models/reservation_model.dart';
-import '../widgets/table_widget.dart';
+import '../widgets/main/table_widget.dart';
 
 /// Returns a list of MovableTable from a list of tables
 ///
