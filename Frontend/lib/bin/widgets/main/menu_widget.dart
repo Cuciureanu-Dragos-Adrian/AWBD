@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:restaurant_management_app/bin/constants.dart';
 import 'package:restaurant_management_app/bin/models/category_model.dart';
 import 'package:restaurant_management_app/bin/services/category_service.dart';
-import 'package:restaurant_management_app/bin/widgets/custom_button.dart';
-import 'package:restaurant_management_app/bin/widgets/dialog.dart';
+import 'package:restaurant_management_app/bin/widgets/common/custom_button.dart';
+import 'package:restaurant_management_app/bin/widgets/common/dialog.dart';
 import 'package:restaurant_management_app/main.dart';
 import 'dart:math';
 
-import '../services/product_service.dart';
-import '../models/product_model.dart';
+import '../../services/product_service.dart';
+import '../../models/product_model.dart';
 
 const double expandedMaxHeight = 400;
 
@@ -36,13 +36,15 @@ class _MenuState extends State<Menu> {
   void loadCategoriesAsync() async {
     try {
       var response = await CategoryService.getCategoryList();
-      setState(() {
-        _menuCategories = response;
+      if (mounted) {
+        setState(() {
+          _menuCategories = response;
 
-        if (_menuCategories.isNotEmpty) {
-          _removeDropdownValue = _menuCategories[0].name;
-        }
-      });
+          if (_menuCategories.isNotEmpty) {
+            _removeDropdownValue = _menuCategories[0].name;
+          }
+        });
+      }
     } on Exception {
       showMessageBox(NavigationService.navigatorKey.currentContext!,
           'Failed to fetch categories!');

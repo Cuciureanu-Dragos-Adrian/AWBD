@@ -5,9 +5,18 @@ import 'dart:convert';
 class AuthService {
   // Variable to store login state
   static bool _isLoggedIn = false;
+  static String loggedUser = "";
+
+  static void Function(bool)? loggedInSetterCallback;
 
   // Getter for isLoggedIn
-  static bool get isLoggedIn => _isLoggedIn;
+  static set isLoggedIn(bool loggedIn) {
+    _isLoggedIn = loggedIn;
+
+    if (loggedInSetterCallback != null) {
+      loggedInSetterCallback!(loggedIn);
+    }
+  }
 
   // Login endpoint
   static Future<bool> login(String username, String password) async {
@@ -20,7 +29,8 @@ class AuthService {
 
     if (response.statusCode == 200) {
       // Login successful, set flag
-      _isLoggedIn = true;
+      isLoggedIn = true;
+      loggedUser = username;
       return true;
     } else {
       // Login failed, handle error
@@ -37,21 +47,21 @@ class AuthService {
       body: jsonEncode({'username': username, 'password': password}),
     );
 
-    if (response.statusCode != 201) {
+    if (response.statusCode != 200) {
       // Signup failed, handle error
       throw Exception(response.body);
     }
   }
 
-  // Method to clear login state (optional)
+  // Method to clear login state
   static void logout() {
     // Assuming backend handles session invalidation
-    _isLoggedIn = false;
+    isLoggedIn = false;
+    loggedUser = "";
   }
 
   static Future<http.Response> authenticatedRequest(
       Future<http.Response> futureRequest) async {
-
     if (!_isLoggedIn) {
       throw Exception("User is not logged in!");
     }
@@ -60,7 +70,7 @@ class AuthService {
     if (response.statusCode == 401) {
       logout();
       throw Exception(
-          'User was logged out!'); // Re-throw to indicate need for re-authentication
+          'User was logged out!'); // Throw to indicate need for re-authentication
     }
     return response;
   }

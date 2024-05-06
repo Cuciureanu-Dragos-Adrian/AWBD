@@ -1,6 +1,6 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
-import 'package:restaurant_management_app/bin/widgets/unmovable_table_widget.dart';
+import 'package:restaurant_management_app/bin/widgets/main/unmovable_table_widget.dart';
 import '../models/table_model.dart' as table_model;
 import '../models/table_model.dart';
 

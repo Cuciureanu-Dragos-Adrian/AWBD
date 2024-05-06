@@ -4,12 +4,12 @@ import 'package:restaurant_management_app/bin/utilities/globals.dart';
 import 'package:restaurant_management_app/bin/services/table_service.dart';
 import 'package:restaurant_management_app/bin/models/table_model.dart';
 import 'package:restaurant_management_app/bin/utilities/table_utils.dart';
-import 'package:restaurant_management_app/bin/widgets/dialog.dart';
-import 'package:restaurant_management_app/bin/widgets/table_widget.dart';
+import 'package:restaurant_management_app/bin/widgets/common/dialog.dart';
+import 'package:restaurant_management_app/bin/widgets/main/table_widget.dart';
 import 'package:restaurant_management_app/main.dart';
 
-import '../utilities/capacity_list.dart';
-import 'custom_button.dart';
+import '../../utilities/capacity_list.dart';
+import '../common/custom_button.dart';
 
 /// Floor plan builder
 class FloorPlan extends StatefulWidget {
@@ -53,16 +53,18 @@ class _FloorPlanState extends State<FloorPlan> {
     }
 
     _floorCapacities = CapacityList.getCapacityList();
-    setState(() {
-      _read = true;
+    if (mounted) {
+      setState(() {
+        _read = true;
 
-      if (_tableModelList.isNotEmpty) {
-        //dropdown must have at least one value, only update if tables exist
-        _tableIds = _tableModelList.map((e) => e.id).toList();
-        _tableIds.sort();
-        _removeDropdownValue = _tableIds[0];
-      }
-    });
+        if (_tableModelList.isNotEmpty) {
+          //dropdown must have at least one value, only update if tables exist
+          _tableIds = _tableModelList.map((e) => e.id).toList();
+          _tableIds.sort();
+          _removeDropdownValue = _tableIds[0];
+        }
+      });
+    }
   }
 
   @override
@@ -210,7 +212,7 @@ class _FloorPlanState extends State<FloorPlan> {
                           size: buttonSize,
                           icon: const Icon(Icons.delete),
                           color: mainColor,
-                          onPressed: () => {deleteTable()},
+                          onPressed: () async => {await deleteTable()},
                         ),
                       ],
                     ),
@@ -314,11 +316,19 @@ class _FloorPlanState extends State<FloorPlan> {
     }
   }
 
-  void deleteTable() {
+  Future<void> deleteTable() async {
     final String id = _removeDropdownValue;
     if (id != 'none') {
       //check that a table is selected
       TableService.removeTable(id);
+
+      try {
+        await TableService.removeTable(id);
+      } on Exception catch (e) {
+        showMessageBox(NavigationService.navigatorKey.currentContext!,
+            'Failed to add table: $e');
+        return;
+      }
 
       setState(() {
         _tableWidgets.removeWhere((element) => element.id == id);
