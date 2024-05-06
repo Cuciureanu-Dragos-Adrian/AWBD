@@ -1,5 +1,6 @@
 import 'package:restaurant_management_app/bin/models/table_model.dart';
 import 'package:http/http.dart' as http;
+import 'package:restaurant_management_app/bin/services/auth_service.dart';
 import 'dart:convert';
 
 import '../constants.dart' as constants;
@@ -9,7 +10,7 @@ class TableService {
 
   static Future<List<TableModel>> getTables() async {
     final url = Uri.parse(_baseUrl + '/getAll');
-    final response = await http.get(url);
+    final response = await AuthService.authenticatedRequest(http.get(url));
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body) as List;
       return jsonData.map((data) => TableModel.fromJson(data)).toList();
@@ -20,7 +21,7 @@ class TableService {
 
   static Future<TableModel?> getTableById(String tableId) async {
     final url = Uri.parse('$_baseUrl/$tableId');
-    final response = await http.get(url);
+    final response = await AuthService.authenticatedRequest(http.get(url));
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body) as Map<String, dynamic>;
       return TableModel.fromJson(jsonData);
@@ -33,9 +34,9 @@ class TableService {
     // Send POST request to backend to create table
     final tableMap = table.toJson();
     final url = Uri.parse(_baseUrl);
-    final response = await http.post(url,
+    final response = await AuthService.authenticatedRequest(http.post(url,
         headers: {"Content-Type": "application/json"},
-        body: json.encode(tableMap));
+        body: json.encode(tableMap)));
     if (response.statusCode != 201) {
       throw Exception(response.body);
     }
@@ -49,9 +50,9 @@ class TableService {
       table.yOffset = yOffset;
 
       final url = Uri.parse(_baseUrl + '/$id');
-      final response = await http.put(url,
+      final response = await AuthService.authenticatedRequest(http.put(url,
           headers: {"Content-Type": "application/json"},
-          body: json.encode(table.toJson()));
+          body: json.encode(table.toJson())));
       if (response.statusCode != 200) {
         throw Exception(response.body);
       }
@@ -65,7 +66,7 @@ class TableService {
     if (table != null) {
       // Send DELETE request to backend to remove table
       final url = Uri.parse(_baseUrl + '/$tableId');
-      final response = await http.delete(url);
+      final response = await AuthService.authenticatedRequest(http.delete(url));
       if (response.statusCode != 200) {
         throw Exception(response.body);
       }
