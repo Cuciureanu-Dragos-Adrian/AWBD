@@ -2,8 +2,7 @@ package app.restman.api.DTOs;
 
 import app.restman.api.entities.Reservation;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.OffsetDateTime;
 

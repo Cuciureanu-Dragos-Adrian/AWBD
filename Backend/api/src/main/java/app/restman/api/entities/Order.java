@@ -8,7 +8,8 @@ import lombok.*;
 import java.util.*;
 
 @Entity
-@Data
+@Setter
+@Getter
 @Table(name="order_tbl")
 public class Order {
 

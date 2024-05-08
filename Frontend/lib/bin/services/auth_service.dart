@@ -24,7 +24,7 @@ class AuthService {
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'username': username, 'password': password}),
+      body: jsonEncode({'email': username, 'password': password}),
     );
 
     if (response.statusCode == 200) {
@@ -37,6 +37,27 @@ class AuthService {
       throw Exception(response.body);
     }
   }
+
+  // Login endpoint
+//   static Future<bool> login(String username, String password) async {
+//   final url = Uri.parse(constants.backendUrl + '/perform_login'); // Use the URL for login processing
+//   final response = await http.post(
+//     url,
+//     headers: {'Content-Type': 'application/json'},
+//     body: jsonEncode({'username': username, 'password': password}),
+//   );
+
+//   if (response.statusCode == 200) {
+//     // Login successful, set flag
+//     isLoggedIn = true;
+//     loggedUser = username;
+//     return true;
+//   } else {
+//     // Login failed, handle error
+//     throw Exception(response.body);
+//   }
+// }
+
 
   // Signup endpoint
   static Future<void> signup(String username, String password) async {
