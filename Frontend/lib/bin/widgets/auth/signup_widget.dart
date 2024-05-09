@@ -12,6 +12,7 @@ class SignupWidget extends StatefulWidget {
 }
 
 class _SignupWidgetState extends State<SignupWidget> {
+  final _emailController = TextEditingController();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
 
@@ -38,6 +39,30 @@ class _SignupWidgetState extends State<SignupWidget> {
           const Text(
             'Sign up',
             style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold, color: mainColor),
+          ),
+          const SizedBox(height: 24), // Increased spacing between fields
+          SizedBox(
+            width: 300.0, // Set desired width for email field
+            child: TextField(
+              controller: _emailController,
+              decoration: const InputDecoration(
+                labelText: 'Email',
+                labelStyle: TextStyle(color: mainColor),
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.grey),
+                ),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: mainColor),
+                ),
+              ),
+              style:
+                  const TextStyle(fontSize: 16.0), // Adjust font size if needed
+              keyboardType:
+                  TextInputType.text, // Set keyboard type for username
+              textInputAction:
+                  TextInputAction.next, // Trigger "next" on keyboard
+              maxLines: 1, // Set the number of text lines (1 for single line)
+            ),
           ),
           const SizedBox(height: 24), // Increased spacing between fields
           SizedBox(
@@ -91,9 +116,10 @@ class _SignupWidgetState extends State<SignupWidget> {
           const SizedBox(height: 54), // Add spacing before button
           ElevatedButton(
             onPressed: () async {
+              final email = _emailController.text;
               final username = _usernameController.text;
               final password = _passwordController.text;
-              await signup(username, password); // Call login callback
+              await signup(email, username, password); // Call login callback
             },
             style: ElevatedButton.styleFrom(
                 backgroundColor: mainColor),
@@ -104,10 +130,13 @@ class _SignupWidgetState extends State<SignupWidget> {
     );
   }
 
-  Future<void> signup(username, password) async 
+  Future<void> signup(String email, String username, String password) async 
   {
       try {
-        await AuthService.signup(username, password);
+        await AuthService.signup(email, username, password);
+
+        showMessageBox(NavigationService.navigatorKey.currentContext!,
+            'User successfully created!', title: "User created!");
       } on Exception catch (e) {
         showMessageBox(NavigationService.navigatorKey.currentContext!,
             'Signup failed: $e');
