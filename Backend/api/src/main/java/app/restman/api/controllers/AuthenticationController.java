@@ -8,6 +8,7 @@ import app.restman.api.responses.LoginResponse;
 import app.restman.api.services.OrderService;
 import app.restman.api.services.security.AuthenticationService;
 import app.restman.api.services.security.JwtService;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,6 +20,7 @@ import java.util.logging.Logger;
 
 @RequestMapping("/auth")
 @RestController
+@Profile("mysql")
 public class AuthenticationController {
     private final JwtService jwtService;
 

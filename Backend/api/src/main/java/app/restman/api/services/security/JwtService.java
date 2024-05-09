@@ -12,10 +12,12 @@ import java.util.Map;
 import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
+@Profile("mysql")
 public class JwtService {
     @Value("${security.jwt.secret-key}")
     private String secretKey;

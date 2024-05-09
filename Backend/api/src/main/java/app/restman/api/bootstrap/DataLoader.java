@@ -6,11 +6,13 @@ import app.restman.api.entities.security.User;
 import app.restman.api.repositories.security.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @AllArgsConstructor
 @Component
+@Profile("mysql")
 public class DataLoader implements CommandLineRunner {
 
     //private AuthorityRepository authorityRepository;

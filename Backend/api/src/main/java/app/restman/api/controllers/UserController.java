@@ -14,6 +14,7 @@ import java.util.List;
 
 @RequestMapping("/users")
 @RestController
+@Profile("mysql")
 public class UserController {
     private final UserService userService;
 

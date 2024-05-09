@@ -33,7 +33,7 @@ public class TableMockTest {
     }
 
     @Test
-    public void createTableTest() throws Exception {
+    public void createTable() throws Exception {
         logger.info("Testing createTable...");
 
         TableCreateDTO newTableDTO = new TableCreateDTO();
@@ -62,7 +62,7 @@ public class TableMockTest {
     }
 
     @Test
-    public void getAllTablesTest() {
+    public void getAllTables() {
         logger.info("Testing getAllTables...");
 
         List<Table> tables = new ArrayList<>();
@@ -76,7 +76,7 @@ public class TableMockTest {
     }
 
     @Test
-    public void updateTableTest() throws Exception {
+    public void updateTable() throws Exception {
         logger.info("Testing updateTable...");
 
         String id = "C1";
@@ -103,7 +103,7 @@ public class TableMockTest {
     }
 
     @Test
-    public void deleteTableTest() throws Exception {
+    public void deleteTable() throws Exception {
         logger.info("Testing deleteTable...");
 
         String id = "A1";

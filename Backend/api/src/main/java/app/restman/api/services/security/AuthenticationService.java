@@ -4,12 +4,14 @@ import app.restman.api.DTOs.security.LoginUserDto;
 import app.restman.api.DTOs.security.RegisterUserDto;
 import app.restman.api.entities.security.User;
 import app.restman.api.repositories.security.UserRepository;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@Profile("mysql")
 public class AuthenticationService {
     private final UserRepository userRepository;
 

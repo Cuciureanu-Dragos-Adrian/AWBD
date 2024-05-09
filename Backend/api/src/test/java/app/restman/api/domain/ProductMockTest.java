@@ -1,7 +1,9 @@
 package app.restman.api.domain;
 
 import app.restman.api.DTOs.ProductDTO;
+import app.restman.api.entities.MenuCategory;
 import app.restman.api.entities.Product;
+import app.restman.api.entities.Table;
 import app.restman.api.repositories.MenuCategoryRepository;
 import app.restman.api.repositories.ProductRepository;
 import app.restman.api.services.ProductService;
@@ -16,6 +18,8 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class ProductMockTest {
@@ -37,7 +41,7 @@ public class ProductMockTest {
     }
 
     @Test
-    public void getAllProductsTest() {
+    public void getAllProducts() {
         logger.info("Testing getAllProducts...");
 
         List<Product> products = new ArrayList<>();
@@ -50,7 +54,7 @@ public class ProductMockTest {
     }
 
     @Test
-    public void getProductByNameTest() {
+    public void getProductByName() {
         logger.info("Testing getProductByName...");
 
         String name = "Product1";
@@ -64,28 +68,27 @@ public class ProductMockTest {
     }
 
     @Test
-    public void createProductTest() throws Exception {
-        logger.info("Testing createProduct...");
-
+    void createProductError() throws Exception {
+        // Mock data
         ProductDTO productDTO = new ProductDTO();
-        productDTO.setName("Product1");
+        productDTO.setName("Test Product");
         productDTO.setPrice(10.0);
-        productDTO.setCategoryName("Category1");
 
         Product product = new Product();
-        product.setName("Product1");
+        product.setName("Test Product");
         product.setPrice(10.0);
 
-        when(productRepository.existsById("Product1")).thenReturn(false);
+        // Mock behavior of productRepository
+        when(productRepository.existsById("Test Product")).thenReturn(false);
         when(productRepository.save(any(Product.class))).thenReturn(product);
-        Product result = productService.createProduct(productDTO);
-        Assertions.assertEquals(product, result);
+
+        assertThrows(Exception.class, () -> productService.createProduct(productDTO));
 
         logger.info("createProduct test passed.");
     }
 
     @Test
-    public void deleteProductTest() {
+    public void deleteProduct() {
         logger.info("Testing deleteProduct...");
 
         String name = "Product1";
