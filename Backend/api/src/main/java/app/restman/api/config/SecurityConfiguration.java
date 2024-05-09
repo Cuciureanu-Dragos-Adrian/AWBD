@@ -39,8 +39,30 @@ public class SecurityConfiguration {
         http.csrf()
                 .disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/auth/**","/swagger-ui/**","/v3/**")
+
+                .requestMatchers("/auth/login","/auth/signup", "/users/me", "/swagger-ui/**","/v3/**")
                 .permitAll()
+
+                .requestMatchers(
+                        "/menu_categories/getAll",
+                        "/orders/getAll",
+                        "/products/getAll", "/products/getAllByCategory/**",
+                        "/reservations/getAll", "/reservations/getAllNotExpired", "/reservations/getAllNotExpiredAsc", "/reservations/getAllNotExpiredDesc",
+                        "/reservations/getAllNotExpiredPageAsc", "/reservations/getAllNotExpiredPageDesc",
+                        "/tables/getAll")
+                .hasAuthority("ROLE_USER")
+
+                .requestMatchers("/menu_categories/**",
+                        "/orders/**",
+                        "/payments/**",
+                        "/products/**",
+                        "/reservations/**",
+                        "/tables/**")
+                .hasAnyAuthority("ROLE_STAFF")
+
+                .requestMatchers("/auth/signupStaff", "/users/**")
+                .hasAuthority("ROLE_ADMIN")
+
                 .anyRequest()
                 .authenticated()
                 .and()

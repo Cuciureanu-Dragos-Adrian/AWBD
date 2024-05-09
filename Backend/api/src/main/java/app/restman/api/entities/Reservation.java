@@ -8,6 +8,7 @@ import java.time.OffsetDateTime;
 
 @Entity
 @Data
+@NoArgsConstructor
 public class Reservation {
 
     @Id
@@ -19,8 +20,6 @@ public class Reservation {
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "tableId")
     private Table reservedTable;
-
-    public Reservation() { }
 
     public Reservation(int numberOfPeople, String name, OffsetDateTime dateTime, Table reservedTable) {
         this.numberOfPeople = numberOfPeople;

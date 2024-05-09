@@ -65,7 +65,7 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
       });
     } on Exception {
       showMessageBox(NavigationService.navigatorKey.currentContext!,
-          'Failed to fetch tables!');
+          'Failed to fetch reservations!');
       return;
     }
   }

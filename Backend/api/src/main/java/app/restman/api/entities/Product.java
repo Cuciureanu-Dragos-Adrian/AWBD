@@ -8,6 +8,7 @@ import java.util.Set;
 @Entity
 @Setter
 @Getter
+@NoArgsConstructor
 public class Product {
 
     @Id
@@ -20,8 +21,6 @@ public class Product {
 
     @ManyToMany(mappedBy = "products")
     private Set<Order> orders;
-
-    public Product() { }
 
     public Product(String name, double price, MenuCategory category) {
         this.name = name;
