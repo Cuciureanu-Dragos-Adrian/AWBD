@@ -1,4 +1,4 @@
-package app.restman.api.DTOs.security;
+package app.restman.api.DTOs;
 
 import lombok.*;
 

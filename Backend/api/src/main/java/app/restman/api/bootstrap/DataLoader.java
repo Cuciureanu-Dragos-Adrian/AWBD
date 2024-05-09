@@ -28,6 +28,7 @@ public class DataLoader implements CommandLineRunner {
             User admin = User.builder()
                     .email("admin")
                     .password(passwordEncoder.encode("12345"))
+                    .fullName("admin")
                     //.authority(adminRole)
                     .build();
 
@@ -40,6 +41,7 @@ public class DataLoader implements CommandLineRunner {
             User guest = User.builder()
                     .email("guest")
                     .password(passwordEncoder.encode("12345"))
+                    .fullName("guest")
                     //.authority(guestRole)
                     .build();
 

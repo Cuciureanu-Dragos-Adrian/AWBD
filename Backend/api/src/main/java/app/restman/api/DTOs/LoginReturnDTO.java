@@ -1,12 +1,12 @@
-package app.restman.api.responses;
+package app.restman.api.DTOs;
 
 import lombok.*;
 
 @Getter
 @Setter
 @Builder
-public class LoginResponse {
+public class LoginReturnDTO {
     private String token;
+    private String username;
     private long expiresIn;
-
 }

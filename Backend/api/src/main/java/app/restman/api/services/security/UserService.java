@@ -5,7 +5,6 @@ import app.restman.api.repositories.security.UserRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -17,11 +16,11 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public List<User> allUsers() {
-        List<User> users = new ArrayList<>();
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
 
-        userRepository.findAll().forEach(users::add);
-
-        return users;
+    public User getByUsername(String username){
+        return userRepository.findAll().stream().filter(user -> user.getFullName().equals(username)).findFirst().orElse(null);
     }
 }

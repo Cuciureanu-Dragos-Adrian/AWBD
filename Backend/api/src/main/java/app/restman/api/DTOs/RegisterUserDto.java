@@ -1,4 +1,4 @@
-package app.restman.api.DTOs.security;
+package app.restman.api.DTOs;
 
 import lombok.*;
 
@@ -9,6 +9,6 @@ import lombok.*;
 @Builder
 public class RegisterUserDto {
     private String email;
+    private String username;
     private String password;
-    private String fullName;
 }
