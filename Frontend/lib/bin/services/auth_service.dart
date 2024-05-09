@@ -7,6 +7,15 @@ class AuthService {
   static bool _isLoggedIn = false;
   static String loggedUser = "";
   static String token = "";
+  static String role = "";
+
+  static bool get canSeeStaffFunctions {
+    return role == "admin" || role == "staff";
+  }
+
+  static bool get canSeeAdminFunctions {
+    return role == "admin";
+  }
 
   static String get authorizationHeader {
     return "Bearer $token";
@@ -38,6 +47,7 @@ class AuthService {
       isLoggedIn = true;
       loggedUser = responseJson["username"];
       token = responseJson["token"];
+      role = responseJson["role"].toString().toLowerCase();
       return true;
     } else {
       // Login failed, handle error
