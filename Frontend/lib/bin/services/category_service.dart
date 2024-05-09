@@ -7,10 +7,10 @@ import '../constants.dart' as constants;
 class CategoryService {
   static const String _baseUrl =
       constants.backendUrl + '/menu_categories'; // Construct URL with base path
-
   static Future<List<CategoryModel>> getCategoryList() async {
-    final response = await AuthService.authenticatedRequest(
-        http.get(Uri.parse(_baseUrl + "/getAll")));
+    final response = await AuthService.authenticatedRequest(http.get(
+        Uri.parse(_baseUrl + "/getAll"),
+        headers: {'Authorization': AuthService.authorizationHeader}));
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body) as List<dynamic>;
       return jsonData.map((data) => CategoryModel.fromJson(data)).toList();
@@ -23,7 +23,10 @@ class CategoryService {
     final url = Uri.parse(_baseUrl);
     final response = await AuthService.authenticatedRequest(http.post(
       url,
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': AuthService.authorizationHeader
+      },
       body: jsonEncode(
           category.toJson()), // Convert category to JSON for request body
     ));
@@ -34,7 +37,8 @@ class CategoryService {
 
   static Future<void> removeCategoryByName(String categoryName) async {
     final url = Uri.parse('$_baseUrl/$categoryName');
-    final response = await AuthService.authenticatedRequest(http.delete(url));
+    final response = await AuthService.authenticatedRequest(http.delete(url,
+        headers: {'Authorization': AuthService.authorizationHeader}));
     if (response.statusCode == 404) {
       throw Exception(
           'Category not found: $categoryName'); // Handle 404 for specific category

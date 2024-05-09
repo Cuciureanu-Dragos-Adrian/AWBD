@@ -9,7 +9,8 @@ class ReservationService {
   static Future<List<ReservationModel>> getReservationListAsc() async {
     final url =
         Uri.parse('${constants.backendUrl}/reservations/getAllNotExpiredAsc');
-    final response = await AuthService.authenticatedRequest(http.get(url));
+    final response = await AuthService.authenticatedRequest(http.get(url,
+        headers: {'Authorization': AuthService.authorizationHeader}));
 
     if (response.statusCode == 200) {
       final reservationsJson = json.decode(response.body) as List;
@@ -24,7 +25,8 @@ class ReservationService {
   static Future<List<ReservationModel>> getReservationListDesc() async {
     final url =
         Uri.parse('${constants.backendUrl}/reservations/getAllNotExpiredDesc');
-    final response = await AuthService.authenticatedRequest(http.get(url));
+    final response = await AuthService.authenticatedRequest(http.get(url,
+        headers: {'Authorization': AuthService.authorizationHeader}));
 
     if (response.statusCode == 200) {
       final reservationsJson = json.decode(response.body) as List;
@@ -40,7 +42,8 @@ class ReservationService {
       {int page = 1}) async {
     final url = Uri.parse(
         '${constants.backendUrl}/reservations/getAllNotExpiredPageAsc?page=$page');
-    final response = await AuthService.authenticatedRequest(http.get(url));
+    final response = await AuthService.authenticatedRequest(http.get(url,
+        headers: {'Authorization': AuthService.authorizationHeader}));
 
     if (response.statusCode == 200) {
       //final reservationsJson = json.decode(response.body) as List;
@@ -58,7 +61,8 @@ class ReservationService {
       {int page = 1}) async {
     final url = Uri.parse(
         '${constants.backendUrl}/reservations/getAllNotExpiredPageDesc?page=$page');
-    final response = await AuthService.authenticatedRequest(http.get(url));
+    final response = await AuthService.authenticatedRequest(http.get(url,
+        headers: {'Authorization': AuthService.authorizationHeader}));
 
     if (response.statusCode == 200) {
       //final reservationsJson = json.decode(response.body) as List;
@@ -76,7 +80,9 @@ class ReservationService {
     final url = Uri.parse('${constants.backendUrl}/reservations');
     final response = await AuthService.authenticatedRequest(http.post(
       url,
-      headers: {'Content-Type': 'application/json'},
+      headers: {'Content-Type': 'application/json',
+        'Authorization': AuthService.authorizationHeader
+      },
       body: json.encode(reservation.toJson()),
     ));
 
@@ -93,7 +99,8 @@ class ReservationService {
     // with the ID parameter and handle the response.
 
     final url = Uri.parse('${constants.backendUrl}/reservations/$id');
-    final response = await AuthService.authenticatedRequest(http.delete(url));
+    final response = await AuthService.authenticatedRequest(http.delete(url,
+        headers: {'Authorization': AuthService.authorizationHeader}));
 
     if (response.statusCode != 200) {
       throw Exception(response.body);

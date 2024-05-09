@@ -6,6 +6,11 @@ class AuthService {
   // Variable to store login state
   static bool _isLoggedIn = false;
   static String loggedUser = "";
+  static String token = "";
+
+  static String get authorizationHeader {
+    return "Bearer $token";
+  }
 
   static void Function(bool)? loggedInSetterCallback;
 
@@ -19,18 +24,20 @@ class AuthService {
   }
 
   // Login endpoint
-  static Future<bool> login(String username, String password) async {
+  static Future<bool> login(String email, String password) async {
     final url = Uri.parse(constants.backendUrl + '/auth/login');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': username, 'password': password}),
+      body: jsonEncode({'email': email, 'password': password}),
     );
 
     if (response.statusCode == 200) {
+      var responseJson = jsonDecode(response.body) as Map<String, dynamic>;
       // Login successful, set flag
       isLoggedIn = true;
-      loggedUser = username;
+      loggedUser = responseJson["username"];
+      token = responseJson["token"];
       return true;
     } else {
       // Login failed, handle error
@@ -38,38 +45,19 @@ class AuthService {
     }
   }
 
-  // Login endpoint
-//   static Future<bool> login(String username, String password) async {
-//   final url = Uri.parse(constants.backendUrl + '/perform_login'); // Use the URL for login processing
-//   final response = await http.post(
-//     url,
-//     headers: {'Content-Type': 'application/json'},
-//     body: jsonEncode({'username': username, 'password': password}),
-//   );
-
-//   if (response.statusCode == 200) {
-//     // Login successful, set flag
-//     isLoggedIn = true;
-//     loggedUser = username;
-//     return true;
-//   } else {
-//     // Login failed, handle error
-//     throw Exception(response.body);
-//   }
-// }
-
-
   // Signup endpoint
-  static Future<void> signup(String username, String password) async {
+  static Future<void> signup(
+      String email, String username, String password) async {
     final url = Uri.parse(constants.backendUrl + '/auth/signup');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'username': username, 'password': password}),
+      body: jsonEncode(
+          {'email': email, 'username': username, 'password': password}),
     );
 
-    if (response.statusCode != 200) {
-      // Signup failed, handle error
+    if (response.statusCode == 200) {
+      // Signup failed
       throw Exception(response.body);
     }
   }

@@ -10,8 +10,9 @@ class OrderService {
   static const String _baseUrl = constants.backendUrl + '/orders';
 
   static Future<List<OrderModel>> getOrderList() async {
-    final response = await AuthService.authenticatedRequest(
-        http.get(Uri.parse(_baseUrl + "/getAll")));
+    final response = await AuthService.authenticatedRequest(http.get(
+        Uri.parse(_baseUrl + "/getAll"),
+        headers: {'Authorization': AuthService.authorizationHeader}));
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body) as List<dynamic>;
       return jsonData.map((data) => OrderModel.fromJson(data)).toList();
@@ -26,7 +27,10 @@ class OrderService {
 
     final response = await AuthService.authenticatedRequest(http.post(
       Uri.parse(_baseUrl),
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': AuthService.authorizationHeader
+      },
       body: orderJson,
     ));
 
@@ -37,7 +41,8 @@ class OrderService {
 
   static Future<void> removeOrdersByTableId(String tableId) async {
     final url = Uri.parse('$_baseUrl/byTableId/$tableId');
-    final response = await AuthService.authenticatedRequest(http.delete(url));
+    final response = await AuthService.authenticatedRequest(http.delete(url,
+        headers: {'Authorization': AuthService.authorizationHeader}));
 
     if (response.statusCode != 200) {
       throw Exception(response.body);
