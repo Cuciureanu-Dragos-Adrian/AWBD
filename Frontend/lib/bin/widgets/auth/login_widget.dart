@@ -12,7 +12,7 @@ class LoginWidget extends StatefulWidget {
 }
 
 class _LoginWidgetState extends State<LoginWidget> {
-  final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
   @override
@@ -41,11 +41,11 @@ class _LoginWidgetState extends State<LoginWidget> {
           ),
           const SizedBox(height: 24), // Increased spacing between fields
           SizedBox(
-            width: 300.0, // Set desired width for username field
+            width: 300.0, // Set desired width for email field
             child: TextField(
-              controller: _usernameController,
+              controller: _emailController,
               decoration: const InputDecoration(
-                labelText: 'Username',
+                labelText: 'Email',
                 labelStyle: TextStyle(color: mainColor),
                 enabledBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.grey),
@@ -91,7 +91,7 @@ class _LoginWidgetState extends State<LoginWidget> {
           const SizedBox(height: 54), // Add spacing before button
           ElevatedButton(
             onPressed: () async {
-              final username = _usernameController.text;
+              final username = _emailController.text;
               final password = _passwordController.text;
               await login(username, password); // Call login callback
             },
