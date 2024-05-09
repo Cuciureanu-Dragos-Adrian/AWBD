@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:restaurant_management_app/bin/constants.dart';
 import 'package:restaurant_management_app/bin/models/category_model.dart';
+import 'package:restaurant_management_app/bin/services/auth_service.dart';
 import 'package:restaurant_management_app/bin/services/category_service.dart';
 import 'package:restaurant_management_app/bin/widgets/common/custom_button.dart';
 import 'package:restaurant_management_app/bin/widgets/common/dialog.dart';
@@ -61,125 +62,134 @@ class _MenuState extends State<Menu> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            Container(
-              // <Delete category> GROUP
-              margin: const EdgeInsets.only(right: 25),
-              child: Row(
-                children: [
-                  const Text(
-                    "Remove category -",
-                    style: TextStyle(fontWeight: FontWeight.w400),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 10),
-                    child: DropdownButton<String>(
-                      //category selector
-                      value: _removeDropdownValue,
-                      icon: const Icon(Icons.arrow_downward),
-                      elevation: 16,
-                      style: const TextStyle(color: Colors.black),
-                      underline: Container(
-                        height: 2,
-                        color: mainColor,
-                      ),
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          _removeDropdownValue = newValue!;
-                        });
-                      },
-                      items: _menuCategories
-                          .map((e) => e.name)
-                          .toList()
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
+            (AuthService.canSeeStaffFunctions
+                ? Container(
+                    // <Delete category> GROUP
+                    margin: const EdgeInsets.only(right: 25),
+                    child: Row(
+                      children: [
+                        const Text(
+                          "Remove category -",
+                          style: TextStyle(fontWeight: FontWeight.w400),
+                        ),
+                        Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 10),
+                          child: DropdownButton<String>(
+                            //category selector
+                            value: _removeDropdownValue,
+                            icon: const Icon(Icons.arrow_downward),
+                            elevation: 16,
+                            style: const TextStyle(color: Colors.black),
+                            underline: Container(
+                              height: 2,
+                              color: mainColor,
+                            ),
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                _removeDropdownValue = newValue!;
+                              });
+                            },
+                            items: _menuCategories
+                                .map((e) => e.name)
+                                .toList()
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                        //delete table button
+                        CustomButton(
+                          size: 50,
+                          icon: const Icon(Icons.delete),
+                          color: mainColor,
+                          onPressed: () =>
+                              {deleteCategory(_removeDropdownValue)},
+                        ),
+                      ],
                     ),
-                  ),
-                  //delete table button
-                  CustomButton(
-                    size: 50,
-                    icon: const Icon(Icons.delete),
-                    color: mainColor,
-                    onPressed: () => {deleteCategory(_removeDropdownValue)},
-                  ),
-                ],
-              ),
-            ),
+                  )
+                : Container()),
             Container(
               margin: const EdgeInsets.only(bottom: 10, top: 10, right: 10),
-              child: const Text(
-                "Add category",
-                style: TextStyle(fontWeight: FontWeight.w400),
+              child: Text(
+                AuthService.canSeeAdminFunctions ? "Add category" : "",
+                style: const TextStyle(fontWeight: FontWeight.w400),
               ),
             ),
-            Container(
-              margin: const EdgeInsets.only(bottom: 10, top: 10, right: 10),
-              child: CustomButton(
-                  // Add CustomButton to actions
-                  icon: const Icon(Icons.add),
-                  size: 50,
-                  onPressed: () async {
-                    await showDialog(
-                        context: context,
-                        barrierDismissible: false,
-                        builder: (BuildContext context) {
-                          return StatefulBuilder(builder: (context, setState) {
-                            return AlertDialog(
-                              title: const Text(
-                                "Create category",
-                                style: TextStyle(color: mainColor),
-                              ),
-                              content: SizedBox(
-                                height: 100,
-                                child: Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  children: [
-                                    TextField(
-                                      decoration: const InputDecoration(
-                                          hintText: "Enter category name"),
-                                      controller: nameController,
+            (AuthService.canSeeStaffFunctions
+                ? Container(
+                    margin:
+                        const EdgeInsets.only(bottom: 10, top: 10, right: 10),
+                    child: CustomButton(
+                        // Add CustomButton to actions
+                        icon: const Icon(Icons.add),
+                        size: 50,
+                        onPressed: () async {
+                          await showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (BuildContext context) {
+                                return StatefulBuilder(
+                                    builder: (context, setState) {
+                                  return AlertDialog(
+                                    title: const Text(
+                                      "Create category",
+                                      style: TextStyle(color: mainColor),
                                     ),
-                                  ],
-                                ),
-                              ),
-                              actions: [
-                                TextButton(
-                                  child: const Text('Create'),
-                                  onPressed: () async {
-                                    String name = nameController.text.trim();
+                                    content: SizedBox(
+                                      height: 100,
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceAround,
+                                        children: [
+                                          TextField(
+                                            decoration: const InputDecoration(
+                                                hintText:
+                                                    "Enter category name"),
+                                            controller: nameController,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        child: const Text('Create'),
+                                        onPressed: () async {
+                                          String name =
+                                              nameController.text.trim();
 
-                                    if (name.length < 3) {
-                                      showMessageBox(
-                                          NavigationService
-                                              .navigatorKey.currentContext!,
-                                          "Category name needs at least 3 characters!");
-                                      return;
-                                    }
+                                          if (name.length < 3) {
+                                            showMessageBox(
+                                                NavigationService.navigatorKey
+                                                    .currentContext!,
+                                                "Category name needs at least 3 characters!");
+                                            return;
+                                          }
 
-                                    await createCategory(name);
-                                  },
-                                  style: TextButton.styleFrom(
-                                      foregroundColor: mainColor),
-                                ),
-                                TextButton(
-                                  child: const Text('Cancel'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  style: TextButton.styleFrom(
-                                      foregroundColor: mainColor),
-                                ),
-                              ],
-                            );
-                          });
-                        });
-                  },
-                  color: mainColor),
-            )
+                                          await createCategory(name);
+                                        },
+                                        style: TextButton.styleFrom(
+                                            foregroundColor: mainColor),
+                                      ),
+                                      TextButton(
+                                        child: const Text('Cancel'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        style: TextButton.styleFrom(
+                                            foregroundColor: mainColor),
+                                      ),
+                                    ],
+                                  );
+                                });
+                              });
+                        },
+                        color: mainColor),
+                  )
+                : Container())
           ],
         ),
       ),
@@ -343,121 +353,127 @@ class _MenuSectionState extends State<MenuSection> {
                             _expandFlag = !_expandFlag;
                           });
                         }),
-                    IconButton(
-                        // expand button
-                        icon: Container(
-                          height: 50.0,
-                          width: 50.0,
-                          decoration: const BoxDecoration(
-                            color: mainColor,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.add,
-                              color: Colors.white,
-                              size: 24,
+                    (AuthService.canSeeStaffFunctions
+                        ? IconButton(
+                            // add button
+                            icon: Container(
+                              height: 50.0,
+                              width: 50.0,
+                              decoration: const BoxDecoration(
+                                color: mainColor,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Center(
+                                child: Icon(
+                                  Icons.add,
+                                  color: Colors.white,
+                                  size: 24,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                        onPressed: () async {
-                          setState(() {
-                            _expandFlag = true;
-                          });
+                            onPressed: () async {
+                              setState(() {
+                                _expandFlag = true;
+                              });
 
-                          await showDialog(
-                              context: context,
-                              barrierDismissible: false,
-                              builder: (BuildContext context) {
-                                return StatefulBuilder(
-                                    builder: (context, setState) {
-                                  return AlertDialog(
-                                    title: Text(
-                                      "Add new product to " +
-                                          widget.categoryName,
-                                      style: const TextStyle(color: mainColor),
-                                    ),
-                                    content: SizedBox(
-                                      height: 200,
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceAround,
-                                        children: [
-                                          TextField(
-                                            decoration: const InputDecoration(
-                                                hintText: "Enter product name"),
-                                            controller: nameController,
+                              await showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (BuildContext context) {
+                                    return StatefulBuilder(
+                                        builder: (context, setState) {
+                                      return AlertDialog(
+                                        title: Text(
+                                          "Add new product to " +
+                                              widget.categoryName,
+                                          style:
+                                              const TextStyle(color: mainColor),
+                                        ),
+                                        content: SizedBox(
+                                          height: 200,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceAround,
+                                            children: [
+                                              TextField(
+                                                decoration: const InputDecoration(
+                                                    hintText:
+                                                        "Enter product name"),
+                                                controller: nameController,
+                                              ),
+                                              TextField(
+                                                decoration:
+                                                    const InputDecoration(
+                                                        hintText:
+                                                            "Enter price"),
+                                                controller: priceController,
+                                              ),
+                                              Text(
+                                                _errorMessage,
+                                                style: const TextStyle(
+                                                    color: Colors.redAccent),
+                                              ),
+                                            ],
                                           ),
-                                          TextField(
-                                            decoration: const InputDecoration(
-                                                hintText: "Enter price"),
-                                            controller: priceController,
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            child: const Text('Add'),
+                                            onPressed: () async {
+                                              setState(() {
+                                                _errorMessage = "";
+                                              });
+
+                                              String name =
+                                                  nameController.text.trim();
+
+                                              if (name.length < 3) {
+                                                setState(() {
+                                                  _errorMessage =
+                                                      "Product name must have at least 3 characters!";
+                                                });
+                                                return;
+                                              }
+
+                                              if (name.length > 20) {
+                                                setState(() {
+                                                  _errorMessage =
+                                                      "Product name must have at most 20 characters!";
+                                                });
+                                                return;
+                                              }
+
+                                              double? price = double.tryParse(
+                                                  priceController.text);
+
+                                              if (price == null || price <= 0) {
+                                                setState(() {
+                                                  _errorMessage =
+                                                      "Incorrect price! Must be a number higher than 0.";
+                                                });
+                                                return;
+                                              }
+
+                                              await createProduct(name, price,
+                                                  widget.categoryName);
+                                            },
+                                            style: TextButton.styleFrom(
+                                                foregroundColor: mainColor),
                                           ),
-                                          Text(
-                                            _errorMessage,
-                                            style: const TextStyle(
-                                                color: Colors.redAccent),
+                                          TextButton(
+                                            child: const Text('Cancel'),
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            style: TextButton.styleFrom(
+                                                foregroundColor: mainColor),
                                           ),
                                         ],
-                                      ),
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        child: const Text('Add'),
-                                        onPressed: () async {
-                                          setState(() {
-                                            _errorMessage = "";
-                                          });
-
-                                          String name =
-                                              nameController.text.trim();
-
-                                          if (name.length < 3) {
-                                            setState(() {
-                                              _errorMessage =
-                                                  "Product name must have at least 3 characters!";
-                                            });
-                                            return;
-                                          }
-
-                                          if (name.length > 20) {
-                                            setState(() {
-                                              _errorMessage =
-                                                  "Product name must have at most 20 characters!";
-                                            });
-                                            return;
-                                          }
-
-                                          double? price = double.tryParse(
-                                              priceController.text);
-
-                                          if (price == null || price <= 0) {
-                                            setState(() {
-                                              _errorMessage =
-                                                  "Incorrect price! Must be a number higher than 0.";
-                                            });
-                                            return;
-                                          }
-
-                                          await createProduct(
-                                              name, price, widget.categoryName);
-                                        },
-                                        style: TextButton.styleFrom(
-                                            foregroundColor: mainColor),
-                                      ),
-                                      TextButton(
-                                        child: const Text('Cancel'),
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                        style: TextButton.styleFrom(
-                                            foregroundColor: mainColor),
-                                      ),
-                                    ],
-                                  );
-                                });
-                              });
-                        }),
+                                      );
+                                    });
+                                  });
+                            })
+                        : Container()),
                     const Text(
                       "Add product",
                       style: TextStyle(fontWeight: FontWeight.w400),
@@ -604,13 +620,15 @@ class MenuItem extends StatelessWidget {
               Container(
                   margin: const EdgeInsets.fromLTRB(0, 0, 8, 0),
                   child: Text(price.toString())),
-              CustomButton(
-                  color: Colors.red,
-                  onPressed: () async {
-                    await function(name);
-                  },
-                  size: 25,
-                  icon: const Icon(Icons.delete)),
+              (AuthService.canSeeStaffFunctions
+                  ? CustomButton(
+                      color: Colors.red,
+                      onPressed: () async {
+                        await function(name);
+                      },
+                      size: 25,
+                      icon: const Icon(Icons.delete))
+                  : Container()),
             ],
           ),
         ]),

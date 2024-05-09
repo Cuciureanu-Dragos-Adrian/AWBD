@@ -33,6 +33,9 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    @ManyToOne(optional = false)
+    private Role role;
+
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
     private Date createdAt;
@@ -43,12 +46,12 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return role.getRoleAuthorities();
     }
 
     @Override
     public String getUsername() {
-        return email;
+        return fullName;
     }
 
     @Override

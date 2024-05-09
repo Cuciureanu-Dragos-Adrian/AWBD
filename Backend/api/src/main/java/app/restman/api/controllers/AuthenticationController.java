@@ -11,6 +11,7 @@ import app.restman.api.services.security.JwtService;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,8 +36,18 @@ public class AuthenticationController {
     @PostMapping("/signup")
     public ResponseEntity<?> register(@RequestBody RegisterUserDto registerUserDto) {
         try {
-            User registeredUser = authenticationService.signup(registerUserDto);
-            return ResponseEntity.ok(registeredUser);
+            User registeredUser = authenticationService.signupRegularUser(registerUserDto);
+            return ResponseEntity.ok("User created!");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/signupStaff")
+    public ResponseEntity<?> registerStaff(@RequestBody RegisterUserDto registerUserDto) {
+        try {
+            User registeredUser = authenticationService.signupStaff(registerUserDto);
+            return ResponseEntity.ok("Staff created!");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
@@ -51,6 +62,7 @@ public class AuthenticationController {
             LoginReturnDTO loginResponse = LoginReturnDTO.builder()
                     .token(jwtToken)
                     .username(authenticatedUser.getFullName())
+                    .role(authenticatedUser.getRole().toString())
                     .expiresIn(jwtService.getExpirationTime())
                     .build();
 

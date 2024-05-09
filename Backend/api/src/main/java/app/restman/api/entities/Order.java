@@ -11,6 +11,7 @@ import java.util.*;
 @Setter
 @Getter
 @Table(name="order_tbl")
+@NoArgsConstructor
 public class Order {
 
     @Id
@@ -26,9 +27,6 @@ public class Order {
     @OneToOne(mappedBy="order")
     @Nullable
     private Payment payment;
-
-    public Order() {
-    }
 
     public Order(List<Product> products, List<Integer> quantities, String tableId) throws Exception {
 

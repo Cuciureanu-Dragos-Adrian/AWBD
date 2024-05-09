@@ -1,6 +1,7 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:restaurant_management_app/bin/constants.dart' as constants;
+import 'package:restaurant_management_app/bin/services/auth_service.dart';
 import 'package:restaurant_management_app/bin/services/order_service.dart'
     as orders;
 import 'package:restaurant_management_app/bin/services/reservation_service.dart'
@@ -132,50 +133,60 @@ class _UnmovableTableWidgetState extends State<UnmovableTableWidget> {
                                         MainAxisAlignment.spaceAround,
                                     children: [
                                       Text(getReservationText()),
-                                      Column(
-                                        children: [
-                                          Text(getOrderText()),
-                                          SizedBox(
-                                            height: 200,
-                                            width: 200,
-                                            child: ListView.builder(
-                                              controller: ScrollController(),
-                                              itemBuilder:
-                                                  (BuildContext context,
-                                                      int index) {
-                                                return DialogListItem(
-                                                  name: _order!
-                                                      .products[index].name,
-                                                  category: _order!
-                                                      .products[index].category,
-                                                  quantity:
-                                                      _order!.quantities[index],
-                                                );
-                                              },
-                                              itemCount: _order != null
-                                                  ? _order!.products.length
-                                                  : 0,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                      (AuthService.canSeeStaffFunctions
+                                          ? Column(
+                                              children: [
+                                                Text(getOrderText()),
+                                                SizedBox(
+                                                  height: 200,
+                                                  width: 200,
+                                                  child: ListView.builder(
+                                                    controller:
+                                                        ScrollController(),
+                                                    itemBuilder:
+                                                        (BuildContext context,
+                                                            int index) {
+                                                      return DialogListItem(
+                                                        name: _order!
+                                                            .products[index]
+                                                            .name,
+                                                        category: _order!
+                                                            .products[index]
+                                                            .category,
+                                                        quantity: _order!
+                                                            .quantities[index],
+                                                      );
+                                                    },
+                                                    itemCount: _order != null
+                                                        ? _order!
+                                                            .products.length
+                                                        : 0,
+                                                  ),
+                                                ),
+                                              ],
+                                            )
+                                          : Container()),
                                     ]),
                               ),
                               actions: [
-                                TextButton(
-                                    child: const Text('Finish order'),
-                                    onPressed: () {
-                                      setState(() {
-                                        removeOrder();
-                                      });
-                                    }),
-                                TextButton(
-                                    child: const Text('Clear reservation'),
-                                    onPressed: () {
-                                      setState(() {
-                                        removeReservation();
-                                      });
-                                    }),
+                                (AuthService.canSeeStaffFunctions
+                                    ? TextButton(
+                                        child: const Text('Finish order'),
+                                        onPressed: () {
+                                          setState(() {
+                                            removeOrder();
+                                          });
+                                        })
+                                    : Container()),
+                                (AuthService.canSeeStaffFunctions
+                                    ? TextButton(
+                                        child: const Text('Clear reservation'),
+                                        onPressed: () {
+                                          setState(() {
+                                            removeReservation();
+                                          });
+                                        })
+                                    : Container()),
                                 TextButton(
                                     child: const Text('Close'),
                                     onPressed: () {

@@ -14,18 +14,37 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 5,
+      length: AuthService.canSeeStaffFunctions ? 5 : 2,
       child: Scaffold(
         backgroundColor: accent2Color,
         appBar: AppBar(
-          bottom: const TabBar(
-            tabs: <Widget>[
-              Tab(icon: Icon(Icons.bookmark_added_outlined), text: "Manage tables"),
-              Tab(icon: Icon(Icons.view_list_outlined), text: "View order list"),
-              Tab(icon: Icon(Icons.view_list_outlined), text: "Manage reservations"),
-              Tab(icon: Icon(Icons.menu_book_outlined), text: "Edit menu"),
-              Tab(icon: Icon(Icons.create_outlined), text: "Edit floor plan"),
-            ],
+          bottom: TabBar(
+            tabs: AuthService.canSeeStaffFunctions
+                ? const <Widget>[
+                    Tab(
+                        icon: Icon(Icons.bookmark_added_outlined),
+                        text: "Manage tables"),
+                    Tab(
+                        icon: Icon(Icons.view_list_outlined),
+                        text: "View order list"),
+                    Tab(
+                        icon: Icon(Icons.view_list_outlined),
+                        text: "Manage reservations"),
+                    Tab(
+                        icon: Icon(Icons.menu_book_outlined),
+                        text: "Edit menu"),
+                    Tab(
+                        icon: Icon(Icons.create_outlined),
+                        text: "Edit floor plan"),
+                  ]
+                : const <Widget>[
+                    Tab(
+                        icon: Icon(Icons.bookmark_added_outlined),
+                        text: "See tables"),
+                    Tab(
+                        icon: Icon(Icons.menu_book_outlined),
+                        text: "View menu"),
+                  ],
             indicatorColor: accent2Color,
             indicatorWeight: 3,
             labelColor: accent2Color,
@@ -43,7 +62,9 @@ class MainApp extends StatelessWidget {
           actions: [
             // Add text on top right
             Text(
-              "Welcome, " + AuthService.loggedUser + "!", // Replace "John" with dynamic username
+              "Welcome, " +
+                  AuthService.loggedUser +
+                  "!", // Replace "John" with dynamic username
               style: const TextStyle(color: Colors.white),
             ),
             const SizedBox(width: 10),
@@ -61,13 +82,18 @@ class MainApp extends StatelessWidget {
         body: TabBarView(
           physics: const BouncingScrollPhysics(),
           dragStartBehavior: DragStartBehavior.down,
-          children: [
-            const Center(child: TableManager()),
-            const Center(child: OrdersWidget()),
-            const Center(child: ReservationsWidget()),
-            const Center(child: Menu()),
-            Center(child: FloorPlan(UniqueKey())),
-          ],
+          children: AuthService.canSeeStaffFunctions
+              ? [
+                  const Center(child: TableManager()),
+                  const Center(child: OrdersWidget()),
+                  const Center(child: ReservationsWidget()),
+                  const Center(child: Menu()),
+                  Center(child: FloorPlan(UniqueKey())),
+                ]
+              : [
+                  const Center(child: TableManager()),
+                  const Center(child: Menu()),
+                ],
         ),
       ),
     );

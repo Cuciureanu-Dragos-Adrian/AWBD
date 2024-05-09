@@ -11,6 +11,7 @@ import java.util.List;
 @Entity
 @Data
 @jakarta.persistence.Table(name="table_tbl")
+@NoArgsConstructor
 public class Table {
 
     @Id
@@ -22,8 +23,6 @@ public class Table {
 
     @OneToMany(mappedBy = "reservedTable", cascade = CascadeType.ALL)
     private List<Reservation> reservations;
-
-    public Table() { }
 
     public Table(String tableId, double xOffset, double yOffset, int tableSize, int floor) {
         this.tableId = tableId;

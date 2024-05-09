@@ -8,6 +8,7 @@ import java.util.List;
 
 @Entity
 @Data
+@NoArgsConstructor
 public class MenuCategory {
 
     @Id
@@ -16,10 +17,6 @@ public class MenuCategory {
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     private List<Product> products;
-
-    public MenuCategory() {
-
-    }
 
     public MenuCategory(String name, String iconBase64) {
         this.name = name;

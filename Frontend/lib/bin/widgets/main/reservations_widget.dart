@@ -38,6 +38,11 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
   @override
   void initState() {
     super.initState();
+
+    setState(() {
+      reservations = [];
+    });
+
     loadTablesAsync();
     loadReservationsPageAsync(_currentPage);
   }
@@ -65,7 +70,7 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
       });
     } on Exception {
       showMessageBox(NavigationService.navigatorKey.currentContext!,
-          'Failed to fetch tables!');
+          'Failed to fetch reservations!');
       return;
     }
   }
@@ -79,7 +84,7 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
       });
     } on Exception {
       showMessageBox(NavigationService.navigatorKey.currentContext!,
-          'Failed to fetch tables!');
+          'Failed to fetch reservations!');
       return;
     }
   }
