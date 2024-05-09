@@ -8,7 +8,7 @@ import '../constants.dart' as constants;
 class ReservationService {
   static Future<List<ReservationModel>> getReservationListAsc() async {
     final url =
-        Uri.parse('${constants.backendUrl}/reservations/  ');
+        Uri.parse('${constants.backendUrl}/reservations/getAllNotExpiredAsc');
     final response = await AuthService.authenticatedRequest(http.get(url,
         headers: {'Authorization': AuthService.authorizationHeader}));
 
