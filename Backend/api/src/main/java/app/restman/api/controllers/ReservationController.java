@@ -1,6 +1,8 @@
 package app.restman.api.controllers;
 
+import app.restman.api.DTOs.OrderReturnDTO;
 import app.restman.api.DTOs.ReservationDTO;
+import app.restman.api.entities.Order;
 import app.restman.api.entities.Reservation;
 import app.restman.api.services.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +43,16 @@ public class ReservationController {
                 .map(ReservationDTO::new) // Convert each Reservation to ReservationDTO
                 .collect(Collectors.toList());
         return ResponseEntity.ok(reservationDTOs);
+    }
+
+    @GetMapping("/getCurrentByTableId/{tableId}")
+    public ResponseEntity<?> getCurrentReservationByTableId(@PathVariable String tableId){
+        var reservation = reservationService.getOngoingReservationByTableId(tableId);
+        if (reservation != null) {
+            return ResponseEntity.ok(new ReservationDTO(reservation)); // Use your OrderDTO constructor
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     // Helper method to check reservation expiration
@@ -98,7 +110,7 @@ public class ReservationController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "dateTime") String sortBy) {
         Pageable pageable = PageRequest.of(page - 1, 10, Sort.by(sortBy).descending());
-        Page<Reservation> notExpiredReservations = reservationService.getAllReservationsPageAsc(pageable);
+        Page<Reservation> notExpiredReservations = reservationService.getAllReservationsPageDesc(pageable);
 
         List<ReservationDTO> reservationDTOs = notExpiredReservations.getContent().stream()
                 .map(ReservationDTO::new)

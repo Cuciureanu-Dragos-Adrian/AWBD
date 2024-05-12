@@ -41,6 +41,15 @@ public class OrderController {
         }
     }
 
+    @GetMapping("/byTableId/{tableId}")
+    public ResponseEntity<OrderReturnDTO> getOrderByTableId(@PathVariable String tableId) {
+        Order order = orderService.getOrderByTableId(tableId);
+        if (order != null) {
+            return ResponseEntity.ok(new OrderReturnDTO(order)); // Use your OrderDTO constructor
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
     @PostMapping
     public ResponseEntity<String> createOrder(@RequestBody OrderDTO orderDTO) {
@@ -75,7 +84,7 @@ public class OrderController {
     @DeleteMapping("/byTableId/{orderId}")
     public ResponseEntity<String> deleteOrdersByTableId(@PathVariable String tableId) {
         try {
-            orderService.deleteOrdersByTableId(tableId);
+            orderService.deleteOrderByTableId(tableId);
             return ResponseEntity.ok("Orders deleted successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
