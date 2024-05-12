@@ -44,7 +44,13 @@ public class OrderService {
             throw new Exception("Number of products must match number of quantities");
         }
 
-        Order order = new Order(products, orderDTO.getQuantities(), orderDTO.getTableId());
+        var table = tableService.getTableById(orderDTO.getTableId());
+        if (table == null){
+            logger.log(Level.SEVERE, "Table does not exist!");
+            throw new Exception("Table does not exist!");
+        }
+
+        Order order = new Order(products, orderDTO.getQuantities(), table);
         order.setOrderId(UUID.randomUUID().toString());
 
         return orderRepository.save(order);
@@ -54,15 +60,20 @@ public class OrderService {
         return orderRepository.findById(orderId).orElse(null);
     }
 
+    public Order getOrderByTableId(String tableId) {
+        return orderRepository.findAll().stream().filter(order -> order.getTable().getTableId().equals(tableId)).findFirst().orElse(null);
+    }
+
     public void updateOrder(String orderId, OrderDTO updatedOrderDTO) throws Exception {
         Order order = orderRepository.findById(orderId).orElse(null);
         if (order != null) {
-            if (tableService.getTableById(updatedOrderDTO.getTableId()) == null) {
+            var table = tableService.getTableById(updatedOrderDTO.getTableId());
+            if (table == null) {
                 logger.log(Level.SEVERE, "Table does not exist!");
                 throw new Exception("Table does not exist!");
             }
 
-            order.setTableId(updatedOrderDTO.getTableId());
+            order.setTable(table);
 
             List<Product> products = productService.getProductsByNames(updatedOrderDTO.getProductNames());
             order.setProductNamesToQuantities(generateProductNamesToQuantities(products, updatedOrderDTO.getQuantities()));
@@ -80,11 +91,11 @@ public class OrderService {
         orderRepository.deleteById(orderId);
     }
 
-    public void deleteOrdersByTableId(String tableId) {
+    public void deleteOrderByTableId(String tableId) {
         var orders = orderRepository.findAll();
 
         for (var order : orders) {
-            if (order.getTableId().equals(tableId))
+            if (order.getTable().getTableId().equals(tableId))
                 orderRepository.deleteById(order.getOrderId());
         }
     }

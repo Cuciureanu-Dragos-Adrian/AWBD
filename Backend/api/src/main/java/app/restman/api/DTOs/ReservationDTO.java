@@ -9,6 +9,7 @@ import java.time.OffsetDateTime;
 @Getter
 @Setter
 @JsonIgnoreProperties
+@NoArgsConstructor
 public class ReservationDTO {
     private String reservationId;
     private int numberOfPeople;
@@ -16,7 +17,6 @@ public class ReservationDTO {
     private OffsetDateTime dateTime;
     private String tableId;
 
-    public ReservationDTO() {}
     public ReservationDTO(Reservation reservation)
     {
         this.reservationId = reservation.getReservationId();

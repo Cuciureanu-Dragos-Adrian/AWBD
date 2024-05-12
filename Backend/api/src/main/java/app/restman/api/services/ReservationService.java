@@ -5,6 +5,7 @@ import app.restman.api.entities.Reservation;
 import app.restman.api.entities.Table;
 import app.restman.api.repositories.ReservationRepository;
 import app.restman.api.repositories.TableRepository;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,6 +23,7 @@ import java.util.logging.Logger;
 import org.springframework.data.domain.Sort;
 
 @Service
+@AllArgsConstructor
 public class ReservationService {
 
     private final ReservationRepository reservationRepository;
@@ -29,16 +31,9 @@ public class ReservationService {
 
     @Getter
     private final int reservationDuration = 3;
-
-    @Autowired
-    public ReservationService(ReservationRepository reservationRepository, TableRepository tableRepository) {
-        this.reservationRepository = reservationRepository;
-        this.tableRepository = tableRepository;
-    }
+    //TODO - remove hardcoded duration
 
     private static final Logger logger = Logger.getLogger(ReservationService.class.getName());
-
-    //TODO - remove hardcoded duration
 
     // Helper method to check for overlapping date times
     private boolean isDateTimeOverlapping(OffsetDateTime dateTime1, OffsetDateTime dateTime2) {
@@ -105,6 +100,14 @@ public class ReservationService {
         return reservationRepository.findByReservationId(reservationId).orElse(null);
     }
 
+    public Reservation getOngoingReservationByTableId(String tableId){
+        return getAllReservationsAsc()
+                .stream()
+                .filter(reservation -> reservation.getReservedTable().getTableId().equals(tableId) && isCurrentReservation(reservation))
+                .findFirst()
+                .orElse(null);
+    }
+
     public Page<Reservation> getAllReservationsPageAsc(Pageable page) {
         return reservationRepository.findAll(page);
     }
@@ -159,6 +162,14 @@ public class ReservationService {
         Table reservedTable = tableRepository.getReferenceById(updatedReservation.getTableId());
         reservation.setReservedTable(reservedTable);
         reservationRepository.save(reservation);
+    }
+
+    public static boolean isCurrentReservation(Reservation reservation) {
+        OffsetDateTime now = OffsetDateTime.now();
+
+        // Check if reservation starts within the next 3 hours
+        return (reservation.getDateTime().isAfter(now) && reservation.getDateTime().isBefore(now.plusHours(3))) ||
+                (reservation.getDateTime().isBefore(now) && reservation.getDateTime().plusHours(3).isAfter(now));
     }
 
     public void deleteReservation(String reservationId) throws Exception {

@@ -2,9 +2,12 @@ package app.restman.api.DTOs;
 
 import app.restman.api.entities.Reservation;
 import app.restman.api.entities.Table;
+import app.restman.api.services.ReservationService;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,7 +20,8 @@ public class TableReturnDTO {
     private double yOffset;
     private int tableSize;
     private int floor;
-    private List<ReservationDTO> reservations;
+    private boolean hasOrder;
+    private boolean hasReservation;
 
     public TableReturnDTO() { }
 
@@ -27,8 +31,9 @@ public class TableReturnDTO {
         this.yOffset = table.getYOffset();
         this.tableSize = table.getTableSize();
         this.floor = table.getFloor();
-        this.reservations = table.getReservations().stream()
-                .map(ReservationDTO::new) // Convert each Reservation to ReservationDTO
-                .collect(Collectors.toList());
+        this.hasOrder = table.getOrder() != null;
+        this.hasReservation = !table.getReservations().stream()
+                .filter(ReservationService::isCurrentReservation)
+                .toList().isEmpty();
     }
 }

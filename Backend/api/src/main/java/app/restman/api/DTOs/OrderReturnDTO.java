@@ -20,7 +20,7 @@ public class OrderReturnDTO {
 
     public OrderReturnDTO(Order order){
         this.orderId = order.getOrderId();
-        this.tableId = order.getTableId();
+        this.tableId = order.getTable().getTableId();
         this.price = order.getPrice();
         this.products = new ArrayList<>();
         this.quantities = new ArrayList<>();
