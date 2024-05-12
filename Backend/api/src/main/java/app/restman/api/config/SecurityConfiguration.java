@@ -45,10 +45,7 @@ public class SecurityConfiguration {
 
                 .requestMatchers(
                         "/menu_categories/getAll",
-                        "/orders/getAll",
                         "/products/getAll", "/products/getAllByCategory/**",
-                        "/reservations/getAll", "/reservations/getAllNotExpired", "/reservations/getAllNotExpiredAsc", "/reservations/getAllNotExpiredDesc",
-                        "/reservations/getAllNotExpiredPageAsc", "/reservations/getAllNotExpiredPageDesc",
                         "/tables/getAll")
                 .hasAuthority("ROLE_USER")
 
