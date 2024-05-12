@@ -149,7 +149,7 @@ class _OrdersWidgetState extends State<OrdersWidget> {
                                 ),
                                 content: SizedBox(
                                   height: 300,
-                                  width: 300,
+                                  width: 350,
                                   child: Column(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceAround,
