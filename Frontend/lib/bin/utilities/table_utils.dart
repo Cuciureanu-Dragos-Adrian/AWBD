@@ -1,11 +1,6 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
-import '../constants.dart';
 import '../models/table_model.dart';
-import '../models/order_model.dart';
-import '../services/order_service.dart';
-import '../services/reservation_service.dart';
-import '../models/reservation_model.dart';
 import '../widgets/main/table_widget.dart';
 
 /// Returns a list of MovableTable from a list of tables
@@ -25,29 +20,12 @@ List<MovableTableWidget> getWidgetsFromTables(
       position: Offset(table.xOffset, table.yOffset),
       id: table.id,
       floor: table.floor,
+      hasOrder: table.hasOrder,
+      hasReservation: table.hasReservation,
     ));
   }
 
   return result;
-}
-
-/// Returns a list of Table from a list of MovableTable widgets
-///
-///@param tableWidgets: list of widgets
-List<TableModel> getTablesFromTableWidgets(
-    List<MovableTableWidget> tableWidgets) {
-  List<TableModel> tables = [];
-
-  for (MovableTableWidget widget in tableWidgets) {
-    tables.add(TableModel(
-        id: widget.id,
-        xOffset: widget.position.dx,
-        yOffset: widget.position.dy,
-        tableSize: widget.tableSize,
-        floor: widget.floor));
-  }
-
-  return tables;
 }
 
 /// Generates unique ID for a table. Must receive either a list of tables or list of tableWidgets.
@@ -123,38 +101,7 @@ TableModel getTableModelFromWidget(MovableTableWidget widget) {
       xOffset: widget.position.dx,
       yOffset: widget.position.dy,
       tableSize: widget.tableSize,
-      floor: widget.floor);
-}
-
-Future<OrderModel?> getAssignedOrder(String tableId) async {
-  OrderModel? result;
-
-  var ordersList = await OrderService.getOrderList();
-  var tableOrders = ordersList.where((element) => element.tableId == tableId);
-
-  if (tableOrders.isEmpty) {
-    result = null;
-  } else {
-    result = tableOrders.first;
-  }
-
-  return result;
-}
-
-Future<ReservationModel?> getUpcomingReservation(String tableId) async {
-  ReservationModel? result;
-
-  var reservationExpirationTerm =
-      DateTime.now().add(const Duration(hours: reservationDurationHours));
-  var tableReservations = (await ReservationService.getReservationListAsc())
-      .where((reservation) =>
-          reservation.tableId == tableId &&
-          reservation.dateTime.isBefore(reservationExpirationTerm));
-  if (tableReservations.isEmpty) {
-    result = null;
-  } else {
-    result = tableReservations.first;
-  }
-
-  return result;
+      floor: widget.floor,
+      hasOrder: widget.hasOrder,
+      hasReservation: widget.hasReservation);
 }

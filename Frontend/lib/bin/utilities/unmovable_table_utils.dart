@@ -21,29 +21,12 @@ List<UnmovableTableWidget> getWidgetsFromTables(
       id: table.id,
       floor: table.floor,
       callback: fun,
+      hasOrder: table.hasOrder,
+      hasReservation: table.hasReservation,
     ));
   }
 
   return result;
-}
-
-/// Returns a list of Table from a list of MovableTable widgets
-///
-///@param tableWidgets: list of widgets
-List<table_model.TableModel> getTablesFromTableWidgets(
-    List<UnmovableTableWidget> tableWidgets) {
-  List<table_model.TableModel> tables = [];
-
-  for (UnmovableTableWidget widget in tableWidgets) {
-    tables.add(table_model.TableModel(
-        id: widget.id,
-        xOffset: widget.position.dx,
-        yOffset: widget.position.dy,
-        tableSize: widget.tableSize,
-        floor: widget.floor));
-  }
-
-  return tables;
 }
 
 /// Generates unique ID for a table. Must receive either a list of tables or list of tableWidgets.
@@ -119,5 +102,7 @@ TableModel getTableModelFromWidget(UnmovableTableWidget widget) {
       xOffset: widget.position.dx,
       yOffset: widget.position.dy,
       tableSize: widget.tableSize,
-      floor: widget.floor);
+      floor: widget.floor,
+      hasOrder: widget.hasOrder,
+      hasReservation: widget.hasReservation,);
 }
