@@ -9,6 +9,7 @@ import java.util.*;
 @Entity
 @Setter
 @Getter
+@NoArgsConstructor
 @jakarta.persistence.Table(name="order_tbl")
 public class Order {
 
