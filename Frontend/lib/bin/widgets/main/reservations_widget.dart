@@ -102,7 +102,7 @@ class _ReservationsWidgetState extends State<ReservationsWidget> {
       setState(() {
         reservations.addAll(fetch);
         _currentPage++;
-        _hasMoreData = fetch.length == 10;
+        _hasMoreData = fetch.length == 15;
       });
     } on Exception {
       showMessageBox(NavigationService.navigatorKey.currentContext!,

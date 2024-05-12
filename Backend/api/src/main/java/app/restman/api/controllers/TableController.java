@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("tables")
+@CrossOrigin(origins = "*")
 public class TableController {
 
     private final TableService tableService;

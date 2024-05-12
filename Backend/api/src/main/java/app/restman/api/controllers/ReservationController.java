@@ -96,7 +96,7 @@ public class ReservationController {
     public ResponseEntity<Page<ReservationDTO>> getAllNotExpiredReservationsAsc(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "dateTime") String sortBy) {
-        Pageable pageable = PageRequest.of(page - 1, 10, Sort.by(sortBy).ascending());
+        Pageable pageable = PageRequest.of(page - 1, 15, Sort.by(sortBy).ascending());
         Page<Reservation> notExpiredReservations = reservationService.getAllReservationsPageAsc(pageable);
 
         List<ReservationDTO> reservationDTOs = notExpiredReservations.getContent().stream()
@@ -110,7 +110,7 @@ public class ReservationController {
     public ResponseEntity<Page<ReservationDTO>> getAllNotExpiredReservationsDesc(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "dateTime") String sortBy) {
-        Pageable pageable = PageRequest.of(page - 1, 10, Sort.by(sortBy).descending());
+        Pageable pageable = PageRequest.of(page - 1, 15, Sort.by(sortBy).descending());
         Page<Reservation> notExpiredReservations = reservationService.getAllReservationsPageDesc(pageable);
 
         List<ReservationDTO> reservationDTOs = notExpiredReservations.getContent().stream()
