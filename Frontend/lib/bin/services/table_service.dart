@@ -69,7 +69,7 @@ class TableService {
     }
   }
 
-  static Future<void> removeTable(String tableId) async {
+  static Future<void> removeTableById(String tableId) async {
     var table = await getTableById(tableId);
     if (table != null) {
       // Send DELETE request to backend to remove table

@@ -322,10 +322,9 @@ class _FloorPlanState extends State<FloorPlan> {
     final String id = _removeDropdownValue;
     if (id != 'none') {
       //check that a table is selected
-      TableService.removeTable(id);
-
+      
       try {
-        await TableService.removeTable(id);
+        await TableService.removeTableById(id);
       } on Exception catch (e) {
         showMessageBox(NavigationService.navigatorKey.currentContext!,
             'Failed to add table: $e');
