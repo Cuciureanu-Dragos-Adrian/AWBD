@@ -5,6 +5,7 @@ import app.restman.api.entities.Reservation;
 import app.restman.api.entities.Table;
 import app.restman.api.repositories.ReservationRepository;
 import app.restman.api.repositories.TableRepository;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,6 +117,7 @@ public class ReservationService {
         return reservationRepository.findAll(page);
     }
 
+    @Transactional
     public void updateReservation(String reservationId, ReservationDTO updatedReservation) throws NoSuchElementException, Exception  {
         Reservation reservation = reservationRepository.findByReservationId(reservationId).orElse(null);
 
@@ -164,14 +166,7 @@ public class ReservationService {
         reservationRepository.save(reservation);
     }
 
-    public static boolean isCurrentReservation(Reservation reservation) {
-        OffsetDateTime now = OffsetDateTime.now();
-
-        // Check if reservation starts within the next 3 hours
-        return (reservation.getDateTime().isAfter(now) && reservation.getDateTime().isBefore(now.plusHours(3))) ||
-                (reservation.getDateTime().isBefore(now) && reservation.getDateTime().plusHours(3).isAfter(now));
-    }
-
+    @Transactional
     public void deleteReservation(String reservationId) throws Exception {
         if (!reservationRepository.existsByReservationId(reservationId)) {
             logger.log(Level.SEVERE, "Given reservation ID does not exist!");
@@ -179,5 +174,13 @@ public class ReservationService {
         }
 
         reservationRepository.deleteByReservationId(reservationId);
+    }
+
+    public static boolean isCurrentReservation(Reservation reservation) {
+        OffsetDateTime now = OffsetDateTime.now();
+
+        // Check if reservation starts within the next 3 hours
+        return (reservation.getDateTime().isAfter(now) && reservation.getDateTime().isBefore(now.plusHours(3))) ||
+                (reservation.getDateTime().isBefore(now) && reservation.getDateTime().plusHours(3).isAfter(now));
     }
 }
