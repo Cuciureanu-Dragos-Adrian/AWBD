@@ -52,7 +52,7 @@ class OrderService {
     }
   }
 
-  static Future<void> removeOrdersByTableId(String tableId) async {
+  static Future<void> removeOrderByTableId(String tableId) async {
     final url = Uri.parse('$_baseUrl/byTableId/$tableId');
     final response = await AuthService.authenticatedRequest(http.delete(url,
         headers: {'Authorization': AuthService.authorizationHeader}));

@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:restaurant_management_app/bin/constants.dart' as constants;
 import 'package:restaurant_management_app/bin/services/auth_service.dart';
-import 'package:restaurant_management_app/bin/services/auth_service.dart';
 import 'package:restaurant_management_app/bin/services/order_service.dart'
     as orders;
 import 'package:restaurant_management_app/bin/services/order_service.dart';
@@ -11,6 +10,8 @@ import 'package:restaurant_management_app/bin/services/reservation_service.dart'
 import 'package:restaurant_management_app/bin/models/order_model.dart';
 import 'package:restaurant_management_app/bin/models/reservation_model.dart';
 import 'package:restaurant_management_app/bin/services/reservation_service.dart';
+import 'package:restaurant_management_app/bin/widgets/common/dialog.dart';
+import 'package:restaurant_management_app/main.dart';
 
 import '../../constants.dart';
 import '../../utilities/globals.dart';
@@ -52,10 +53,10 @@ class _UnmovableTableWidgetState extends State<UnmovableTableWidget> {
   static String selectedId = "";
   late Offset _position;
   late double _scale;
-  late bool _hasOrder = false;
-  late bool _hasReservation = false;
   late OrderModel? _order;
   late ReservationModel? _reservation;
+  late bool _hasReservation;
+  late bool _hasOrder;
 
   @override
   void initState() {
@@ -64,31 +65,28 @@ class _UnmovableTableWidgetState extends State<UnmovableTableWidget> {
 
     _order = null;
     _reservation = null;
-
-    fetchReservation();
-    fetchOrder();
+    _hasOrder = widget.hasOrder;
+    _hasReservation = widget.hasReservation;
   }
 
-  void fetchReservation() async {
+  Future<void> fetchReservation() async {
     try {
       var upcomingReservation =
           await ReservationService.getCurrentReservationByTableId(widget.id);
       //has a reservation in the next 3 hours
       setState(() {
         _reservation = upcomingReservation;
-        _hasReservation = upcomingReservation != null;
       });
     } on Exception {
       return;
     }
   }
 
-  void fetchOrder() async {
+  Future<void> fetchOrder() async {
     try {
       var order = await OrderService.getOrderByTableId(widget.id);
       setState(() {
         _order = order;
-        _hasOrder = order != null;
       });
     } on Exception {
       return;
@@ -120,101 +118,108 @@ class _UnmovableTableWidgetState extends State<UnmovableTableWidget> {
                   fontSize: 18 * _scale,
                   fontWeight: FontWeight.bold),
             ),
-            GestureDetector(onTap: () {
-              setState(() {
-                if (selectedId == "") {
-                  selectedId = widget.id;
+            GestureDetector(onTap: () async {
+              if (AuthService.canSeeStaffFunctions) {
+                await fetchOrder();
+                await fetchReservation();
 
-                  showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (BuildContext context) {
-                        return StatefulBuilder(builder: (context, setState) {
-                          return AlertDialog(
-                              title: Text('Table ${widget.id} info',
-                                  style: const TextStyle(color: mainColor)),
-                              content: SizedBox(
-                                height: 300,
-                                child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: [
-                                      Text(getReservationText()),
-                                      (AuthService.canSeeStaffFunctions
-                                          ? Column(
-                                              children: [
-                                                Text(getOrderText()),
-                                                SizedBox(
-                                                  height: 200,
-                                                  width: 300,
-                                                  child: ListView.builder(
-                                                    controller:
-                                                        ScrollController(),
-                                                    itemBuilder:
-                                                        (BuildContext context,
-                                                            int index) {
-                                                      return DialogListItem(
-                                                        name: _order!
-                                                            .products[index]
-                                                            .name,
-                                                        category: _order!
-                                                            .products[index]
-                                                            .category,
-                                                        quantity: _order!
-                                                            .quantities[index],
-                                                      );
-                                                    },
-                                                    itemCount: _order != null
-                                                        ? _order!
-                                                            .products.length
-                                                        : 0,
+                setState(() {
+                  if (selectedId == "") {
+                    selectedId = widget.id;
+
+                    showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext context) {
+                          return StatefulBuilder(builder: (context, setState) {
+                            return AlertDialog(
+                                title: Text('Table ${widget.id} info',
+                                    style: const TextStyle(color: mainColor)),
+                                content: SizedBox(
+                                  height: 300,
+                                  child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: [
+                                        Text(getReservationText()),
+                                        (AuthService.canSeeStaffFunctions
+                                            ? Column(
+                                                children: [
+                                                  Text(getOrderText()),
+                                                  SizedBox(
+                                                    height: 200,
+                                                    width: 300,
+                                                    child: ListView.builder(
+                                                      controller:
+                                                          ScrollController(),
+                                                      itemBuilder:
+                                                          (BuildContext context,
+                                                              int index) {
+                                                        return DialogListItem(
+                                                          name: _order!
+                                                              .products[index]
+                                                              .name,
+                                                          category: _order!
+                                                              .products[index]
+                                                              .category,
+                                                          quantity: _order!
+                                                                  .quantities[
+                                                              index],
+                                                        );
+                                                      },
+                                                      itemCount: _order != null
+                                                          ? _order!
+                                                              .products.length
+                                                          : 0,
+                                                    ),
                                                   ),
-                                                ),
-                                              ],
-                                            )
-                                          : Container()),
-                                    ]),
-                              ),
-                              actions: [
-                                (AuthService.canSeeStaffFunctions
-                                    ? TextButton(
-                                        child: const Text('Finish order'),
-                                        style: TextButton.styleFrom(
-                                            foregroundColor: mainColor),
-                                        onPressed: () {
-                                          setState(() {
-                                            removeOrder();
-                                          });
-                                        })
-                                    : Container()),
-                                (AuthService.canSeeStaffFunctions
-                                    ? TextButton(
-                                        child: const Text('Clear reservation'),
-                                        style: TextButton.styleFrom(
-                                            foregroundColor: mainColor),
-                                        onPressed: () {
-                                          setState(() {
-                                            removeReservation();
-                                          });
-                                        })
-                                    : Container()),
-                                TextButton(
-                                    child: const Text('Close'),
-                                    style: TextButton.styleFrom(
-                                        foregroundColor: mainColor),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                      selectedId = "";
-                                      widget.callback();
-                                    })
-                              ]);
+                                                ],
+                                              )
+                                            : Container()),
+                                      ]),
+                                ),
+                                actions: [
+                                  (AuthService.canSeeStaffFunctions
+                                      ? TextButton(
+                                          child: const Text('Finish order'),
+                                          style: TextButton.styleFrom(
+                                              foregroundColor: mainColor),
+                                          onPressed: () {
+                                            setState(() {
+                                              removeOrder();
+                                            });
+                                          })
+                                      : Container()),
+                                  (AuthService.canSeeStaffFunctions
+                                      ? TextButton(
+                                          child:
+                                              const Text('Clear reservation'),
+                                          style: TextButton.styleFrom(
+                                              foregroundColor: mainColor),
+                                          onPressed: () {
+                                            setState(() {
+                                              removeReservation();
+                                            });
+                                          })
+                                      : Container()),
+                                  TextButton(
+                                      child: const Text('Close'),
+                                      style: TextButton.styleFrom(
+                                          foregroundColor: mainColor),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                        selectedId = "";
+                                        widget.callback();
+                                      })
+                                ]);
+                          });
                         });
-                      });
-                } else if (selectedId == widget.id) {
-                  selectedId = "";
-                }
-                widget.callback();
-              });
+                  } else if (selectedId == widget.id) {
+                    selectedId = "";
+                  }
+                  widget.callback();
+                });
+              }
             }),
           ],
         ),
@@ -243,9 +248,15 @@ class _UnmovableTableWidgetState extends State<UnmovableTableWidget> {
         },
       );
     } else {
-      orders.OrderService.removeOrdersByTableId(_order!.tableId);
-      _hasOrder = false;
-      _order = null;
+      try {
+        await orders.OrderService.removeOrderByTableId(_order!.tableId);
+        _order = null;
+        _hasOrder = false;
+      } on Exception {
+        showMessageBox(NavigationService.navigatorKey.currentContext!,
+            'Failed to remove order!');
+        return;
+      }
     }
   }
 
@@ -271,11 +282,16 @@ class _UnmovableTableWidgetState extends State<UnmovableTableWidget> {
         },
       );
     } else {
-      reservations.ReservationService.removeReservationById(
-          _reservation!.reservationId);
-
-      _hasReservation = false;
-      _reservation = null;
+      try {
+        await reservations.ReservationService.removeReservationById(
+            _reservation!.reservationId);
+        _reservation = null;
+        _hasReservation = false;
+      } on Exception {
+        showMessageBox(NavigationService.navigatorKey.currentContext!,
+            'Failed to remove reservation!');
+        return;
+      }
     }
   }
 
