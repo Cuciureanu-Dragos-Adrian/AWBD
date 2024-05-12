@@ -1,15 +1,14 @@
 package app.restman.api.entities;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
 
 @Entity
 @Data
+@Getter
+@Setter
 @jakarta.persistence.Table(name="table_tbl")
 @NoArgsConstructor
 public class Table {
@@ -20,6 +19,9 @@ public class Table {
     private double yOffset;
     private int tableSize;
     private int floor;
+
+    @OneToOne(mappedBy = "table")
+    private Order order;
 
     @OneToMany(mappedBy = "reservedTable", cascade = CascadeType.ALL)
     private List<Reservation> reservations;

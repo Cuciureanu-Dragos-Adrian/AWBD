@@ -2,7 +2,6 @@ package app.restman.api.entities;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
-import jakarta.persistence.Table;
 import lombok.*;
 
 import java.util.*;
@@ -10,8 +9,7 @@ import java.util.*;
 @Entity
 @Setter
 @Getter
-@Table(name="order_tbl")
-@NoArgsConstructor
+@jakarta.persistence.Table(name="order_tbl")
 public class Order {
 
     @Id
@@ -19,16 +17,17 @@ public class Order {
 
     private HashMap<String, Integer> productNamesToQuantities;
     private double price;
-    private String tableId;
+
+    @OneToOne(optional = false)
+    private Table table;
 
     @ManyToMany
     private Set<Product> products;
 
     @OneToOne(mappedBy="order")
-    @Nullable
     private Payment payment;
 
-    public Order(List<Product> products, List<Integer> quantities, String tableId) throws Exception {
+    public Order(List<Product> products, List<Integer> quantities, Table table) throws Exception {
 
         if (products.size() != quantities.size())
             throw new Exception(("Product size list must match length of  quantities list!"));
@@ -45,7 +44,7 @@ public class Order {
             this.productNamesToQuantities.put(product.getName(), quantity);
         }
 
-        this.tableId = tableId;
+        this.table = table;
         this.orderId = UUID.randomUUID().toString();
         calculatePrice();
     }
@@ -63,7 +62,7 @@ public class Order {
         return "OrderModel{" +
                 "products=" + products +
                 ", price=" + price +
-                ", tableId='" + tableId + '\'' +
+                ", tableId='" + table.getTableId() + '\'' +
                 '}';
     }
 }
