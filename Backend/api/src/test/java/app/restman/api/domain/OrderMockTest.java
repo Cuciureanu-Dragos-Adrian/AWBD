@@ -88,7 +88,10 @@ class OrderMockTest {
         // Initialize existingOrder with relevant properties
         Order existingOrder = new Order();
         existingOrder.setOrderId("123");
-        existingOrder.setTableId("A1");
+
+        Table mockTable = new Table();
+        mockTable.setTableId("A1");
+        existingOrder.setTable(mockTable);
 
         // Mock behavior of orderRepository
         when(orderRepository.existsById(id)).thenReturn(true);
