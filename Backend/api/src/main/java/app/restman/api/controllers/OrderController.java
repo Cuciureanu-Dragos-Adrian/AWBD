@@ -81,11 +81,11 @@ public class OrderController {
         }
     }
 
-    @DeleteMapping("/byTableId/{orderId}")
+    @DeleteMapping("/byTableId/{tableId}")
     public ResponseEntity<String> deleteOrdersByTableId(@PathVariable String tableId) {
         try {
             orderService.deleteOrderByTableId(tableId);
-            return ResponseEntity.ok("Orders deleted successfully");
+            return ResponseEntity.ok("Order deleted successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
