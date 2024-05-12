@@ -21,6 +21,19 @@ class OrderService {
     }
   }
 
+  static Future<OrderModel?> getOrderByTableId(String tableId) async {
+    final response = await AuthService.authenticatedRequest(http.get(
+        Uri.parse(_baseUrl + "/byTableId/" + tableId),
+        headers: {'Authorization': AuthService.authorizationHeader}));
+
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body) as dynamic;
+      return OrderModel.fromJson(jsonData);
+    } else {
+      return null;
+    }
+  }
+
   static Future<void> addOrder(OrderModel order) async {
     // Convert order to JSON string
     final orderJson = jsonEncode(order.toJson());

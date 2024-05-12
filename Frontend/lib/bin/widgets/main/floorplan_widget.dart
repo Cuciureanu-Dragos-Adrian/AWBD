@@ -289,6 +289,8 @@ class _FloorPlanState extends State<FloorPlan> {
         id: generateTableId(
             tableSize: int.parse(_addDropdownValue),
             tableWidgets: _tableWidgets),
+        hasOrder: false,
+        hasReservation: false,
       );
 
       try {

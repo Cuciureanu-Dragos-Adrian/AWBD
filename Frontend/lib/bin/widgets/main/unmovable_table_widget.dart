@@ -2,13 +2,15 @@
 import 'package:flutter/material.dart';
 import 'package:restaurant_management_app/bin/constants.dart' as constants;
 import 'package:restaurant_management_app/bin/services/auth_service.dart';
+import 'package:restaurant_management_app/bin/services/auth_service.dart';
 import 'package:restaurant_management_app/bin/services/order_service.dart'
     as orders;
+import 'package:restaurant_management_app/bin/services/order_service.dart';
 import 'package:restaurant_management_app/bin/services/reservation_service.dart'
     as reservations;
 import 'package:restaurant_management_app/bin/models/order_model.dart';
 import 'package:restaurant_management_app/bin/models/reservation_model.dart';
-import 'package:restaurant_management_app/bin/utilities/table_utils.dart';
+import 'package:restaurant_management_app/bin/services/reservation_service.dart';
 
 import '../../constants.dart';
 import '../../utilities/globals.dart';
@@ -23,6 +25,8 @@ class UnmovableTableWidget extends StatefulWidget {
   final int tableSize;
   final String id;
   final int floor;
+  final bool hasOrder;
+  final bool hasReservation;
   final Offset
       position; // position relative to the top left corner of the container
   final void Function() callback;
@@ -33,6 +37,8 @@ class UnmovableTableWidget extends StatefulWidget {
     required this.id,
     required this.floor,
     required this.callback,
+    required this.hasOrder,
+    required this.hasReservation,
   })  : imagePath = getBaseImagePath(tableSize),
         _imageWidth = getImageSize(tableSize)[0],
         imageHeight = getImageSize(tableSize)[1],
@@ -65,7 +71,8 @@ class _UnmovableTableWidgetState extends State<UnmovableTableWidget> {
 
   void fetchReservation() async {
     try {
-      var upcomingReservation = await getUpcomingReservation(widget.id);
+      var upcomingReservation =
+          await ReservationService.getCurrentReservationByTableId(widget.id);
       //has a reservation in the next 3 hours
       setState(() {
         _reservation = upcomingReservation;
@@ -78,7 +85,7 @@ class _UnmovableTableWidgetState extends State<UnmovableTableWidget> {
 
   void fetchOrder() async {
     try {
-      var order = await getAssignedOrder(widget.id);
+      var order = await OrderService.getOrderByTableId(widget.id);
       setState(() {
         _order = order;
         _hasOrder = order != null;
@@ -139,7 +146,7 @@ class _UnmovableTableWidgetState extends State<UnmovableTableWidget> {
                                                 Text(getOrderText()),
                                                 SizedBox(
                                                   height: 200,
-                                                  width: 200,
+                                                  width: 300,
                                                   child: ListView.builder(
                                                     controller:
                                                         ScrollController(),
@@ -172,6 +179,8 @@ class _UnmovableTableWidgetState extends State<UnmovableTableWidget> {
                                 (AuthService.canSeeStaffFunctions
                                     ? TextButton(
                                         child: const Text('Finish order'),
+                                        style: TextButton.styleFrom(
+                                            foregroundColor: mainColor),
                                         onPressed: () {
                                           setState(() {
                                             removeOrder();
@@ -181,6 +190,8 @@ class _UnmovableTableWidgetState extends State<UnmovableTableWidget> {
                                 (AuthService.canSeeStaffFunctions
                                     ? TextButton(
                                         child: const Text('Clear reservation'),
+                                        style: TextButton.styleFrom(
+                                            foregroundColor: mainColor),
                                         onPressed: () {
                                           setState(() {
                                             removeReservation();
@@ -189,6 +200,8 @@ class _UnmovableTableWidgetState extends State<UnmovableTableWidget> {
                                     : Container()),
                                 TextButton(
                                     child: const Text('Close'),
+                                    style: TextButton.styleFrom(
+                                        foregroundColor: mainColor),
                                     onPressed: () {
                                       Navigator.of(context).pop();
                                       selectedId = "";

@@ -5,6 +5,8 @@ class TableModel {
   late double xOffset, yOffset;
   late int tableSize;
   late int floor;
+  late bool hasReservation;
+  late bool hasOrder;
 
   TableModel({
     required this.id,
@@ -12,6 +14,8 @@ class TableModel {
     required this.yOffset,
     required this.tableSize,
     required this.floor,
+    required this.hasReservation,
+    required this.hasOrder
   });
 
   factory TableModel.fromJson(Map<String, dynamic> json) {
@@ -21,6 +25,8 @@ class TableModel {
       yOffset: json['yoffset'],
       tableSize: json['tableSize'],
       floor: json['floor'],
+      hasOrder: json['hasOrder'],
+      hasReservation: json['hasReservation']
     );
   }
 

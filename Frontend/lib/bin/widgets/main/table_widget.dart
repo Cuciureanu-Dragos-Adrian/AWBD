@@ -1,7 +1,8 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:restaurant_management_app/bin/constants.dart' as constants;
-import 'package:restaurant_management_app/bin/utilities/table_utils.dart';
+import 'package:restaurant_management_app/bin/services/order_service.dart';
+import 'package:restaurant_management_app/bin/services/reservation_service.dart';
 
 import '../../utilities/globals.dart';
 import '../../services/table_service.dart';
@@ -14,6 +15,8 @@ class MovableTableWidget extends StatefulWidget {
   final int imageWidth; // width of the displayed image
   final int imageHeight; // height of the displayed image
   final int tableSize;
+  final bool hasOrder; 
+  final bool hasReservation;
   final String id;
   final int floor;
   final Offset
@@ -26,6 +29,8 @@ class MovableTableWidget extends StatefulWidget {
     required this.position,
     required this.id,
     required this.floor,
+    required this.hasOrder,
+    required this.hasReservation,
   })  : imagePath = getBaseImagePath(tableSize),
         imageWidth = getImageSize(tableSize)[0],
         imageHeight = getImageSize(tableSize)[1],
@@ -52,7 +57,7 @@ class _MovableTableWidgetState extends State<MovableTableWidget> {
 
   void fetchReservation() async {
     try {
-      var upcomingReservation = await getUpcomingReservation(widget.id);
+      var upcomingReservation = await ReservationService.getCurrentReservationByTableId(widget.id);
       //has a reservation in the next 3 hours
       setState(() {
         _hasReservation = upcomingReservation != null;
@@ -64,7 +69,7 @@ class _MovableTableWidgetState extends State<MovableTableWidget> {
 
   void fetchOrder() async {
     try {
-      var order = await getAssignedOrder(widget.id);
+      var order = await OrderService.getOrderByTableId(widget.id);
       setState(() {
         _hasOrder = order != null;
       });

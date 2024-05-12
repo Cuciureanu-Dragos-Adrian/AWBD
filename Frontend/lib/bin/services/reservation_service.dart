@@ -76,6 +76,19 @@ class ReservationService {
     }
   }
 
+  static Future<ReservationModel?> getCurrentReservationByTableId(String tableId) async {
+    final response = await AuthService.authenticatedRequest(http.get(
+        Uri.parse(constants.backendUrl + "/reservations/getCurrentByTableId/" + tableId),
+        headers: {'Authorization': AuthService.authorizationHeader}));
+
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body) as dynamic;
+      return ReservationModel.fromJson(jsonData);
+    } else {
+      return null;
+    }
+  }
+
   static Future<String> addReservation(ReservationModel reservation) async {
     final url = Uri.parse('${constants.backendUrl}/reservations');
     final response = await AuthService.authenticatedRequest(http.post(
