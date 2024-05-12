@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:restaurant_management_app/bin/constants.dart';
 
 void showMessageBox(BuildContext context, String message, {String title = "Error"}) {
   showDialog(
@@ -11,6 +12,8 @@ void showMessageBox(BuildContext context, String message, {String title = "Error
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('OK'),
+            style: TextButton.styleFrom(
+                foregroundColor: mainColor),
           ),
         ],
       );
