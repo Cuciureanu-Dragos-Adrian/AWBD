@@ -179,7 +179,7 @@ class _UnmovableTableWidgetState extends State<UnmovableTableWidget> {
                                       ]),
                                 ),
                                 actions: [
-                                  (AuthService.canSeeStaffFunctions
+                                  (_hasOrder
                                       ? TextButton(
                                           child: const Text('Finish order'),
                                           style: TextButton.styleFrom(
@@ -190,7 +190,7 @@ class _UnmovableTableWidgetState extends State<UnmovableTableWidget> {
                                             });
                                           })
                                       : Container()),
-                                  (AuthService.canSeeStaffFunctions
+                                  (_hasReservation
                                       ? TextButton(
                                           child:
                                               const Text('Clear reservation'),
@@ -228,70 +228,34 @@ class _UnmovableTableWidgetState extends State<UnmovableTableWidget> {
   }
 
   void removeOrder() async {
-    if (_order == null) {
-      await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text("Operation failed"),
-            content: const Text("The selected table does not have an order!"),
-            actions: [
-              TextButton(
-                child:
-                    const Text("OK", style: TextStyle(color: Colors.redAccent)),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    } else {
-      try {
-        await orders.OrderService.removeOrderByTableId(_order!.tableId);
-        _order = null;
-        _hasOrder = false;
-      } on Exception {
-        showMessageBox(NavigationService.navigatorKey.currentContext!,
-            'Failed to remove order!');
-        return;
-      }
+    try {
+      await orders.OrderService.removeOrderByTableId(_order!.tableId);
+      _order = null;
+      _hasOrder = false;
+      selectedId = "";
+      Navigator.of(context).pop();
+      widget.callback();
+    } on Exception {
+      showMessageBox(NavigationService.navigatorKey.currentContext!,
+          'Failed to remove order!');
+      return;
     }
   }
 
   void removeReservation() async {
-    if (_reservation == null) {
-      await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text("Operation failed"),
-            content: const Text(
-                "The selected table does not have a current reservation!"),
-            actions: [
-              TextButton(
-                child:
-                    const Text("OK", style: TextStyle(color: Colors.redAccent)),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    } else {
-      try {
-        await reservations.ReservationService.removeReservationById(
-            _reservation!.reservationId);
-        _reservation = null;
-        _hasReservation = false;
-      } on Exception {
-        showMessageBox(NavigationService.navigatorKey.currentContext!,
-            'Failed to remove reservation!');
-        return;
-      }
+    try {
+      await reservations.ReservationService.removeReservationById(
+          _reservation!.reservationId);
+
+      _reservation = null;
+      _hasReservation = false;
+      selectedId = "";
+      Navigator.of(context).pop();
+      widget.callback();
+    } on Exception {
+      showMessageBox(NavigationService.navigatorKey.currentContext!,
+          'Failed to remove reservation!');
+      return;
     }
   }
 
