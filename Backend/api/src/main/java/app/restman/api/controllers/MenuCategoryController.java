@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("menu_categories")
+@CrossOrigin(origins = "*")
 public class MenuCategoryController {
 
     private final MenuCategoryService menuCategoryService;
