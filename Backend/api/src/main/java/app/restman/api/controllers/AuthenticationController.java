@@ -8,6 +8,11 @@ import app.restman.api.DTOs.LoginReturnDTO;
 import app.restman.api.services.OrderService;
 import app.restman.api.services.security.AuthenticationService;
 import app.restman.api.services.security.JwtService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +36,12 @@ public class AuthenticationController {
         this.authenticationService = authenticationService;
     }
 
+    @Operation(summary = "Create a 'guest' user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User created",
+                    content = @Content),
+            @ApiResponse(responseCode = "400", description = "User could not be created",
+                    content = @Content)})
     @PostMapping("/signup")
     public ResponseEntity<?> register(@RequestBody RegisterUserDto registerUserDto) {
         try {
@@ -41,6 +52,12 @@ public class AuthenticationController {
         }
     }
 
+    @Operation(summary = "Create a 'staff' user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User created",
+                    content = @Content),
+            @ApiResponse(responseCode = "400", description = "User could not be created",
+                    content = @Content)})
     @PostMapping("/signupStaff")
     public ResponseEntity<?> registerStaff(@RequestBody RegisterUserDto registerUserDto) {
         try {
@@ -51,6 +68,13 @@ public class AuthenticationController {
         }
     }
 
+    @Operation(summary = "User login")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Login successful",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = LoginReturnDTO.class))}),
+            @ApiResponse(responseCode = "400", description = "Login failed",
+                    content = @Content)})
     @PostMapping("/login")
     public ResponseEntity<?> authenticate(@RequestBody LoginUserDto loginUserDto) {
         try {
