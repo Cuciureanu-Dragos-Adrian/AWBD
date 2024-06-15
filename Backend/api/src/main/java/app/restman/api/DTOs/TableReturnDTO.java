@@ -1,19 +1,15 @@
 package app.restman.api.DTOs;
 
-import app.restman.api.entities.Reservation;
 import app.restman.api.entities.Table;
 import app.restman.api.services.ReservationService;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.hateoas.RepresentationModel;
 
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter
-public class TableReturnDTO {
+public class TableReturnDTO extends RepresentationModel<TableReturnDTO> {
 
     private String tableId;
     private double xOffset;

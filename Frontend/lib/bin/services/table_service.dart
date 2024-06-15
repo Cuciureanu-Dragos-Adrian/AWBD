@@ -13,8 +13,10 @@ class TableService {
     final response = await AuthService.authenticatedRequest(http.get(url,
         headers: {'Authorization': AuthService.authorizationHeader}));
     if (response.statusCode == 200) {
-      final jsonData = json.decode(response.body) as List;
-      return jsonData.map((data) => TableModel.fromJson(data)).toList();
+      final jsonData = json.decode(response.body) as Map<String, dynamic>;
+      final embedded = jsonData['_embedded'] as Map<String, dynamic>;
+      final tableList = embedded['tableReturnDTOList'] as List<dynamic>;
+      return tableList.map((data) => TableModel.fromJson(data as Map<String, dynamic>)).toList();
     } else {
       throw Exception(response.body);
     }
