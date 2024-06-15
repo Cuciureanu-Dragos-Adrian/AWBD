@@ -5,7 +5,10 @@ import app.restman.api.DTOs.TableReturnDTO;
 import app.restman.api.DTOs.TableUpdateDTO;
 import app.restman.api.entities.Table;
 import app.restman.api.services.TableService;
-
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
@@ -16,8 +19,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 @RestController
 @RequestMapping("tables")
@@ -30,8 +32,14 @@ public class TableController {
         this.tableService = tableService;
     }
 
+    @Operation(summary = "Get all tables")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved list of tables",
+                    content = @io.swagger.v3.oas.annotations.media.Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @GetMapping("/getAll")
-    public ResponseEntity<?> getAllTables() {
+    public ResponseEntity<CollectionModel<TableReturnDTO>> getAllTables() {
         List<Table> tables = tableService.getAllTables();
         List<TableReturnDTO> tableDTOs = tables.stream()
                 .map(table -> {
@@ -53,6 +61,12 @@ public class TableController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
+    @Operation(summary = "Get table by ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved table",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "404", description = "Table not found")
+    })
     @GetMapping("/{id}")
     public ResponseEntity<TableReturnDTO> getTableById(@PathVariable String id) {
         Table table = tableService.getTableById(id);
@@ -71,8 +85,14 @@ public class TableController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+    @Operation(summary = "Create a new table")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Table created successfully",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "400", description = "Invalid input")
+    })
     @PostMapping
-    public ResponseEntity<?> createTable(@RequestBody TableCreateDTO tableCreateDTO) {
+    public ResponseEntity<TableReturnDTO> createTable(@RequestBody TableCreateDTO tableCreateDTO) {
         try {
             Table createdTable = tableService.createTable(tableCreateDTO);
             TableReturnDTO dto = new TableReturnDTO(createdTable);
@@ -81,12 +101,19 @@ public class TableController {
 
             return new ResponseEntity<>(dto, HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
+    @Operation(summary = "Update an existing table")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Table updated successfully",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "404", description = "Table not found"),
+            @ApiResponse(responseCode = "400", description = "Invalid input")
+    })
     @PutMapping("/{tableId}")
-    public ResponseEntity<?> updateTable(@PathVariable String tableId, @RequestBody TableUpdateDTO updatedTable) {
+    public ResponseEntity<TableReturnDTO> updateTable(@PathVariable String tableId, @RequestBody TableUpdateDTO updatedTable) {
         try {
             tableService.updateTable(tableId, updatedTable);
             Table updated = tableService.getTableById(tableId);
@@ -96,12 +123,17 @@ public class TableController {
 
             return new ResponseEntity<>(dto, HttpStatus.OK);
         } catch (NoSuchElementException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
+    @Operation(summary = "Delete a table")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Table deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Table not found")
+    })
     @DeleteMapping("/{tableId}")
     public ResponseEntity<Void> deleteTable(@PathVariable String tableId) {
         try {

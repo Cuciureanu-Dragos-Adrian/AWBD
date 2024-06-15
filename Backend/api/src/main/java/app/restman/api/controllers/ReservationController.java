@@ -5,6 +5,11 @@ import app.restman.api.DTOs.ReservationDTO;
 import app.restman.api.entities.Order;
 import app.restman.api.entities.Reservation;
 import app.restman.api.services.ReservationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
@@ -27,6 +32,12 @@ public class ReservationController {
         this.reservationService = reservationService;
     }
 
+    @Operation(summary = "Create a new reservation")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Reservation created successfully",
+                    content = @Content),
+            @ApiResponse(responseCode = "400", description = "Invalid input",
+                    content = @Content)})
     @PostMapping
     public ResponseEntity<String> createReservation(@RequestBody ReservationDTO newReservation) {
         try {
@@ -37,6 +48,13 @@ public class ReservationController {
         }
     }
 
+    @Operation(summary = "Get all reservations")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved list",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ReservationDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input",
+                    content = @Content)})
     @GetMapping("/getAll")
     public ResponseEntity<List<ReservationDTO>> getAllReservations() {
         List<Reservation> reservations = reservationService.getAllReservationsAsc();
@@ -46,6 +64,13 @@ public class ReservationController {
         return ResponseEntity.ok(reservationDTOs);
     }
 
+    @Operation(summary = "Get current reservation by table ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved reservation",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ReservationDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Reservation not found",
+                    content = @Content)})
     @GetMapping("/getCurrentByTableId/{tableId}")
     public ResponseEntity<?> getCurrentReservationByTableId(@PathVariable String tableId){
         var reservation = reservationService.getOngoingReservationByTableId(tableId);
@@ -62,6 +87,13 @@ public class ReservationController {
         return endTime.isAfter(OffsetDateTime.now());
     }
 
+    @Operation(summary = "Get all not expired reservations in ascending order")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved list",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ReservationDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input",
+                    content = @Content)})
     @GetMapping("/getAllNotExpiredAsc")
     public ResponseEntity<List<ReservationDTO>> getAllNotExpiredReservationsAsc() {
         List<Reservation> reservations = reservationService.getAllReservationsAsc();
@@ -77,6 +109,13 @@ public class ReservationController {
         return ResponseEntity.ok(reservationDTOs);
     }
 
+    @Operation(summary = "Get all not expired reservations in descending order")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved list",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ReservationDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input",
+                    content = @Content)})
     @GetMapping("/getAllNotExpiredDesc")
     public ResponseEntity<List<ReservationDTO>> getAllNotExpiredReservationsDesc() {
         List<Reservation> reservations = reservationService.getAllReservationsDesc();
@@ -92,6 +131,13 @@ public class ReservationController {
         return ResponseEntity.ok(reservationDTOs);
     }
 
+    @Operation(summary = "Get all not expired reservations in ascending order with pagination")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved list",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ReservationDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input",
+                    content = @Content)})
     @GetMapping("/getAllNotExpiredPageAsc")
     public ResponseEntity<Page<ReservationDTO>> getAllNotExpiredReservationsAsc(
             @RequestParam(defaultValue = "1") int page,
@@ -106,6 +152,13 @@ public class ReservationController {
         return ResponseEntity.ok(new PageImpl<>(reservationDTOs, pageable, notExpiredReservations.getTotalElements()));
     }
 
+    @Operation(summary = "Get all not expired reservations in descending order with pagination")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved list",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ReservationDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input",
+                    content = @Content)})
     @GetMapping("/getAllNotExpiredPageDesc")
     public ResponseEntity<Page<ReservationDTO>> getAllNotExpiredReservationsDesc(
             @RequestParam(defaultValue = "1") int page,
@@ -120,6 +173,13 @@ public class ReservationController {
         return ResponseEntity.ok(new PageImpl<>(reservationDTOs, pageable, notExpiredReservations.getTotalElements()));
     }
 
+    @Operation(summary = "Get reservation by ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved reservation",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ReservationDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Reservation not found",
+                    content = @Content)})
     @GetMapping("/{reservationId}")
     public ResponseEntity<ReservationDTO> getReservationById(@PathVariable String reservationId) {
         Reservation reservation = reservationService.getReservationById(reservationId);
@@ -130,6 +190,12 @@ public class ReservationController {
         }
     }
 
+    @Operation(summary = "Update an existing reservation")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Reservation updated successfully",
+                    content = @Content),
+            @ApiResponse(responseCode = "400", description = "Invalid input",
+                    content = @Content)})
     @PutMapping("/{reservationId}")
     public ResponseEntity<String> updateReservation(@PathVariable String reservationId, @RequestBody ReservationDTO updatedReservation) {
         try {
@@ -140,6 +206,12 @@ public class ReservationController {
         }
     }
 
+    @Operation(summary = "Delete an existing reservation")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Reservation deleted successfully",
+                    content = @Content),
+            @ApiResponse(responseCode = "400", description = "Invalid input",
+                    content = @Content)})
     @DeleteMapping("/{reservationId}")
     public ResponseEntity<String> deleteReservation(@PathVariable String reservationId) {
         try {

@@ -3,6 +3,11 @@ package app.restman.api.controllers;
 import app.restman.api.DTOs.ProductDTO;
 import app.restman.api.entities.Product;
 import app.restman.api.services.ProductService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +27,11 @@ public class ProductController {
         this.productService = productService;
     }
 
+    @Operation(summary = "Get all products")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved list",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ProductDTO.class)))})
     @GetMapping("/getAll")
     public ResponseEntity<List<ProductDTO>> getAllProducts() {
         List<Product> products = productService.getAllProducts();
@@ -31,6 +41,11 @@ public class ProductController {
         return ResponseEntity.ok(productDTOs);
     }
 
+    @Operation(summary = "Get all products by category")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved list",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ProductDTO.class)))})
     @GetMapping("/getAllByCategory/{categoryName}")
     public ResponseEntity<List<ProductDTO>> getAllProductsByCategory(@PathVariable String categoryName) {
         List<Product> products = productService.getAllProductsByCategory(categoryName);
@@ -40,6 +55,13 @@ public class ProductController {
         return ResponseEntity.ok(productDTOs);
     }
 
+    @Operation(summary = "Get product by name")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved product",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ProductDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Product not found",
+                    content = @Content)})
     @GetMapping("/{productName}")
     public ResponseEntity<ProductDTO> getProductByName(@PathVariable String productName) {
         Product product = productService.getProductByName(productName);
@@ -50,6 +72,12 @@ public class ProductController {
         }
     }
 
+    @Operation(summary = "Create a new product")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Product created successfully",
+                    content = @Content),
+            @ApiResponse(responseCode = "400", description = "Invalid input",
+                    content = @Content)})
     @PostMapping
     public ResponseEntity<String> createProduct(@RequestBody ProductDTO productDTO) {
         try {
@@ -60,6 +88,12 @@ public class ProductController {
         }
     }
 
+    @Operation(summary = "Update an existing product")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Product updated successfully",
+                    content = @Content),
+            @ApiResponse(responseCode = "400", description = "Invalid input",
+                    content = @Content)})
     @PutMapping("/{productName}")
     public ResponseEntity<String> updateProduct(@PathVariable String productName, @RequestBody ProductDTO updatedProductDTO) {
         try {
@@ -70,6 +104,12 @@ public class ProductController {
         }
     }
 
+    @Operation(summary = "Delete an existing product")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Product deleted successfully",
+                    content = @Content),
+            @ApiResponse(responseCode = "400", description = "Invalid input",
+                    content = @Content)})
     @DeleteMapping("/{productName}")
     public ResponseEntity<String> deleteProduct(@PathVariable String productName) {
         try {

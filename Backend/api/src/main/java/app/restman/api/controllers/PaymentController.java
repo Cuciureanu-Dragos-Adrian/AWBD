@@ -4,6 +4,11 @@ import app.restman.api.DTOs.PaymentCreateDTO;
 import app.restman.api.DTOs.PaymentReturnDTO;
 import app.restman.api.entities.Payment;
 import app.restman.api.services.PaymentService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +26,13 @@ public class PaymentController {
         this.paymentService = paymentService;
     }
 
+    @Operation(summary = "Get payment by order ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved payment",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = PaymentReturnDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Order not found",
+                    content = @Content)})
     @GetMapping("/getByOrderId/{orderId}")
     public ResponseEntity<PaymentReturnDTO> getPaymentByOrderId(@PathVariable String orderId) {
         try {
@@ -31,6 +43,12 @@ public class PaymentController {
         }
     }
 
+    @Operation(summary = "Create a new payment")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Payment created successfully",
+                    content = @Content),
+            @ApiResponse(responseCode = "400", description = "Invalid input",
+                    content = @Content)})
     @PostMapping
     public ResponseEntity<String> createPayment(@RequestBody PaymentCreateDTO paymentCreateDTO) {
         try {
