@@ -2,17 +2,22 @@ package app.restman.api.controllers;
 
 import app.restman.api.DTOs.PaymentCreateDTO;
 import app.restman.api.DTOs.PaymentReturnDTO;
-import app.restman.api.entities.Payment;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.reactor.circuitbreaker.operator.CircuitBreakerOperator;
+import io.github.resilience4j.reactor.retry.RetryOperator;
+import io.github.resilience4j.retry.Retry;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -24,6 +29,12 @@ public class PaymentController {
 
     @Value("${payment.service.baseurl}")
     private String paymentServiceBaseUrl;
+
+    @Autowired
+    private Retry retry; // Inject the Retry bean
+
+    @Autowired
+    private CircuitBreaker circuitBreaker; // Inject the CircuitBreaker bean
 
     public PaymentController(WebClient webClient) {
         this.webClient = webClient;
@@ -43,6 +54,8 @@ public class PaymentController {
                     .uri(paymentServiceBaseUrl + "/payments/getByOrderId/{orderId}", orderId)
                     .retrieve()
                     .bodyToMono(PaymentReturnDTO.class)
+                    .transformDeferred(RetryOperator.of(retry))
+                    .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
                     .block();
 
             return ResponseEntity.ok(paymentReturnDTO);
@@ -65,6 +78,8 @@ public class PaymentController {
                     .bodyValue(paymentCreateDTO)
                     .retrieve()
                     .bodyToMono(PaymentReturnDTO.class)
+                    .transformDeferred(RetryOperator.of(retry))
+                    .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
                     .block();
 
             return ResponseEntity.status(HttpStatus.CREATED).body("Payment created successfully with ID: " + payment.getPaymentId());
