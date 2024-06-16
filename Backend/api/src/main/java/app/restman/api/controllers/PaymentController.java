@@ -2,6 +2,7 @@ package app.restman.api.controllers;
 
 import app.restman.api.DTOs.PaymentCreateDTO;
 import app.restman.api.DTOs.PaymentReturnDTO;
+import com.netflix.discovery.EurekaClient;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.reactor.circuitbreaker.operator.CircuitBreakerOperator;
 import io.github.resilience4j.reactor.retry.RetryOperator;
@@ -36,6 +37,9 @@ public class PaymentController {
     @Autowired
     private CircuitBreaker circuitBreaker; // Inject the CircuitBreaker bean
 
+    @Autowired
+    private EurekaClient discoveryClient;
+
     public PaymentController(WebClient webClient) {
         this.webClient = webClient;
     }
@@ -50,8 +54,10 @@ public class PaymentController {
     @GetMapping("/getByOrderId/{orderId}")
     public ResponseEntity<PaymentReturnDTO> getPaymentByOrderId(@PathVariable String orderId) {
         try {
+            String url = discoveryClient.getNextServerFromEureka("PAYMENT", false).getHomePageUrl();
+
             PaymentReturnDTO paymentReturnDTO = webClient.get()
-                    .uri(paymentServiceBaseUrl + "/payments/getByOrderId/{orderId}", orderId)
+                    .uri(url + "/payments/getByOrderId/{orderId}", orderId)
                     .retrieve()
                     .bodyToMono(PaymentReturnDTO.class)
                     .transformDeferred(RetryOperator.of(retry))
@@ -73,8 +79,10 @@ public class PaymentController {
     @PostMapping
     public ResponseEntity<String> createPayment(@RequestBody PaymentCreateDTO paymentCreateDTO) {
         try {
+            String url = discoveryClient.getNextServerFromEureka("PAYMENT", false).getHomePageUrl();
+
             PaymentReturnDTO payment = webClient.post()
-                    .uri(paymentServiceBaseUrl + "/payments")
+                    .uri(url + "/payments")
                     .bodyValue(paymentCreateDTO)
                     .retrieve()
                     .bodyToMono(PaymentReturnDTO.class)
