@@ -2,6 +2,8 @@ package app.restman.api.controllers;
 
 import app.restman.api.DTOs.PaymentCreateDTO;
 import app.restman.api.DTOs.PaymentReturnDTO;
+import app.restman.api.services.PaymentService;
+import app.restman.api.services.PaymentServiceProxy;
 import com.netflix.discovery.EurekaClient;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.reactor.circuitbreaker.operator.CircuitBreakerOperator;
@@ -26,23 +28,11 @@ import reactor.core.publisher.Mono;
 @CrossOrigin(origins = "*")
 public class PaymentController {
 
-    private final WebClient webClient;
-
-    @Value("${payment.service.baseurl}")
-    private String paymentServiceBaseUrl;
 
     @Autowired
-    private Retry retry; // Inject the Retry bean
+    private PaymentService paymentService;
 
-    @Autowired
-    private CircuitBreaker circuitBreaker; // Inject the CircuitBreaker bean
-
-    @Autowired
-    private EurekaClient discoveryClient;
-
-    public PaymentController(WebClient webClient) {
-        this.webClient = webClient;
-    }
+    public PaymentController() { }
 
     @Operation(summary = "Get payment by order ID")
     @ApiResponses(value = {
@@ -54,15 +44,7 @@ public class PaymentController {
     @GetMapping("/getByOrderId/{orderId}")
     public ResponseEntity<PaymentReturnDTO> getPaymentByOrderId(@PathVariable String orderId) {
         try {
-            String url = discoveryClient.getNextServerFromEureka("PAYMENT", false).getHomePageUrl();
-
-            PaymentReturnDTO paymentReturnDTO = webClient.get()
-                    .uri(url + "/payments/getByOrderId/{orderId}", orderId)
-                    .retrieve()
-                    .bodyToMono(PaymentReturnDTO.class)
-                    .transformDeferred(RetryOperator.of(retry))
-                    .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
-                    .block();
+            PaymentReturnDTO paymentReturnDTO = paymentService.getPaymentByOrderId(orderId);
 
             return ResponseEntity.ok(paymentReturnDTO);
         } catch (Exception e) {
@@ -79,18 +61,9 @@ public class PaymentController {
     @PostMapping
     public ResponseEntity<String> createPayment(@RequestBody PaymentCreateDTO paymentCreateDTO) {
         try {
-            String url = discoveryClient.getNextServerFromEureka("PAYMENT", false).getHomePageUrl();
+            PaymentReturnDTO result = paymentService.createPayment(paymentCreateDTO);
 
-            PaymentReturnDTO payment = webClient.post()
-                    .uri(url + "/payments")
-                    .bodyValue(paymentCreateDTO)
-                    .retrieve()
-                    .bodyToMono(PaymentReturnDTO.class)
-                    .transformDeferred(RetryOperator.of(retry))
-                    .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
-                    .block();
-
-            return ResponseEntity.status(HttpStatus.CREATED).body("Payment created successfully with ID: " + payment.getPaymentId());
+            return ResponseEntity.status(HttpStatus.CREATED).body("Payment created successfully with ID: " + result.getPaymentId());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
