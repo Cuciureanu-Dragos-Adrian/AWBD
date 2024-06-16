@@ -1,4 +1,4 @@
-package app.restman.gatewayserver;
+package com.awbd.eurekaserver;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,10 +6,10 @@ import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 
 @EnableEurekaServer
 @SpringBootApplication
-public class GatewayServerApplication {
+public class EurekaServerApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(GatewayServerApplication.class, args);
+		SpringApplication.run(EurekaServerApplication.class, args);
 	}
 
 }
