@@ -1,9 +1,11 @@
 package app.restman.api.entities.security;
 
+import app.restman.api.DTOs.TableReturnDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.hateoas.RepresentationModel;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.*;
 
@@ -18,7 +20,7 @@ import java.util.List;
 @Setter
 @Getter
 @Builder
-public class User implements UserDetails {
+public class User extends RepresentationModel<User> implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(nullable = false)

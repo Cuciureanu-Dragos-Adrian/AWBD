@@ -3,27 +3,30 @@ package app.restman.api.controllers;
 import app.restman.api.DTOs.PaymentCreateDTO;
 import app.restman.api.DTOs.PaymentReturnDTO;
 import app.restman.api.entities.Payment;
-import app.restman.api.services.PaymentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/payments")
 @CrossOrigin(origins = "*")
 public class PaymentController {
 
-    private final PaymentService paymentService;
+    private final WebClient webClient;
 
-    @Autowired
-    public PaymentController(PaymentService paymentService) {
-        this.paymentService = paymentService;
+    @Value("${payment.service.baseurl}")
+    private String paymentServiceBaseUrl;
+
+    public PaymentController(WebClient webClient) {
+        this.webClient = webClient;
     }
 
     @Operation(summary = "Get payment by order ID")
@@ -36,7 +39,12 @@ public class PaymentController {
     @GetMapping("/getByOrderId/{orderId}")
     public ResponseEntity<PaymentReturnDTO> getPaymentByOrderId(@PathVariable String orderId) {
         try {
-            PaymentReturnDTO paymentReturnDTO = paymentService.getByOrderId(orderId);
+            PaymentReturnDTO paymentReturnDTO = webClient.get()
+                    .uri(paymentServiceBaseUrl + "/payments/getByOrderId/{orderId}", orderId)
+                    .retrieve()
+                    .bodyToMono(PaymentReturnDTO.class)
+                    .block();
+
             return ResponseEntity.ok(paymentReturnDTO);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
@@ -52,7 +60,13 @@ public class PaymentController {
     @PostMapping
     public ResponseEntity<String> createPayment(@RequestBody PaymentCreateDTO paymentCreateDTO) {
         try {
-            Payment payment = paymentService.createPayment(paymentCreateDTO);
+            PaymentReturnDTO payment = webClient.post()
+                    .uri(paymentServiceBaseUrl + "/payments")
+                    .bodyValue(paymentCreateDTO)
+                    .retrieve()
+                    .bodyToMono(PaymentReturnDTO.class)
+                    .block();
+
             return ResponseEntity.status(HttpStatus.CREATED).body("Payment created successfully with ID: " + payment.getPaymentId());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
